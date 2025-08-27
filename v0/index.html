@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Miro-like Sticky Notes</title>
+  <style>
+    body { margin:0; font-family:sans-serif; overflow:hidden; }
+    .sidebar {
+      position:fixed; top:0; left:0; width:60px; height:100vh;
+      background:#1e1e2f; display:flex; flex-direction:column;
+      padding:10px; box-sizing:border-box; gap:10px;
+    }
+    .tool {
+      width:40px; height:40px; border-radius:8px;
+      display:flex; justify-content:center; align-items:center;
+      background:#2e2e42; color:white; cursor:pointer;
+    }
+    .tool.active { background:#4e4ef2; }
+    .board {
+      position:absolute; left:60px; top:0; right:0; bottom:0;
+      background:#f4f4f8; overflow:hidden;
+    }
+    .note {
+      position:absolute; min-width:100px; min-height:80px;
+      padding:10px; border-radius:8px;
+      background:#fff89a; box-shadow:0 4px 12px rgba(0,0,0,0.15);
+      user-select:text; cursor:grab;
+      display:flex; flex-direction:column;
+    }
+    .note .content { flex:1; outline:none; }
+    .resize-handle {
+      position:absolute; width:12px; height:12px;
+      background:#333; border-radius:2px; cursor:nwse-resize;
+    }
+    .resize-handle.br { right:-6px; bottom:-6px; cursor:nwse-resize; }
+    .selection-box {
+      position:absolute; border:1px dashed #4e4ef2;
+      background:rgba(78,78,242,0.1); pointer-events:none;
+    }
+  </style>
+</head>
+<body>
+  <div class="sidebar">
+    <div class="tool active" data-tool="select">🔀</div>
+    <div class="tool" data-tool="note">📝</div>
+  </div>
+  <div class="board" id="board"></div>
+
+  <script>
+    const board = document.getElementById('board');
+      const boardRect = board.getBoundingClientRect();
+
+    const tools = document.querySelectorAll('.tool');
+    let currentTool = 'select';
+
+    tools.forEach(t => {
+      t.onclick = () => {
+        tools.forEach(x => x.classList.remove('active'));
+        t.classList.add('active');
+        currentTool = t.dataset.tool;
+      };
+    });
+
+    function createNote(x, y) {
+      const el = document.createElement('div');
+      el.className = 'note';
+      el.style.left = x + 'px';
+      el.style.top = y + 'px';
+
+      const content = document.createElement('div');
+      content.className = 'content';
+      content.contentEditable = true;
+      content.innerText = 'Sticky Note';
+
+      // add custom resize handle
+      const handle = document.createElement('div');
+      handle.className = 'resize-handle br';
+
+      el.appendChild(content);
+      el.appendChild(handle);
+      board.appendChild(el);
+
+      makeDraggable(el, handle);
+    }
+
+    function makeDraggable(el, handle) {
+      let isDragging = false, isResizing = false;
+      let offsetX, offsetY, startX, startY, startW, startH;
+
+      el.addEventListener('mousedown', e => {
+        if (e.target === handle) return; // resize takes over
+        isDragging = true;
+        offsetX = e.clientX - el.offsetLeft;
+        offsetY = e.clientY - el.offsetTop;
+        el.style.cursor = 'grabbing';
+        e.stopPropagation();
+      });
+
+      handle.addEventListener('mousedown', e => {
+        isResizing = true;
+        startX = e.clientX;
+        startY = e.clientY;
+        startW = el.offsetWidth;
+        startH = el.offsetHeight;
+        e.stopPropagation();
+      });
+
+      document.addEventListener('mousemove', e => {
+        if (isDragging) {
+          el.style.left = e.clientX - offsetX + 'px';
+          el.style.top = e.clientY - offsetY + 'px';
+        }
+        if (isResizing) {
+          el.style.width = startW + (e.clientX - startX) + 'px';
+          el.style.height = startH + (e.clientY - startY) + 'px';
+        }
+      });
+
+      document.addEventListener('mouseup', () => {
+        isDragging = false;
+        isResizing = false;
+        el.style.cursor = 'grab';
+      });
+    }
+
+    // board click for creating notes
+    board.addEventListener('mousedown', e => {
+      if (currentTool === 'note') {
+        createNote(e.clientX - 100, e.clientY - 50);
+        return;
+      }
+      if (currentTool === 'select') {
+        startSelection(e);
+      }
+    });
+
+    // selection box
+    let selBox, selStartX, selStartY;
+    function startSelection(e) {
+      if (e.target.closest('.note')) return; // don’t start if clicking note
+      selStartX = e.clientX;
+      selStartY = e.clientY;
+      selBox = document.createElement('div');
+      selBox.className = 'selection-box';
+      selBox.style.left = selStartX + 'px';
+      selBox.style.top = selStartY + 'px';
+      board.appendChild(selBox);
+
+      function move(ev) {
+        const x = Math.min(ev.clientX, selStartX);
+        const y = Math.min(ev.clientY, selStartY);
+        const w = Math.abs(ev.clientX - selStartX);
+        const h = Math.abs(ev.clientY - selStartY);
+        selBox.style.left = x + 'px';
+        selBox.style.top = y + 'px';
+        selBox.style.width = w + 'px';
+        selBox.style.height = h + 'px';
+      }
+
+      function up() {
+        board.removeEventListener('mousemove', move);
+        board.removeEventListener('mouseup', up);
+        selBox.remove();
+      }
+
+      board.addEventListener('mousemove', move);
+      board.addEventListener('mouseup', up);
+    }
+  </script>
+</body>
+</html>
