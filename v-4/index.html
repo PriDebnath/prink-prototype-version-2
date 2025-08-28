@@ -206,7 +206,6 @@
       let snapToGrid = true;
       const gridSize = 16;
       let showGrid = true;
-      //------------------------------------------
       
       // helpers: canvas resize
       function resizeCanvas() {
@@ -226,7 +225,6 @@
       function screenToWorld(sx, sy) {
         return { x: (sx - panX) / scale, y: (sy - panY) / scale };
       }
-      
       // Utility: deep copy of state for history
       function snapshot() {
         return {
@@ -265,7 +263,7 @@
         const snap = history[historyIndex];
         restoreSnapshot(snap);
       }
-      
+    
       // Rounded rect polyfill
       if (!CanvasRenderingContext2D.prototype.roundRect) {
         CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r = 8) {
@@ -479,7 +477,7 @@
         }
         ctx.restore();
       }
-      
+  
       function wrapTextLines(ctx, text, maxWidth) {
         if (!text) return [''];
         const words = String(text).split(/\s+/);
@@ -887,6 +885,7 @@
       
       canvas.addEventListener('pointerup', () => { handleGesture.last = null; });
       
+
       // Editor overlay
       function openEditor(note) {
         const screenPos = worldToScreen(note.x, note.y);
@@ -911,6 +910,7 @@
       }
       
       function hideEditor() { editor.style.display = 'none'; }
+      //-----------------
       
       // toolbar interactions
       stickyBtn.addEventListener('click', () => { setTool('sticky'); });
