@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Mini Miro</title>
+  <link rel="stylesheet" href="index.css" />
+</head>
+
+<body>
+  <div class="app">
+    <div class="sidebar" role="toolbar" aria-label="Tools">
+      <div>
+        <button id="tool-sticky" class="tool-btn active" title="Sticky Note">📝</button>
+        <div class="tool-label">Sticky</div>
+      </div>
+      <div>
+        <button id="tool-select" class="tool-btn" title="Select">🔲</button>
+        <div class="tool-label">Select</div>
+      </div>
+      <div>
+        <button id="tool-connect" class="tool-btn" title="Connect">🔗</button>
+        <div class="tool-label">Connect</div>
+      </div>
+    </div>
+
+    <canvas id="board" aria-label="Canvas board"></canvas>
+    <div id="editor" contenteditable="true" spellcheck="false"></div>
+
+    <div class="toolbar-bottom" id="bottomBar">
+      <div class="chip" id="undoBtn">Undo (Ctrl+Z)</div>
+      <div class="chip" id="redoBtn">Redo (Ctrl+Y)</div>
+      <div class="chip" id="snapToggle">Snap: ON</div>
+      <div class="chip" id="gridToggle">Grid: ON</div>
+      <div style="margin-left:8px;color:#666;font-size:12px">
+        Pan: Space+Drag / Middle mouse or two-finger
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/state.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/history.js"></script>
+  <script src="js/drawing.js"></script>
+  <script src="js/notes.js"></script>
+  <script src="js/connectors.js"></script>
+  <script src="js/interaction.js"></script>
+  <script src="js/index.js"></script>
+</body>
+</html>

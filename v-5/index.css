@@ -1,0 +1,125 @@
+  :root {
+      --sidebar-w: 72px;
+      --bgstart: #f3f6fb;
+      --bgend: #fff;
+      --accent: #2563eb;
+  }
+
+  html,
+  body {
+      height: 100%;
+      margin: 0;
+      font-family: Inter, system-ui, Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+  }
+
+  .app {
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+      touch-action: none
+  }
+
+  .sidebar {
+      width: var(--sidebar-w);
+      background: #fff;
+      border-right: 1px solid #e6e9ef;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 12px 8px;
+      gap: 12px;
+      box-sizing: border-box;
+  }
+
+  .tool-btn {
+      width: 56px;
+      height: 56px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid #ddd;
+      background: #fafafa;
+      cursor: pointer;
+      user-select: none;
+      font-size: 22px;
+      box-shadow: 0 1px 0 rgba(0, 0, 0, 0.03);
+      transition: all .12s;
+  }
+
+  .tool-btn.active {
+      border-color: var(--accent);
+      box-shadow: 0 6px 18px rgba(37, 99, 235, 0.12);
+      background: #e8f0fe;
+      color: var(--accent)
+  }
+
+  .tool-label {
+      font-size: 11px;
+      margin-top: 4px;
+      color: #666;
+      text-align: center
+  }
+
+  canvas {
+      flex: 1;
+      display: block;
+      background: linear-gradient(180deg, var(--bgstart), var(--bgend));
+      touch-action: none
+  }
+
+  #editor {
+      position: absolute;
+      display: none;
+      box-sizing: border-box;
+      min-width: 120px;
+      min-height: 60px;
+      padding: 8px;
+      border-radius: 8px;
+      font: 14px/1.2 Inter, system-ui, Arial;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.14);
+      background: #fff9c4;
+      border: 1px solid rgba(0, 0, 0, 0.04);
+      outline: none;
+      resize: none;
+      overflow: auto;
+      z-index: 1000;
+      -webkit-user-modify: read-write-plaintext-only;
+  }
+
+  .toolbar-bottom {
+      position: absolute;
+      left: calc(var(--sidebar-w) + 14px);
+      bottom: 14px;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 8px;
+      border-radius: 8px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      font-size: 13px;
+  }
+
+  .chip {
+      padding: 6px 8px;
+      border-radius: 8px;
+      background: #fff;
+      border: 1px solid #e6e9ef;
+      cursor: pointer
+  }
+
+  .chip.toggle-on {
+      background: #e8f0fe;
+      border-color: var(--accent);
+      color: var(--accent)
+  }
+
+  @media (max-width:520px) {
+      .tool-btn {
+          width: 52px;
+          height: 52px;
+          font-size: 20px
+      }
+  }
