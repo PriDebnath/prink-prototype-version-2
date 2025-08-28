@@ -177,7 +177,6 @@
       const redoBtn = document.getElementById('redoBtn');
       const snapToggle = document.getElementById('snapToggle');
       const gridToggle = document.getElementById('gridToggle');
-      
       // --- State / Data Model ---
       let notes = []; // {id,x,y,w,h,text,color}
       let connectors = []; // {id,aId,bId}
@@ -207,6 +206,7 @@
       let snapToGrid = true;
       const gridSize = 16;
       let showGrid = true;
+      //------------------------------------------
       
       // helpers: canvas resize
       function resizeCanvas() {

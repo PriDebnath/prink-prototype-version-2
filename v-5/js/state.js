@@ -1,38 +1,35 @@
-// Global state
-const canvas = document.getElementById('board');
-const ctx = canvas.getContext('2d', { alpha: false });
-const editor = document.getElementById('editor');
+const state = {
+    notes: [], // {id, x, y, w, h, text, color}
+    connectors: [], // {id, a, b}
 
-const stickyBtn = document.getElementById('tool-sticky');
-const selectBtn = document.getElementById('tool-select');
-const connectBtn = document.getElementById('tool-connect');
-const undoBtn = document.getElementById('undoBtn');
-const redoBtn = document.getElementById('redoBtn');
-const snapToggle = document.getElementById('snapToggle');
-const gridToggle = document.getElementById('gridToggle');
+    // Viewport transform
+    panX: 0,
+    panY: 0,
+    scale: 1,
 
-// Notes & connectors
-let notes = [];
-let connectors = [];
-let idCounter = 1;
-let connectorIdCounter = 1;
+    // Id counters 
+    idCounter: 1,
+    connectorIdCounter: 1,
 
-// Viewport
-let panX = 0, panY = 0, scale = 1;
+    // interaction state
+    currentTool: 'sticky',// 'sticky'|'select'|'connect'
+    selectedIds: new Set(),// support multi-select
+    primarySelectedId: null,// for resize/handles (single)
+    dragging: null,// {type:'move'|'pan'|'resize', info...}
+    marquee: null,// {x1,y1,x2,y2} in world coords
+    connectFirst: null,// for connect tool: first note selected
+    pointerMap: new Map(),// pointerId -> {x,y} for gestures
 
-// Selection & interactions
-let currentTool = 'sticky';
-let selectedIds = new Set();
-let primarySelectedId = null;
-let dragging = null;
-let marquee = null;
-let connectFirst = null;
-let pointerMap = new Map();
+    // undo/redo
+    history: [],
+    historyIndex: -1,
+    historyLimit: 80,
 
-// Undo/redo
-let history = [], historyIndex = -1, historyLimit = 80;
+    // options
+    snapToGrid: true,
+    gridSize: 16,
+    showGrid: true,
+};
 
-// Options
-let snapToGrid = true;
-let showGrid = true;
-const gridSize = 16;
+
+export function getState() { return state; }
