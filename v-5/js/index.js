@@ -1,12 +1,46 @@
-    // --- ACCESS DOM --- 
-   export   const canvas = document.getElementById('board');
-      const ctx = canvas.getContext('2d', { alpha: false });
-      const editor = document.getElementById('editor');
-      const stickyBtn = document.getElementById('tool-sticky');
-      const selectBtn = document.getElementById('tool-select');
-      const connectBtn = document.getElementById('tool-connect');
-      const undoBtn = document.getElementById('undoBtn');
-      const redoBtn = document.getElementById('redoBtn');
-      const snapToggle = document.getElementById('snapToggle');
-      const gridToggle = document.getElementById('gridToggle');
-   
+// --- ACCESS DOM --- 
+export function getCanvas() {
+    return document.getElementById('board');
+}
+
+export function getCtx() {
+    const canvas = getCanvas();
+    return canvas ? canvas.getContext('2d', { alpha: false }) : null;
+}
+
+export function getEditor() {
+    return document.getElementById('editor');
+}
+
+export function getStickyBtn() {
+    return document.getElementById('tool-sticky');
+}
+
+export function getSelectBtn() {
+    return document.getElementById('tool-select');
+}
+
+export function getConnectBtn() {
+    return document.getElementById('tool-connect');
+}
+
+export function getUndoBtn() {
+    return document.getElementById('undoBtn');
+}
+
+export function getRedoBtn() {
+    return document.getElementById('redoBtn');
+}
+
+export function getSnapToggle() {
+    return document.getElementById('snapToggle');
+}
+
+export function getGridToggle() {
+    return document.getElementById('gridToggle');
+}
+
+// Load files
+import "./canvas.js";
+
+console.log("Index.js loaded")
