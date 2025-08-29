@@ -195,8 +195,8 @@ export function drawHandlesForNote(note) {
   const s = worldToScreen(note.x, note.y);
   const sw = note.w * scale,
     sh = note.h * scale;
-  const size = Math.max(8, 8 * scale);
-  const half = size / 2;
+  const size = Math.max(8, 8 * scale) * 3;
+  const half = size / 2.9;
 
   const handles = [
     { x: s.x - half, y: s.y - half, cursor: "nwse-resize", name: "nw" },
@@ -206,9 +206,9 @@ export function drawHandlesForNote(note) {
   ];
 
   ctx.save();
-  ctx.fillStyle = "#fff";
-  ctx.strokeStyle = "#666";
-  ctx.lineWidth = 1;
+  ctx.fillStyle = "grey";
+  ctx.strokeStyle = "#110ea7ff";
+  ctx.lineWidth = 6;
   for (const h of handles) {
     ctx.beginPath();
     ctx.rect(h.x, h.y, size, size);
