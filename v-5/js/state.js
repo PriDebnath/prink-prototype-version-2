@@ -33,3 +33,9 @@ const state = {
 
 
 export function getState() { return state; }
+
+
+
+export function updateState(partial) {
+  Object.assign(state, partial);
+}
