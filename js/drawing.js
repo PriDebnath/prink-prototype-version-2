@@ -208,7 +208,7 @@ export function drawHandlesForNote(note) {
   ctx.save();
   ctx.fillStyle = "grey";
   ctx.strokeStyle = "#110ea7ff";
-  ctx.lineWidth = 6;
+  ctx.lineWidth = 1;
   for (const h of handles) {
     ctx.beginPath();
     ctx.rect(h.x, h.y, size, size);
