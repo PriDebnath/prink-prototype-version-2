@@ -3,45 +3,71 @@
 
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="viewport"
+        content="width=device-width,initial-scale=1" />
   <title>Mini Miro</title>
-  <link rel="stylesheet" href="index.css" />
+  <link rel="stylesheet"
+        href="css/index.css" />
+  <link rel="stylesheet"
+        href="css/toolbar-bottom.css" />
 </head>
 
 <body>
   <div class="app">
-    <div class="sidebar" role="toolbar" aria-label="Tools">
+    <div class="sidebar"
+         role="toolbar"
+         aria-label="Tools">
       <div>
-        <button id="tool-sticky" class="tool-btn " title="Sticky Note">📝</button>
+        <button id="tool-sticky"
+                class="tool-btn "
+                title="Sticky Note">📝</button>
         <div class="tool-label">Sticky</div>
       </div>
       <div>
-        <button id="tool-select" class="tool-btn active" title="Select">🔲</button>
+        <button id="tool-select"
+                class="tool-btn active"
+                title="Select">🔲</button>
         <div class="tool-label">Select</div>
       </div>
       <div>
-        <button id="tool-connect" class="tool-btn" title="Connect">🔗</button>
+        <button id="tool-connect"
+                class="tool-btn"
+                title="Connect">🔗</button>
         <div class="tool-label">Connect</div>
       </div>
     </div>
 
-    <canvas id="board" aria-label="Canvas board"></canvas>
-    <div id="editor" contenteditable="true" spellcheck="false"></div>
+    <canvas id="board"
+            aria-label="Canvas board"></canvas>
+    <div id="editor"
+         contenteditable="true"
+         spellcheck="false"></div>
 
-    <div class="toolbar-bottom" id="bottomBar">
-      <div class="chip" id="undoBtn">Undo (Ctrl+Z)</div>
-      <div class="chip" id="redoBtn">Redo (Ctrl+Y)</div>
-      <div class="chip" id="snapToggle">Snap: ON</div>
-      <div class="chip" id="gridToggle">Grid: ON</div>
-      <div style="margin-left:8px;color:#666;font-size:12px">
-        Pan: Space+Drag / Middle mouse or two-finger
+
+    <div class="toolbar-bottom-wrapper">
+      <div class="toolbar-bottom"
+           id="bottomBar">
+        <div class="chip"
+             id="undoBtn">Undo (Ctrl+Z)</div>
+        <div class="chip"
+             id="redoBtn">Redo (Ctrl+Y)</div>
+        <div class="chip"
+             id="snapToggle">Snap: ON</div>
+        <div class="chip"
+             id="gridToggle">Grid: ON</div>
+        <!-- <div style="margin-left:8px;color:#666;font-size:12px">
+          Pan: Space+Drag / Middle mouse or two-finger
+        </div> -->
       </div>
     </div>
+
+
   </div>
 
   <!-- Scripts -->
-  
+
 </body>
-  <script type="module" src="js/index.js"></script>
+<script type="module"
+        src="js/index.js"></script>
 
 </html>
