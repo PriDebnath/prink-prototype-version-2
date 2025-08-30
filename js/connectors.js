@@ -13,8 +13,11 @@ export function createConnector(aId, bId) {
   const { connectors, connectorIdCounter } = getState();
 
   // prevent duplicates
+  // const exists = connectors.some(
+  //   (c) => (c.aId === aId && c.bId === bId) || (c.aId === bId && c.bId === aId)
+  // );
   const exists = connectors.some(
-    (c) => (c.aId === aId && c.bId === bId) || (c.aId === bId && c.bId === aId)
+     (c) => (c.aId === aId && c.bId === bId) // allow two-way
   );
   if (exists) return null;
 
@@ -31,6 +34,9 @@ export function createConnector(aId, bId) {
 
 // Hit testing (top-down)
 export function hitTestNotes(wx, wy) {
+  // check if point (wx,wy) is inside any note
+  // return the topmost note (last in array)
+  // or null if none hit
   const { notes } = getState();
 
   for (let i = notes.length - 1; i >= 0; i--) {
@@ -40,4 +46,5 @@ export function hitTestNotes(wx, wy) {
     }
   }
   return null;
+  //
 }

@@ -86,42 +86,116 @@ export function draw() {
   drawGrid();
 
   // connectors first (so notes draw on top)
-  connectors.forEach((conn) => {
-    const a = notes.find((n) => n.id === conn.aId);
-    const b = notes.find((n) => n.id === conn.bId);
-    if (!a || !b) return;
+  // connectors.forEach((conn) => {
+  //   const a = notes.find((n) => n.id === conn.aId);
+  //   const b = notes.find((n) => n.id === conn.bId);
+  //   if (!a || !b) return;
 
-    const aC = worldToScreen(a.x + a.w / 2, a.y + a.h / 2);
-    const bC = worldToScreen(b.x + b.w / 2, b.y + b.h / 2);
+  //   const aC = worldToScreen(a.x + a.w / 2, a.y + a.h / 2);
+  //   const bC = worldToScreen(b.x + b.w / 2, b.y + b.h / 2);
 
-    // simple bezier
-    ctx.save();
-    ctx.strokeStyle = "rgba(30,30,30,0.45)";
-    ctx.lineWidth = 2;
+  //   // simple bezier
+  //   ctx.save();
+  //   ctx.strokeStyle = "rgba(30,30,30,0.45)";
+  //   ctx.lineWidth = 2;
+  //   ctx.beginPath();
+  //   ctx.moveTo(aC.x, aC.y);
+  //   const dx = (bC.x - aC.x) * 0.4;
+  //   ctx.bezierCurveTo(aC.x + dx, aC.y, bC.x - dx, bC.y, bC.x, bC.y);
+  //   ctx.stroke();
+
+  //   // arrow head
+  //   const angle = Math.atan2(bC.y - aC.y, bC.x - aC.x);
+  //   const arrowSize = 8;
+  //   ctx.beginPath();
+  //   ctx.moveTo(bC.x, bC.y);
+  //   ctx.lineTo(
+  //     bC.x - arrowSize * Math.cos(angle - Math.PI / 6),
+  //     bC.y - arrowSize * Math.sin(angle - Math.PI / 6)
+  //   );
+  //   ctx.lineTo(
+  //     bC.x - arrowSize * Math.cos(angle + Math.PI / 6),
+  //     bC.y - arrowSize * Math.sin(angle + Math.PI / 6)
+  //   );
+  //   ctx.closePath();
+  //   ctx.fillStyle = "rgba(30,30,30,0.6)";
+  //   ctx.fill();
+  //   ctx.restore();
+  // });
+// connectors first (so notes draw on top)
+connectors.forEach((conn) => {
+  const a = notes.find((n) => n.id === conn.aId);
+  const b = notes.find((n) => n.id === conn.bId);
+  if (!a || !b) return;
+
+  const aC = worldToScreen(a.x + a.w / 2, a.y + a.h / 2);
+  const bC = worldToScreen(b.x + b.w / 2, b.y + b.h / 2);
+
+  // bezier control points
+  const dx = (bC.x - aC.x) * 0.4;
+  const cp1 = { x: aC.x + dx, y: aC.y };
+  const cp2 = { x: bC.x - dx, y: bC.y };
+
+  // draw curve
+  ctx.save();
+  ctx.strokeStyle = "rgba(30,30,30,0.45)";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(aC.x, aC.y);
+  ctx.bezierCurveTo(cp1.x, cp1.y, cp2.x, cp2.y, bC.x, bC.y);
+  ctx.stroke();
+
+  // helper: point on bezier
+  function getBezierPoint(t, p0, p1, p2, p3) {
+    const x =
+      Math.pow(1 - t, 3) * p0.x +
+      3 * Math.pow(1 - t, 2) * t * p1.x +
+      3 * (1 - t) * Math.pow(t, 2) * p2.x +
+      Math.pow(t, 3) * p3.x;
+    const y =
+      Math.pow(1 - t, 3) * p0.y +
+      3 * Math.pow(1 - t, 2) * t * p1.y +
+      3 * (1 - t) * Math.pow(t, 2) * p2.y +
+      Math.pow(t, 3) * p3.y;
+    return { x, y };
+  }
+
+  // helper: tangent (angle) on bezier
+  function getBezierTangent(t, p0, p1, p2, p3) {
+    const x =
+      3 * Math.pow(1 - t, 2) * (p1.x - p0.x) +
+      6 * (1 - t) * t * (p2.x - p1.x) +
+      3 * Math.pow(t, 2) * (p3.x - p2.x);
+    const y =
+      3 * Math.pow(1 - t, 2) * (p1.y - p0.y) +
+      6 * (1 - t) * t * (p2.y - p1.y) +
+      3 * Math.pow(t, 2) * (p3.y - p2.y);
+    return Math.atan2(y, x);
+  }
+
+  // draw arrows along curve
+  const arrowSize = 8;
+  for (let t = 0.2; t < 1; t += 0.2) {  // arrows at 20%, 40%, 60%, 80%
+    const pt = getBezierPoint(t, aC, cp1, cp2, bC);
+    const angle = getBezierTangent(t, aC, cp1, cp2, bC);
+
     ctx.beginPath();
-    ctx.moveTo(aC.x, aC.y);
-    const dx = (bC.x - aC.x) * 0.4;
-    ctx.bezierCurveTo(aC.x + dx, aC.y, bC.x - dx, bC.y, bC.x, bC.y);
-    ctx.stroke();
-
-    // arrow head
-    const angle = Math.atan2(bC.y - aC.y, bC.x - aC.x);
-    const arrowSize = 8;
-    ctx.beginPath();
-    ctx.moveTo(bC.x, bC.y);
+    ctx.moveTo(pt.x, pt.y);
     ctx.lineTo(
-      bC.x - arrowSize * Math.cos(angle - Math.PI / 6),
-      bC.y - arrowSize * Math.sin(angle - Math.PI / 6)
+      pt.x - arrowSize * Math.cos(angle - Math.PI / 6),
+      pt.y - arrowSize * Math.sin(angle - Math.PI / 6)
     );
     ctx.lineTo(
-      bC.x - arrowSize * Math.cos(angle + Math.PI / 6),
-      bC.y - arrowSize * Math.sin(angle + Math.PI / 6)
+      pt.x - arrowSize * Math.cos(angle + Math.PI / 6),
+      pt.y - arrowSize * Math.sin(angle + Math.PI / 6)
     );
     ctx.closePath();
     ctx.fillStyle = "rgba(30,30,30,0.6)";
     ctx.fill();
-    ctx.restore();
-  });
+  }
+
+  ctx.restore();
+});
 
   // notes
   notes.forEach((note) => {

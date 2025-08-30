@@ -1,6 +1,4 @@
- 
-
-// events.js (updated)
+// events.js (refactored)
 import { getCanvas } from "./index.js";
 const canvas = getCanvas();
 
@@ -12,7 +10,8 @@ import { screenToWorld, worldToScreen } from "./utils.js";
 import { setTool } from "./toolbar-interactions.js";
 import { createConnector, hitTestNotes } from "./connectors.js";
 
-// Selection helpers
+// --- Helpers ---
+// Selection
 export function selectNoteId(id, add = false) {
   const state = getState();
   const { selectedIds } = state;
@@ -21,7 +20,8 @@ export function selectNoteId(id, add = false) {
 
   updateState({
     selectedIds,
-    primarySelectedId: selectedIds.size === 1 ? Array.from(selectedIds)[0] : null
+    primarySelectedId:
+      selectedIds.size === 1 ? Array.from(selectedIds)[0] : null,
   });
   draw();
 }
@@ -34,21 +34,36 @@ export function selectNoteIdToggle(id) {
 
   updateState({
     selectedIds,
-    primarySelectedId: selectedIds.size === 1 ? Array.from(selectedIds)[0] : null
+    primarySelectedId:
+      selectedIds.size === 1 ? Array.from(selectedIds)[0] : null,
   });
   draw();
 }
 
-// Snap helper
+// Snap
 export function snap(value) {
   const { snapToGrid, gridSize } = getState();
   if (!snapToGrid) return value;
   return Math.round(value / gridSize) * gridSize;
 }
 
-// --- Input & Interaction ---
-// track pointer positions for gestures
+// Handles of note for resizing
+function getHandlesForNote(note, scale) {
+  const pos = worldToScreen(note.x, note.y);
+  const sw = note.w * scale;
+  const sh = note.h * scale;
+  const size = Math.max(8, 8 * scale) * 3;
+  const half = size / 2.9;
 
+  return [
+    { x: pos.x - half, y: pos.y - half, w: size, h: size, name: "nw" },
+    { x: pos.x + sw - half, y: pos.y - half, w: size, h: size, name: "ne" },
+    { x: pos.x - half, y: pos.y + sh - half, w: size, h: size, name: "sw" },
+    { x: pos.x + sw - half, y: pos.y + sh - half, w: size, h: size, name: "se" },
+  ];
+}
+
+// --- Input & Interaction ---
 canvas.addEventListener("pointerdown", (ev) => {
   const state = getState();
   const { pointerMap, currentTool, panX, panY } = state;
@@ -56,31 +71,30 @@ canvas.addEventListener("pointerdown", (ev) => {
   canvas.setPointerCapture(ev.pointerId);
   pointerMap.set(ev.pointerId, { x: ev.clientX, y: ev.clientY });
 
-  const screen = {
-    x: ev.clientX - canvas.getBoundingClientRect().left,
-    y: ev.clientY - canvas.getBoundingClientRect().top
-  };
+  const rect = canvas.getBoundingClientRect();
+  const screen = { x: ev.clientX - rect.left, y: ev.clientY - rect.top };
   const world = screenToWorld(screen.x, screen.y);
 
-  // tool behaviors
+  // Tool: sticky
   if (currentTool === "sticky") {
     const newNote = createNote(world.x, world.y, "New note");
-    // select it
     selectNoteId(newNote.id, false);
     pushHistory();
     setTool("select");
     return;
   }
 
+  // Tool: connect
   if (currentTool === "connect") {
     const hit = hitTestNotes(world.x, world.y);
     if (hit) {
       const { connectFirst } = getState();
+
       if (!connectFirst) {
         updateState({
           connectFirst: hit.id,
           selectedIds: new Set([hit.id]),
-          primarySelectedId: hit.id
+          primarySelectedId: hit.id,
         });
         draw();
       } else {
@@ -88,7 +102,7 @@ canvas.addEventListener("pointerdown", (ev) => {
         updateState({
           connectFirst: null,
           selectedIds: new Set(),
-          primarySelectedId: null
+          primarySelectedId: null,
         });
         draw();
       }
@@ -96,57 +110,79 @@ canvas.addEventListener("pointerdown", (ev) => {
     return;
   }
 
-  // select tool
+  // Tool: select
   const hit = hitTestNotes(world.x, world.y);
   const isSpace = ev.getModifierState && ev.getModifierState("Space");
   const isShift = ev.shiftKey;
-
-  // pan with middle or spacebar or two-finger (we'll detect two pointers outside here)
   const isMiddle = ev.button === 1;
+
+  // Pan
   if (isMiddle || isSpace || pointerMap.size >= 2) {
-    // start panning
     updateState({
       dragging: {
         type: "pan",
         startClient: { x: ev.clientX, y: ev.clientY },
-        startPan: { x: panX, y: panY }
-      }
+        startPan: { x: panX, y: panY },
+      },
     });
     return;
   }
 
   if (hit) {
-    // bring to front
     bringToFront(hit.id);
 
-    // read updated state after bringToFront (notes array might be mutated)
     const s2 = getState();
-    if (isShift) {
-      // toggle selection
-      selectNoteIdToggle(hit.id);
-    } else {
-      if (!s2.selectedIds.has(hit.id)) {
-        selectNoteId(hit.id, false);
+    if (isShift) selectNoteIdToggle(hit.id);
+    else if (!s2.selectedIds.has(hit.id)) selectNoteId(hit.id, false);
+
+    const note = s2.notes.find((n) => n.id === hit.id);
+    if (note) {
+      // --- check resize handles ---
+      const handles = getHandlesForNote(note, s2.scale);
+      for (const h of handles) {
+        if (
+          screen.x >= h.x &&
+          screen.x <= h.x + h.w &&
+          screen.y >= h.y &&
+          screen.y <= h.y + h.h
+        ) {
+          updateState({
+            dragging: {
+              type: "resize",
+              handle: h.name,
+              noteId: note.id,
+              start: {
+                x: world.x,
+                y: world.y,
+                origX: note.x,
+                origY: note.y,
+                origW: note.w,
+                origH: note.h,
+              },
+            },
+          });
+          pushHistory();
+          return;
+        }
       }
     }
 
-    // start move of selected set
+    // --- fallback: move ---
     const { notes, selectedIds } = getState();
     const offsets = {};
     selectedIds.forEach((sid) => {
       const n = notes.find((z) => z.id === sid);
       offsets[sid] = { x: world.x - n.x, y: world.y - n.y };
     });
-
     updateState({ dragging: { type: "move", offsets } });
-    pushHistory(); // start move: push state so undo will revert move start
+    pushHistory();
   } else {
-    // clicked empty -> start marquee selection
+    // Empty click → marquee
     updateState({
       selectedIds: new Set(),
       primarySelectedId: null,
       marquee: { x1: world.x, y1: world.y, x2: world.x, y2: world.y },
-      dragging: { type: "marquee" }
+      dragging: { type: "marquee" },
     });
     draw();
   }
@@ -156,16 +192,14 @@ canvas.addEventListener("pointermove", (ev) => {
   const state = getState();
   const { pointerMap, dragging } = state;
 
-  // update pointer map
   pointerMap.set(ev.pointerId, { x: ev.clientX, y: ev.clientY });
 
-  if (dragging && dragging.type === "pan") {
-    // pan logic
+  if (dragging?.type === "pan") {
     const dx = ev.clientX - dragging.startClient.x;
     const dy = ev.clientY - dragging.startClient.y;
     updateState({
       panX: dragging.startPan.x + dx,
-      panY: dragging.startPan.y + dy
+      panY: dragging.startPan.y + dy,
     });
     draw();
     return;
@@ -173,15 +207,12 @@ canvas.addEventListener("pointermove", (ev) => {
 
   if (!dragging) return;
 
-  const screen = {
-    x: ev.clientX - canvas.getBoundingClientRect().left,
-    y: ev.clientY - canvas.getBoundingClientRect().top
-  };
+  const rect = canvas.getBoundingClientRect();
+  const screen = { x: ev.clientX - rect.left, y: ev.clientY - rect.top };
   const world = screenToWorld(screen.x, screen.y);
 
   if (dragging.type === "move") {
     const { notes, selectedIds } = getState();
-    // move all selected according to pointer world position & stored offsets
     selectedIds.forEach((sid) => {
       const n = notes.find((z) => z.id === sid);
       const off = dragging.offsets[sid];
@@ -192,41 +223,38 @@ canvas.addEventListener("pointermove", (ev) => {
     });
     draw();
   } else if (dragging.type === "marquee") {
-    const s = getState(); // fresh read
+    const s = getState();
     s.marquee.x2 = world.x;
     s.marquee.y2 = world.y;
-    // update selection based on marquee bounds
-    const left = Math.min(s.marquee.x1, s.marquee.x2),
-      right = Math.max(s.marquee.x1, s.marquee.x2);
-    const top = Math.min(s.marquee.y1, s.marquee.y2),
-      bottom = Math.max(s.marquee.y1, s.marquee.y2);
+    const left = Math.min(s.marquee.x1, s.marquee.x2);
+    const right = Math.max(s.marquee.x1, s.marquee.x2);
+    const top = Math.min(s.marquee.y1, s.marquee.y2);
+    const bottom = Math.max(s.marquee.y1, s.marquee.y2);
 
     s.selectedIds.clear();
     s.notes.forEach((n) => {
-      if (!(n.x > right || n.x + n.w < left || n.y > bottom || n.y + n.h < top)) {
+      if (
+        !(n.x > right || n.x + n.w < left || n.y > bottom || n.y + n.h < top)
+      ) {
         s.selectedIds.add(n.id);
       }
     });
 
     updateState({
       selectedIds: s.selectedIds,
-      primarySelectedId: s.selectedIds.size === 1 ? Array.from(s.selectedIds)[0] : null,
-      marquee: s.marquee
+      primarySelectedId:
+        s.selectedIds.size === 1 ? Array.from(s.selectedIds)[0] : null,
+      marquee: s.marquee,
     });
     draw();
   } else if (dragging.type === "resize") {
-
     // resizing primarySelectedId with handle info
+
     const s = getState();
     const note = s.notes.find((n) => n.id === dragging.noteId);
     if (!note) return;
-    const start = dragging.start; // contains original values
-    console.log({
-      dragging,
-      note:note,
-      world,
-      start
-    })
+    const start = dragging.start;
+
     if (dragging.handle === "se") {
       let newW = world.x - start.x;
       let newH = world.y - start.y;
@@ -271,7 +299,7 @@ canvas.addEventListener("pointermove", (ev) => {
       if (newW < 30) newW = 30;
       if (newH < 30) {
         newH = 30;
-        newY = start.origY + (start.origY + start.origH - (start.origY + 30));
+        newY = start.origY + (start.origH - 30);
       }
       if (s.snapToGrid) {
         newW = Math.round(newW / s.gridSize) * s.gridSize;
@@ -312,99 +340,41 @@ canvas.addEventListener("pointerup", (ev) => {
   pointerMap.delete(ev.pointerId);
 
   if (dragging && (dragging.type === "move" || dragging.type === "resize")) {
-    // finalize action -> push history
     pushHistory();
   }
-  if (dragging && dragging.type === "marquee") {
+  if (dragging?.type === "marquee") {
     updateState({ marquee: null });
   }
   updateState({ dragging: null });
   draw();
 });
 
+// Double-click → edit
 // Pointer double-tap/dblclick to edit: we'll detect quick successive pointerup
+
 let lastUpTime = 0;
 canvas.addEventListener("pointerup", (ev) => {
   // double-up detection (runs in addition to the above pointerup handler)
+
   const now = Date.now();
   const dt = now - lastUpTime;
   lastUpTime = now;
   if (dt < 300) {
-    const screen = {
-      x: ev.clientX - canvas.getBoundingClientRect().left,
-      y: ev.clientY - canvas.getBoundingClientRect().top
-    };
+    const rect = canvas.getBoundingClientRect();
+    const screen = { x: ev.clientX - rect.left, y: ev.clientY - rect.top };
     const world = screenToWorld(screen.x, screen.y);
     const hit = hitTestNotes(world.x, world.y);
-    if (hit) {
-      openEditor(hit);
-    }
+    if (hit) openEditor(hit);
   }
 });
 
-// Resize handles detection on pointerdown (when a single note selected & pointer on handle)
-// This is a second pointerdown listener (like in your original file). It runs after the earlier pointerdown.
-canvas.addEventListener("pointerdown", (ev) => {
-  const screen = {
-    x: ev.clientX - canvas.getBoundingClientRect().left,
-    y: ev.clientY - canvas.getBoundingClientRect().top
-  };
-  const world = screenToWorld(screen.x, screen.y);
+// --- Keyboard ---
 
-  const s = getState();
-  if (s.primarySelectedId !== null) {
-    const note = s.notes.find((n) => n.id === s.primarySelectedId);
-    if (note) {
-      // compute handle rectangles in screen space
-      const sPos = worldToScreen(note.x, note.y);
-      const sw = note.w * s.scale,
-        sh = note.h * s.scale;
-      const size = Math.max(8, 8 * s.scale);
-      const half = size / 2;
-      const handleRects = {
-        nw: { x: sPos.x - half, y: sPos.y - half, w: size, h: size },
-        ne: { x: sPos.x + sw - half, y: sPos.y - half, w: size, h: size },
-        sw: { x: sPos.x - half, y: sPos.y + sh - half, w: size, h: size },
-        se: { x: sPos.x + sw - half, y: sPos.y + sh - half, w: size, h: size }
-      };
-      for (const [name, r] of Object.entries(handleRects)) {
-        if (
-          screen.x >= r.x &&
-          screen.x <= r.x + r.w &&
-          screen.y >= r.y &&
-          screen.y <= r.y + r.h
-        ) {
-          // start resize operation
-          const noteCopy = { ...note };
-          updateState({
-            dragging: {
-              type: "resize",
-              noteId: note.id,
-              handle: name,
-              start: {
-                x: world.x,
-                y: world.y,
-                origX: noteCopy.x,
-                origY: noteCopy.y,
-                origW: noteCopy.w,
-                origH: noteCopy.h
-              }
-            }
-          });
-          pushHistory();
-          ev.preventDefault();
-          return;
-        }
-      }
-    }
-  }
-});
-
-// Keyboard events
 window.addEventListener("keydown", (e) => {
   const state = getState();
   const { selectedIds } = state;
   const isCmd = e.ctrlKey || e.metaKey;
+
   if (isCmd && (e.key === "z" || e.key === "Z")) {
     e.preventDefault();
     undo();
@@ -426,7 +396,7 @@ window.addEventListener("keydown", (e) => {
         notes: newNotes,
         connectors: newConnectors,
         selectedIds: new Set(),
-        primarySelectedId: null
+        primarySelectedId: null,
       });
       pushHistory();
       draw();
@@ -437,15 +407,14 @@ window.addEventListener("keydown", (e) => {
       selectedIds: new Set(),
       primarySelectedId: null,
       marquee: null,
-      connectFirst: null
+      connectFirst: null,
     });
     hideEditor();
     draw();
   }
-  // hold Space for pan (space handling done in pointerdown via ev.getModifierState)
 });
 
-// Mouse wheel for zoom (centered at cursor)
+// --- Zoom ---
 canvas.addEventListener(
   "wheel",
   (ev) => {
@@ -462,11 +431,10 @@ canvas.addEventListener(
 
     updateState({ scale: newScale });
 
-    // adjust pan so that worldBefore stays at same screen position
     const worldAfterScreen = worldToScreen(worldBefore.x, worldBefore.y);
     updateState({
       panX: s.panX + (screenX - worldAfterScreen.x),
-      panY: s.panY + (screenY - worldAfterScreen.y)
+      panY: s.panY + (screenY - worldAfterScreen.y),
     });
 
     draw();
@@ -474,13 +442,12 @@ canvas.addEventListener(
   { passive: false }
 );
 
-// Pinch-to-zoom & two-finger pan (basic)
+// --- Pinch ---
 function handleGesture() {
   const s = getState();
   if (s.pointerMap.size < 2) return;
   const pts = Array.from(s.pointerMap.values());
-  const p0 = pts[0],
-    p1 = pts[1];
+  const [p0, p1] = pts;
   const midX = (p0.x + p1.x) / 2;
   const midY = (p0.y + p1.y) / 2;
   const dist = Math.hypot(p0.x - p1.x, p0.y - p1.y);
@@ -491,14 +458,14 @@ function handleGesture() {
       midY,
       scale: s.scale,
       panX: s.panX,
-      panY: s.panY
+      panY: s.panY,
     };
     return;
   } else {
     const ls = handleGesture.last;
     const factor = dist / ls.dist;
     const newScale = Math.max(0.2, Math.min(3, ls.scale * factor));
-    // center at mid
+
     const rect = canvas.getBoundingClientRect();
     const screenMidX = midX - rect.left;
     const screenMidY = midY - rect.top;
@@ -509,14 +476,13 @@ function handleGesture() {
     const after = worldToScreen(worldAtMid.x, worldAtMid.y);
     updateState({
       panX: ls.panX + (screenMidX - after.x),
-      panY: ls.panY + (screenMidY - after.y)
+      panY: ls.panY + (screenMidY - after.y),
     });
     draw();
   }
 }
 
 canvas.addEventListener("pointermove", (ev) => {
-  // call gesture recalculation on pointermove globally (we already set pointerMap earlier)
   const s = getState();
   if (s.pointerMap.size >= 2) handleGesture();
 });
