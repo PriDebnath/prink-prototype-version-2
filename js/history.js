@@ -2,7 +2,10 @@
 
 import { draw } from "./drawing.js";
 import { getState } from "./state.js";
+import { getUndoBtn, getRedoBtn } from "./index.js";
 
+const undoBtn = getUndoBtn()
+const redoBtn = getRedoBtn()
 const state = getState();
 
 // Utility: deep copy of state for history
@@ -40,6 +43,12 @@ export function undo() {
   state.historyIndex--;
   const snap = state.history[state.historyIndex];
   restoreSnapshot(snap);
+
+//
+  undoBtn.classList.add("active");
+  setTimeout(() => {
+    undoBtn.classList.remove("active");
+  }, 200);
 }
 
 export function redo() {
@@ -47,4 +56,9 @@ export function redo() {
   state.historyIndex++;
   const snap = state.history[state.historyIndex];
   restoreSnapshot(snap);
+
+    redoBtn.classList.add("active");
+  setTimeout(() => {
+    redoBtn.classList.remove("active");
+  }, 200);
 }

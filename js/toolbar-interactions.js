@@ -59,18 +59,20 @@ export function setTool(t) {
 undoBtn.addEventListener("click", undo);
 redoBtn.addEventListener("click", redo);
 
-gridToggle.addEventListener("click", () => {
+export function handleGridToggle(){
   state.showGrid = !state.showGrid;
   gridToggle.classList.toggle("toggle-on", state.showGrid);
   gridToggle.innerText = "Grid: " + (state.showGrid ? "ON" : "OFF");
   draw();
-});
+}
+gridToggle.addEventListener("click", handleGridToggle);
 
-snapToggle.addEventListener("click", () => {
+export function handleSnapToGrid(){
   state.snapToGrid = !state.snapToGrid;
   snapToggle.classList.toggle("toggle-on", state.snapToGrid);
   snapToggle.innerText = "Snap: " + (state.snapToGrid ? "ON" : "OFF");
-});
+}
+snapToggle.addEventListener("click", handleSnapToGrid);
 
 // Helper: find handle name under screen point -> used for cursor feedback
 export function handleAtScreenPoint(sx, sy) {

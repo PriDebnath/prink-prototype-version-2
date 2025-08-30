@@ -48,6 +48,7 @@ import "./history.js";
 import "./interaction.js";
 import "./state.js";
 import "./toolbar-interactions.js";
+import "./keydown-interaction.js";
 import "./utils.js";
 
 console.log("Index.js loaded")

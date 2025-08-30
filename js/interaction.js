@@ -7,7 +7,7 @@ import { pushHistory, undo, redo } from "./history.js";
 import { draw } from "./drawing.js";
 import { createNote, hideEditor, openEditor, bringToFront } from "./notes.js";
 import { screenToWorld, worldToScreen } from "./utils.js";
-import { setTool } from "./toolbar-interactions.js";
+import { handleGridToggle, handleSnapToGrid, setTool } from "./toolbar-interactions.js";
 import { createConnector, hitTestNotes } from "./connectors.js";
 
 // --- Helpers ---
@@ -105,6 +105,7 @@ canvas.addEventListener("pointerdown", (ev) => {
           primarySelectedId: null,
         });
         draw();
+        setTool("select")
       }
     }
     return;
@@ -365,52 +366,6 @@ canvas.addEventListener("pointerup", (ev) => {
     const world = screenToWorld(screen.x, screen.y);
     const hit = hitTestNotes(world.x, world.y);
     if (hit) openEditor(hit);
-  }
-});
-
-// --- Keyboard ---
-
-window.addEventListener("keydown", (e) => {
-  const state = getState();
-  const { selectedIds } = state;
-  const isCmd = e.ctrlKey || e.metaKey;
-
-  if (isCmd && (e.key === "z" || e.key === "Z")) {
-    e.preventDefault();
-    undo();
-    return;
-  }
-  if (isCmd && (e.key === "y" || e.key === "Y")) {
-    e.preventDefault();
-    redo();
-    return;
-  }
-  if (e.key === "Delete" || e.key === "Backspace") {
-    if (selectedIds.size > 0) {
-      const s = getState();
-      const newNotes = s.notes.filter((n) => !selectedIds.has(n.id));
-      const newConnectors = s.connectors.filter(
-        (c) => !selectedIds.has(c.aId) && !selectedIds.has(c.bId)
-      );
-      updateState({
-        notes: newNotes,
-        connectors: newConnectors,
-        selectedIds: new Set(),
-        primarySelectedId: null,
-      });
-      pushHistory();
-      draw();
-    }
-  }
-  if (e.key === "Escape") {
-    updateState({
-      selectedIds: new Set(),
-      primarySelectedId: null,
-      marquee: null,
-      connectFirst: null,
-    });
-    hideEditor();
-    draw();
   }
 });
 
