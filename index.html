@@ -13,6 +13,8 @@
         href="css/sidebar.css" />
   <link rel="stylesheet"
         href="css/toolbar.css" />
+         <link rel="stylesheet"
+        href="css/tooltip.css" />
 </head>
 
 <body>
@@ -23,8 +25,10 @@
          aria-label="Tools">
       <div class="tool">
         <button id="tool-sticky"
-                class="tool-btn "
-                title="Sticky Note">📝</button>
+                class="tool-btn tooltip"
+                title="Sticky Note"
+                data-tooltip="Sticky Note" data-tooltip-pos="right"
+                >📝</button>
         <div class="tool-label">Sticky</div>
       </div>
       <div class="tool">
@@ -52,8 +56,11 @@
     <div class="toolbar-wrapper">
       <div class="toolbar-bottom"
            id="bottomBar">
-        <button class="chip"
-             id="undoBtn">Undo (Ctrl+Z)</button>
+        <button class="chip tooltip"
+             id="undoBtn"
+                data-tooltip="Undo" data-tooltip-pos="top"
+
+             >Undo (Ctrl+Z)</button>
         <button class="chip"
              id="redoBtn">Redo (Ctrl+Y)</button>
         <button class="chip toggle-on"

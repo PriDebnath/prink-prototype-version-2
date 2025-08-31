@@ -1,0 +1,231 @@
+/* Beautiful Tooltip CSS
+   Usage: wrap target with .tooltip and set data-tooltip="Your text".
+   Optional position: data-tooltip-pos="top|right|bottom|left" (default: top)
+   Programmatic open: add .is-open to .tooltip
+   Works on :hover and :focus-within. No JS required.
+*/
+
+:root {
+    --tt-bg: #111827;
+    /* tooltip background */
+    --tt-color: #f9fafb;
+    /* tooltip text color */
+    --tt-radius: 10px;
+    /* bubble corner radius */
+    --tt-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+    --tt-padding: 10px 12px;
+    /* bubble padding */
+    --tt-max-width: 260px;
+    /* max width for long text */
+    --tt-font: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica, Arial, sans-serif;
+    --tt-font-size: 13px;
+    --tt-line-height: 1.25;
+    --tt-gap: 10px;
+    /* distance from target to bubble */
+    --tt-arrow: 10px;
+    /* arrow size */
+    --tt-z: 9999;
+    /* stacking context */
+    --tt-fade: 160ms;
+    /* fade duration */
+    --tt-shift: 6px;
+    /* motion distance */
+    --tt-delay: 120ms;
+    /* show delay */
+}
+
+/* Optional dark preference tweak */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --tt-bg: #0b0f17;
+        --tt-color: #f3f4f6;
+    }
+}
+
+.tooltip {
+    position: relative;
+    /* establishes positioning context for bubble/arrow */
+    display: inline-block;
+    isolation: isolate;
+    /* ensure z-index works predictably */
+}
+
+/* The bubble */
+.tooltip::before {
+    content: attr(data-tooltip);
+    position: absolute;
+    z-index: var(--tt-z);
+    max-width: var(--tt-max-width);
+    padding: var(--tt-padding);
+    border-radius: var(--tt-radius);
+    background: var(--tt-bg);
+    color: var(--tt-color);
+    box-shadow: var(--tt-shadow);
+    font: 500 var(--tt-font-size)/var(--tt-line-height) var(--tt-font);
+    pointer-events: none;
+    white-space: normal;
+    /* allow wrap */
+    white-space: nowrap;
+    text-align: left;
+    opacity: 0;
+    transform: translateY(calc(var(--_shift-y, 0) * 1px)) translateX(calc(var(--_shift-x, 0) * 1px));
+    transition: opacity var(--tt-fade) ease, transform var(--tt-fade) ease;
+    visibility: hidden;
+    filter: drop-shadow(0 2px 8px rgba(0, 0, 0, .15));
+}
+
+/* The arrow */
+.tooltip::after {
+    content: "";
+    position: absolute;
+    z-index: calc(var(--tt-z) + 1);
+    width: 0;
+    height: 0;
+    border: var(--tt-arrow) solid transparent;
+    /* triangle via borders */
+    opacity: 0;
+    transition: opacity var(--tt-fade) ease;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+/* Show on hover/focus or when forced open */
+.tooltip:is(:hover, :focus-within, .is-open)::before,
+.tooltip:is(:hover, :focus-within, .is-open)::after {
+    opacity: 1;
+    visibility: visible;
+    transition-delay: var(--tt-delay);
+}
+
+/* Positioning presets */
+/* TOP (default) */
+.tooltip:not([data-tooltip-pos]),
+.tooltip[data-tooltip-pos="top"] {
+    --_shift-y: var(--tt-shift);
+    --_shift-x: 0;
+}
+
+.tooltip:not([data-tooltip-pos])::before,
+.tooltip[data-tooltip-pos="top"]::before {
+    bottom: calc(100% + var(--tt-gap));
+    left: 50%;
+    transform: translate(-50%, var(--_shift-y));
+}
+
+.tooltip:not([data-tooltip-pos])::after,
+.tooltip[data-tooltip-pos="top"]::after {
+    border-top-color: var(--tt-bg);
+    top: auto;
+    bottom: calc(100% + var(--tt-gap) - (var(--tt-arrow) - 2px));
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+/* BOTTOM */
+.tooltip[data-tooltip-pos="bottom"] {
+    --_shift-y: calc(var(--tt-shift) * -1);
+    --_shift-x: 0;
+}
+
+.tooltip[data-tooltip-pos="bottom"]::before {
+    top: calc(100% + var(--tt-gap));
+    left: 50%;
+    transform: translate(-50%, var(--_shift-y));
+}
+
+.tooltip[data-tooltip-pos="bottom"]::after {
+    border-bottom-color: var(--tt-bg);
+    top: calc(100% + var(--tt-gap) - (var(--tt-arrow) - 2px));
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+/* LEFT */
+.tooltip[data-tooltip-pos="left"] {
+    --_shift-y: 0;
+    --_shift-x: var(--tt-shift);
+}
+
+.tooltip[data-tooltip-pos="left"]::before {
+    right: calc(100% + var(--tt-gap));
+    top: 50%;
+    transform: translate(var(--_shift-x), -50%);
+}
+
+.tooltip[data-tooltip-pos="left"]::after {
+    border-left-color: var(--tt-bg);
+    left: auto;
+    right: calc(100% + var(--tt-gap) - (var(--tt-arrow) - 2px));
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+/* RIGHT */
+.tooltip[data-tooltip-pos="right"] {
+    --_shift-y: 0;
+    --_shift-x: calc(var(--tt-shift) * -1);
+}
+
+.tooltip[data-tooltip-pos="right"]::before {
+    left: calc(100% + var(--tt-gap));
+    top: 50%;
+    transform: translate(var(--_shift-x), -50%);
+}
+
+.tooltip[data-tooltip-pos="right"]::after {
+    border-right-color: var(--tt-bg);
+    left: calc(100% + var(--tt-gap) - (var(--tt-arrow) - 2px));
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+/* Smart edge nudging to keep bubble on-screen (simple) */
+@supports (left: clamp(0px, 1px, 2px)) {
+    .tooltip::before {
+        left: clamp(10px, 50%, calc(100% - 10px));
+    }
+}
+
+/* High-contrast theme variation */
+.tooltip[data-tooltip-variant="light"] {
+    --tt-bg: #ffffff;
+    --tt-color: #0f172a;
+    --tt-shadow: 0 10px 30px rgba(2, 6, 23, 0.18);
+}
+
+/* Success / Warning / Danger variants */
+.tooltip[data-tooltip-variant="success"] {
+    --tt-bg: #065f46;
+}
+
+.tooltip[data-tooltip-variant="warning"] {
+    --tt-bg: #92400e;
+}
+
+.tooltip[data-tooltip-variant="danger"] {
+    --tt-bg: #7f1d1d;
+}
+
+/* Allow HTML child as the trigger to be focusable */
+.tooltip>*:where(a, button, [tabindex]) {
+    outline-offset: 4px;
+}
+
+/* Reduced motion respect */
+@media (prefers-reduced-motion: reduce) {
+    .tooltip::before {
+        transition: opacity 1ms linear, transform 1ms linear;
+    }
+
+    .tooltip::after {
+        transition: opacity 1ms linear;
+    }
+}
+
+/* Hide when empty to avoid empty popups */
+.tooltip[data-tooltip="" i]::before,
+.tooltip[data-tooltip="" i]::after,
+.tooltip:not([data-tooltip])::before,
+.tooltip:not([data-tooltip])::after {
+    display: none !important;
+}
