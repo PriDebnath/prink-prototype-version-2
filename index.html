@@ -24,6 +24,10 @@
          role="toolbar"
          aria-label="Tools">
       <div class="tool">
+             <div class="tool">
+
+        <div class="tool-label">Sticky</div>
+      </div>
         <button id="tool-sticky"
                 class="tool-btn tooltip"
                 title="Sticky Note"
@@ -33,14 +37,19 @@
       </div>
       <div class="tool">
         <button id="tool-select"
-                class="tool-btn active"
-                title="Select">🔲</button>
+                class="tool-btn tooltip active"
+                title="Select"
+                data-tooltip="Select" data-tooltip-pos="right"
+                >🔲</button>
         <div class="tool-label">Select</div>
       </div>
       <div class="tool">
         <button id="tool-connect"
-                class="tool-btn"
-                title="Connect">🔗</button>
+                class="tool-btn tooltip"
+                title="Connect"
+                data-tooltip="Connect" data-tooltip-pos="right"
+                
+                >🔗</button>
         <div class="tool-label">Connect</div>
       </div>
     </div>
@@ -58,15 +67,25 @@
            id="bottomBar">
         <button class="chip tooltip"
              id="undoBtn"
-                data-tooltip="Undo" data-tooltip-pos="top"
-
-             >Undo (Ctrl+Z)</button>
-        <button class="chip"
-             id="redoBtn">Redo (Ctrl+Y)</button>
-        <button class="chip toggle-on"
-             id="snapToggle">Snap: ON</button>
-        <button class="chip toggle-on"
-             id="gridToggle">Grid: ON</button>
+                data-tooltip="Undo (Ctrl+Z)" data-tooltip-pos="top"
+             >
+             Undo (Ctrl+Z)
+            </button>
+        <button class="chip tooltip"
+                data-tooltip="Redo (Ctrl+Y)" data-tooltip-pos="top"
+             id="redoBtn">
+             Redo (Ctrl+Y)
+            </button>
+        <button class="chip tooltip toggle-on" 
+                data-tooltip="Snap: On" data-tooltip-pos="top"
+             id="snapToggle">
+             Snap: ON
+            </button>
+        <button class="chip tooltip toggle-on"
+                data-tooltip="Grid: On" data-tooltip-pos="top"
+             id="gridToggle">
+             Grid: ON
+            </button>
         <!-- <div style="margin-left:8px;color:#666;font-size:12px">
           Pan: Space+Drag / Middle mouse or two-finger
         </div> -->
