@@ -1,4 +1,4 @@
-Perfect 👌 since you’re new to **Canvas**, let’s break down everything we did so far step by step — like a teacher would. I’ll explain **what** each part does and **why** we need it.
+
 
 ---
 
@@ -108,5 +108,3 @@ For **multiple arrows**, we just repeat this for every pointer action, instead o
 5. Arrows = draw start → end lines.
 
 ---
-
-Would you like me to now **rebuild a very simple version from scratch** (with only arrows first), so you can practice step by step?
