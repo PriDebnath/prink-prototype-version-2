@@ -8,33 +8,38 @@
   <title>Mini Miro</title>
   <link rel="stylesheet"
         href="css/index.css" />
+
+          <link rel="stylesheet"
+        href="css/sidebar.css" />
   <link rel="stylesheet"
-        href="css/toolbar-bottom.css" />
+        href="css/toolbar.css" />
 </head>
 
 <body>
   <div class="app">
+  <div class="sidebar-wrapper">
     <div class="sidebar"
          role="toolbar"
          aria-label="Tools">
-      <div>
+      <div class="tool">
         <button id="tool-sticky"
                 class="tool-btn "
                 title="Sticky Note">📝</button>
         <div class="tool-label">Sticky</div>
       </div>
-      <div>
+      <div class="tool">
         <button id="tool-select"
                 class="tool-btn active"
                 title="Select">🔲</button>
         <div class="tool-label">Select</div>
       </div>
-      <div>
+      <div class="tool">
         <button id="tool-connect"
                 class="tool-btn"
                 title="Connect">🔗</button>
         <div class="tool-label">Connect</div>
       </div>
+    </div>
     </div>
 
     <canvas id="board"
@@ -44,7 +49,7 @@
          spellcheck="false"></div>
 
 
-    <div class="toolbar-bottom-wrapper">
+    <div class="toolbar-wrapper">
       <div class="toolbar-bottom"
            id="bottomBar">
         <button class="chip"

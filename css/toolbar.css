@@ -41,7 +41,7 @@
     background: var(--chip-bg);
     cursor: pointer;
     border: 1px solid var(--chip-border);
-   // animation: popIn-chip 0.4s var(--chip-final-delay) ease-in-out forwards;
+   /* // animation: popIn-chip 0.4s var(--chip-final-delay) ease-in-out forwards; */
     animation: popIn-chip 0.5s var(--chip-final-delay) cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards;
   }
   
