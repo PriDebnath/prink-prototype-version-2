@@ -61,16 +61,18 @@ redoBtn.addEventListener("click", redo);
 
 export function handleGridToggle(){
   state.showGrid = !state.showGrid;
+  console.log(state.showGrid,gridToggle)
   gridToggle.classList.toggle("toggle-on", state.showGrid);
-  gridToggle.innerText = "Grid: " + (state.showGrid ? "ON" : "OFF");
+  gridToggle.setAttribute("data-tooltip", "Grid: " + (state.showGrid ? "ON" : "OFF"));
   draw();
 }
 gridToggle.addEventListener("click", handleGridToggle);
 
 export function handleSnapToGrid(){
   state.snapToGrid = !state.snapToGrid;
+  console.log(state.snapToGrid,snapToggle)
   snapToggle.classList.toggle("toggle-on", state.snapToGrid);
-  snapToggle.innerText = "Snap: " + (state.snapToGrid ? "ON" : "OFF");
+  snapToggle.setAttribute("data-tooltip", "Snap: " + (state.snapToGrid ? "ON" : "OFF"));
 }
 snapToggle.addEventListener("click", handleSnapToGrid);
 

@@ -41,6 +41,10 @@
     background: var(--chip-bg);
     cursor: pointer;
     border: 1px solid var(--chip-border);
+    color: black;
+    color: grey;
+    display: flex !important;
+    aspect-ratio: 1;
    /* // animation: popIn-chip 0.4s var(--chip-final-delay) ease-in-out forwards; */
     animation: popIn-chip 0.5s var(--chip-final-delay) cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards;
   }
@@ -65,6 +69,7 @@
   .chip:active {
     transform: scale(0.9);
     box-shadow: 0 0 var(--toolbar-space) rgba(0, 0, 0, 0.2);
+    color: var(--chip-text)
   }
   
   .chip.toggle-on {
