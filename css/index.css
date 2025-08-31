@@ -1,10 +1,8 @@
   :root {
-      --sidebar-w: 72px;
       --bgstart: #f3f6fb;
       --bgend: #fff;
       --accent: #2563eb;
   }
-
 
   * {
       transition: all 0.2s;

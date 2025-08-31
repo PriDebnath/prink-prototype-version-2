@@ -18,86 +18,50 @@
       }
   }
 
-
-
   /* 
   @keyframes expandToolbar {
-
       0% {
-
           width: 60px;
-
           border-radius: 50%;
-
       }
 
       100% {
-
           width: 320px;
-
           border-radius: 30px;
-
       }
 
   }
 
   @keyframes bubblePop {
-
       0% {
-
           transform: scale(0.9);
-
       }
-
-
 
       50% {
-
           transform: scale(1.2);
-
       }
-
-
 
       100% {
-
           transform: scale(1);
-
       }
-
   } 
 
-
   @keyframes popIn {
-
       0% {
-
           opacity: 0;
-
           transform: scale(0.5) translateY(20px);
-
       }
-
-
 
       80% {
-
           transform: scale(1.1) translateY(0);
-
       }
 
-
-
       100% {
-
           opacity: 1;
-
           transform: scale(1) translateY(0);
-
       }
 
   }
-
 
 */
 
@@ -105,8 +69,7 @@
 
 
   .sidebar-wrapper {
-      width: var(--sidebar-w);
-
+      /* width: var(--sidebar-w); */
       display: flex;
       justify-content: center;
       align-items: center;
@@ -119,7 +82,7 @@
 
 
   .sidebar {
-      width: var(--sidebar-w);
+      /* width: var(--sidebar-w); */
       background: white;
       border-radius: var(--sidebar-border-radius);
       display: flex;
@@ -127,7 +90,7 @@
       align-items: center;
       padding: var(--sidebar-space);
       gap: var(--sidebar-space);
-    box-shadow:  0px var(--sidebar-space) calc(var(--sidebar-space)*4) rgba(0, 0, 0, 0.5);
+      box-shadow: 0px var(--sidebar-space) calc(var(--sidebar-space)*4) rgba(0, 0, 0, 0.5);
 
   }
 
@@ -138,12 +101,12 @@
       font-size: 0;
       padding: 0;
       opacity: 0;
-          display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-      /* // animation: popIn-chip 0.4s var(--chip-final-delay) ease-in-out forwards; */
-      animation: popIn-tool 0.5s var(--sidebar-final-delay) cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      animation: popIn-tool 0.4s var(--chip-final-delay) ease forwards;
+      /* animation: popIn-tool 0.5s var(--sidebar-final-delay) cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards; */
   }
 
   .tool-btn {
@@ -156,8 +119,11 @@
       cursor: pointer;
       user-select: none;
       font-size: inherit;
+      padding: inherit;
       box-shadow: 0 1px 0 rgba(0, 0, 0, 0.03);
-aspect-ratio: 1;
+      aspect-ratio: 1;
+      animation: popIn-tool 0.4s var(--chip-final-delay) ease-in-out forwards;
+
   }
 
 
@@ -197,5 +163,6 @@ aspect-ratio: 1;
       margin-top: var(--sidebar-space);
       color: #666;
       font-size: inherit;
+      padding: inherit;
       text-align: center
   }

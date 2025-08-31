@@ -51,6 +51,7 @@ import "./toolbar-interactions.js";
 import "./keydown-interaction.js";
 import "./utils.js";
 
+
 console.log("Index.js loaded")
 
      // Rounded rect polyfill
@@ -65,3 +66,33 @@ console.log("Index.js loaded")
           this.closePath();
         };
       }
+
+// initial sample data  
+      import { createNote } from "./notes.js";
+      import { createConnector } from "./connectors.js";
+import { pushHistory, undo, redo } from "./history.js";
+import { draw } from "./drawing.js";
+import { getState } from "./state.js";
+import { setTool } from "./toolbar-interactions.js";
+let note1 = createNote(200, 200, "Sticky #1");
+let note2 = createNote(400, 200, "Sticky #2");
+let note3 = createNote(350, 400, "Double-tap to edit");
+
+createConnector(note1.id, note3.id)
+createConnector(note2.id, note3.id)
+
+// helpers exposed for debugging
+  const { idCounter, notes , connectors} = getState();
+window._mini = {
+  notes: notes,
+  connectors: connectors,
+  createNote,
+  createConnector,
+  undo,
+  redo,
+  setTool,
+};
+
+// initialize history with initial state
+pushHistory();
+draw();

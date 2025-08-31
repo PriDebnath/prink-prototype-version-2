@@ -109,21 +109,3 @@ canvas.addEventListener("pointermove", (ev) => {
     h ? (h === "nw" || h === "se" ? "nwse-resize" : "nesw-resize") : "default";
 });
 
-// initial sample notes
-createNote(240, 200, "Double-tap to edit");
-createNote(520, 220, "Sticky #2");
-
-// helpers exposed for debugging
-window._mini = {
-  notes: state.notes,
-  connectors: state.connectors,
-  createNote,
-  createConnector,
-  undo,
-  redo,
-  setTool,
-};
-
-// initialize history with initial state
-pushHistory();
-draw();
