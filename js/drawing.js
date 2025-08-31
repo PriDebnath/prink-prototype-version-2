@@ -272,11 +272,11 @@ export function drawHandlesForNote(note) {
   const sw = note.w * scale;
   const sh = note.h * scale;
   const size = Math.max(8, 8 * scale) ;
-  const half = size / 2;
+  const half = size / 1;
 
   // How much larger the clickable area should be
-  const hitSize = size * 4;
-  const hitHalf = hitSize / 2;
+  const hitSize = size * 8;
+  const hitHalf = hitSize / 1.2;
 
   const handles = [
     { x: s.x - half, y: s.y - half, cursor: "nwse-resize", name: "nw" },
