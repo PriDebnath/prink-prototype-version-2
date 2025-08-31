@@ -216,7 +216,7 @@ connectors.forEach((conn) => {
     // shape
     ctx.fillStyle = note.color;
     let hasSelected = selectedIds.has(note.id);
-    ctx.strokeStyle = hasSelected ? "blue" : "red";
+    ctx.strokeStyle = hasSelected ? "blue" : "#fff59d";
     ctx.lineWidth = hasSelected ? 3 : 1.5;
     ctx.roundRect(s.x, s.y, sw, sh, 8 * scale);
     ctx.fill();
@@ -254,7 +254,7 @@ connectors.forEach((conn) => {
       mh = Math.abs(a.y - b.y);
 
     ctx.strokeStyle = "rgba(37,99,235,0.6)";
-    ctx.lineWidth = 1.5;
+    ctx.lineWidth = 2.5;
     ctx.setLineDash([6, 6]);
     ctx.strokeRect(mx, my, mw, mh);
     ctx.fillStyle = "rgba(37,99,235,0.06)";
@@ -263,14 +263,48 @@ connectors.forEach((conn) => {
   }
 }
 
+// export function drawHandlesForNote(note) {
+//   const { scale } = getState();
+
+//   const s = worldToScreen(note.x, note.y);
+//   const sw = note.w * scale,
+//     sh = note.h * scale;
+//   const size = Math.max(8, 8 * scale) * 1 ;
+//   const half = size / 2 ;
+
+//   const handles = [
+//     { x: s.x - half, y: s.y - half, cursor: "nwse-resize", name: "nw" },
+//     { x: s.x + sw - half, y: s.y - half, cursor: "nesw-resize", name: "ne" },
+//     { x: s.x - half, y: s.y + sh - half, cursor: "nesw-resize", name: "sw" },
+//     { x: s.x + sw - half, y: s.y + sh - half, cursor: "nwse-resize", name: "se" },
+//   ];
+
+//   ctx.save();
+//   ctx.fillStyle = "pink";
+//   ctx.strokeStyle = "purple";
+//   ctx.lineWidth = 1;
+//   for (const h of handles) {
+//     ctx.beginPath();
+//     ctx.rect(h.x, h.y, size, size);
+//     ctx.fill();
+//     ctx.stroke();
+//   }
+//   ctx.restore();
+// }
+
+
 export function drawHandlesForNote(note) {
   const { scale } = getState();
 
   const s = worldToScreen(note.x, note.y);
-  const sw = note.w * scale,
-    sh = note.h * scale;
-  const size = Math.max(8, 8 * scale) * 3;
-  const half = size / 2.9;
+  const sw = note.w * scale;
+  const sh = note.h * scale;
+  const size = Math.max(8, 8 * scale);
+  const half = size / 2;
+
+  // How much larger the clickable area should be
+  const hitSize = size * 2;
+  const hitHalf = hitSize / 2;
 
   const handles = [
     { x: s.x - half, y: s.y - half, cursor: "nwse-resize", name: "nw" },
@@ -279,9 +313,18 @@ export function drawHandlesForNote(note) {
     { x: s.x + sw - half, y: s.y + sh - half, cursor: "nwse-resize", name: "se" },
   ];
 
+  // Add bigger hit zones
+  for (const h of handles) {
+    h.hitX = h.x - (hitHalf - half);
+    h.hitY = h.y - (hitHalf - half);
+    h.hitW = hitSize;
+    h.hitH = hitSize;
+  }
+
+  // Draw the visible small handles
   ctx.save();
-  ctx.fillStyle = "grey";
-  ctx.strokeStyle = "#110ea7ff";
+  ctx.fillStyle = "pink";
+  ctx.strokeStyle = "purple";
   ctx.lineWidth = 1;
   for (const h of handles) {
     ctx.beginPath();
@@ -290,7 +333,11 @@ export function drawHandlesForNote(note) {
     ctx.stroke();
   }
   ctx.restore();
+
+  // Return handles with both visual and hit areas
+  return handles;
 }
+
 
 export function wrapTextLines(ctx, text, maxWidth) {
   if (!text) return [""];

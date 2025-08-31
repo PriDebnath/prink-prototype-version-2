@@ -23,7 +23,7 @@ export function createNote(wx, wy, text = "New note") {
     w,
     h,
     text,
-    color: "pink",
+  color: "#fff59d",
   };
 
   // Update state

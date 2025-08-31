@@ -52,8 +52,10 @@ function getHandlesForNote(note, scale) {
   const pos = worldToScreen(note.x, note.y);
   const sw = note.w * scale;
   const sh = note.h * scale;
-  const size = Math.max(8, 8 * scale) * 3;
-  const half = size / 2.9;
+  // Increase base size from 8 to 12 and multiplier from 3 to 2
+  const size = Math.max(12, 12 * scale) * 2;
+  // Adjust divisor from 2.9 to 2 for better positioning
+  const half = size / 2;
 
   return [
     { x: pos.x - half, y: pos.y - half, w: size, h: size, name: "nw" },
@@ -153,8 +155,8 @@ canvas.addEventListener("pointerdown", (ev) => {
               handle: h.name,
               noteId: note.id,
               start: {
-                x: world.x,
-                y: world.y,
+                x: note.x, // Changed from world.x to note.x
+                y: note.y, // Changed from world.y to note.y
                 origX: note.x,
                 origY: note.y,
                 origW: note.w,
@@ -249,85 +251,40 @@ canvas.addEventListener("pointermove", (ev) => {
     });
     draw();
   } else if (dragging.type === "resize") {
-    // resizing primarySelectedId with handle info
-
     const s = getState();
     const note = s.notes.find((n) => n.id === dragging.noteId);
     if (!note) return;
     const start = dragging.start;
 
-    if (dragging.handle === "se") {
-      let newW = world.x - start.x;
-      let newH = world.y - start.y;
-      if (newW < 30) newW = 30;
-      if (newH < 30) newH = 30;
-      if (s.snapToGrid) {
-        newW = Math.round(newW / s.gridSize) * s.gridSize;
-        newH = Math.round(newH / s.gridSize) * s.gridSize;
+    switch (dragging.handle) {
+      case "se": {
+        note.w = Math.max(30, snap(world.x - start.origX));
+        note.h = Math.max(30, snap(world.y - start.origY));
+        break;
       }
-      note.w = newW;
-      note.h = newH;
-    } else if (dragging.handle === "nw") {
-      let dx = world.x - start.x;
-      let dy = world.y - start.y;
-      let newX = start.origX + dx;
-      let newY = start.origY + dy;
-      let newW = start.origW - dx;
-      let newH = start.origH - dy;
-      if (newW < 30) {
-        newW = 30;
-        newX = start.origX + (start.origW - 30);
+      case "sw": {
+        const newW = Math.max(30, start.origX + start.origW - world.x);
+        note.w = snap(newW);
+        note.x = snap(start.origX + start.origW - note.w);
+        note.h = Math.max(30, snap(world.y - start.origY));
+        break;
       }
-      if (newH < 30) {
-        newH = 30;
-        newY = start.origY + (start.origH - 30);
+      case "ne": {
+        note.w = Math.max(30, snap(world.x - start.origX));
+        const newH = Math.max(30, start.origY + start.origH - world.y);
+        note.h = snap(newH);
+        note.y = snap(start.origY + start.origH - note.h);
+        break;
       }
-      if (s.snapToGrid) {
-        newX = snap(newX);
-        newY = snap(newY);
-        newW = Math.round(newW / s.gridSize) * s.gridSize;
-        newH = Math.round(newH / s.gridSize) * s.gridSize;
+      case "nw": {
+        const newW = Math.max(30, start.origX + start.origW - world.x);
+        const newH = Math.max(30, start.origY + start.origH - world.y);
+        note.w = snap(newW);
+        note.h = snap(newH);
+        note.x = snap(start.origX + start.origW - note.w);
+        note.y = snap(start.origY + start.origH - note.h);
+        break;
       }
-      note.x = newX;
-      note.y = newY;
-      note.w = newW;
-      note.h = newH;
-    } else if (dragging.handle === "ne") {
-      let dy = world.y - start.y;
-      let newY = start.origY + dy;
-      let newW = world.x - start.origX;
-      let newH = start.origH - dy;
-      if (newW < 30) newW = 30;
-      if (newH < 30) {
-        newH = 30;
-        newY = start.origY + (start.origH - 30);
-      }
-      if (s.snapToGrid) {
-        newW = Math.round(newW / s.gridSize) * s.gridSize;
-        newY = snap(newY);
-        newH = Math.round(newH / s.gridSize) * s.gridSize;
-      }
-      note.y = newY;
-      note.w = newW;
-      note.h = newH;
-    } else if (dragging.handle === "sw") {
-      let dx = world.x - start.x;
-      let newX = start.origX + dx;
-      let newW = start.origW - dx;
-      let newH = world.y - start.origY;
-      if (newW < 30) {
-        newW = 30;
-        newX = start.origX + (start.origW - 30);
-      }
-      if (newH < 30) newH = 30;
-      if (s.snapToGrid) {
-        newX = snap(newX);
-        newW = Math.round(newW / s.gridSize) * s.gridSize;
-        newH = Math.round(newH / s.gridSize) * s.gridSize;
-      }
-      note.x = newX;
-      note.w = newW;
-      note.h = newH;
     }
     draw();
   }
