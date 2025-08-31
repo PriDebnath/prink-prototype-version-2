@@ -122,80 +122,80 @@ export function draw() {
   //   ctx.fill();
   //   ctx.restore();
   // });
-// connectors first (so notes draw on top)
-connectors.forEach((conn) => {
-  const a = notes.find((n) => n.id === conn.aId);
-  const b = notes.find((n) => n.id === conn.bId);
-  if (!a || !b) return;
+  // connectors first (so notes draw on top)
+  connectors.forEach((conn) => {
+    const a = notes.find((n) => n.id === conn.aId);
+    const b = notes.find((n) => n.id === conn.bId);
+    if (!a || !b) return;
 
-  const aC = worldToScreen(a.x + a.w / 2, a.y + a.h / 2);
-  const bC = worldToScreen(b.x + b.w / 2, b.y + b.h / 2);
+    const aC = worldToScreen(a.x + a.w / 2, a.y + a.h / 2);
+    const bC = worldToScreen(b.x + b.w / 2, b.y + b.h / 2);
 
-  // bezier control points
-  const dx = (bC.x - aC.x) * 0.4;
-  const cp1 = { x: aC.x + dx, y: aC.y };
-  const cp2 = { x: bC.x - dx, y: bC.y };
+    // bezier control points
+    const dx = (bC.x - aC.x) * 0.4;
+    const cp1 = { x: aC.x + dx, y: aC.y };
+    const cp2 = { x: bC.x - dx, y: bC.y };
 
-  // draw curve
-  ctx.save();
-  ctx.strokeStyle = "rgba(30,30,30,0.45)";
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.moveTo(aC.x, aC.y);
-  ctx.bezierCurveTo(cp1.x, cp1.y, cp2.x, cp2.y, bC.x, bC.y);
-  ctx.stroke();
-
-  // helper: point on bezier
-  function getBezierPoint(t, p0, p1, p2, p3) {
-    const x =
-      Math.pow(1 - t, 3) * p0.x +
-      3 * Math.pow(1 - t, 2) * t * p1.x +
-      3 * (1 - t) * Math.pow(t, 2) * p2.x +
-      Math.pow(t, 3) * p3.x;
-    const y =
-      Math.pow(1 - t, 3) * p0.y +
-      3 * Math.pow(1 - t, 2) * t * p1.y +
-      3 * (1 - t) * Math.pow(t, 2) * p2.y +
-      Math.pow(t, 3) * p3.y;
-    return { x, y };
-  }
-
-  // helper: tangent (angle) on bezier
-  function getBezierTangent(t, p0, p1, p2, p3) {
-    const x =
-      3 * Math.pow(1 - t, 2) * (p1.x - p0.x) +
-      6 * (1 - t) * t * (p2.x - p1.x) +
-      3 * Math.pow(t, 2) * (p3.x - p2.x);
-    const y =
-      3 * Math.pow(1 - t, 2) * (p1.y - p0.y) +
-      6 * (1 - t) * t * (p2.y - p1.y) +
-      3 * Math.pow(t, 2) * (p3.y - p2.y);
-    return Math.atan2(y, x);
-  }
-
-  // draw arrows along curve
-  const arrowSize = 8;
-  for (let t = 0.2; t < 1; t += 0.2) {  // arrows at 20%, 40%, 60%, 80%
-    const pt = getBezierPoint(t, aC, cp1, cp2, bC);
-    const angle = getBezierTangent(t, aC, cp1, cp2, bC);
-
+    // draw curve
+    ctx.save();
+    ctx.strokeStyle = "rgba(30,30,30,0.45)";
+    ctx.lineWidth = 2;
     ctx.beginPath();
-    ctx.moveTo(pt.x, pt.y);
-    ctx.lineTo(
-      pt.x - arrowSize * Math.cos(angle - Math.PI / 6),
-      pt.y - arrowSize * Math.sin(angle - Math.PI / 6)
-    );
-    ctx.lineTo(
-      pt.x - arrowSize * Math.cos(angle + Math.PI / 6),
-      pt.y - arrowSize * Math.sin(angle + Math.PI / 6)
-    );
-    ctx.closePath();
-    ctx.fillStyle = "rgba(30,30,30,0.6)";
-    ctx.fill();
-  }
+    ctx.moveTo(aC.x, aC.y);
+    ctx.bezierCurveTo(cp1.x, cp1.y, cp2.x, cp2.y, bC.x, bC.y);
+    ctx.stroke();
 
-  ctx.restore();
-});
+    // helper: point on bezier
+    function getBezierPoint(t, p0, p1, p2, p3) {
+      const x =
+        Math.pow(1 - t, 3) * p0.x +
+        3 * Math.pow(1 - t, 2) * t * p1.x +
+        3 * (1 - t) * Math.pow(t, 2) * p2.x +
+        Math.pow(t, 3) * p3.x;
+      const y =
+        Math.pow(1 - t, 3) * p0.y +
+        3 * Math.pow(1 - t, 2) * t * p1.y +
+        3 * (1 - t) * Math.pow(t, 2) * p2.y +
+        Math.pow(t, 3) * p3.y;
+      return { x, y };
+    }
+
+    // helper: tangent (angle) on bezier
+    function getBezierTangent(t, p0, p1, p2, p3) {
+      const x =
+        3 * Math.pow(1 - t, 2) * (p1.x - p0.x) +
+        6 * (1 - t) * t * (p2.x - p1.x) +
+        3 * Math.pow(t, 2) * (p3.x - p2.x);
+      const y =
+        3 * Math.pow(1 - t, 2) * (p1.y - p0.y) +
+        6 * (1 - t) * t * (p2.y - p1.y) +
+        3 * Math.pow(t, 2) * (p3.y - p2.y);
+      return Math.atan2(y, x);
+    }
+
+    // draw arrows along curve
+    const arrowSize = 8;
+    for (let t = 0.2; t < 1; t += 0.2) {  // arrows at 20%, 40%, 60%, 80%
+      const pt = getBezierPoint(t, aC, cp1, cp2, bC);
+      const angle = getBezierTangent(t, aC, cp1, cp2, bC);
+
+      ctx.beginPath();
+      ctx.moveTo(pt.x, pt.y);
+      ctx.lineTo(
+        pt.x - arrowSize * Math.cos(angle - Math.PI / 6),
+        pt.y - arrowSize * Math.sin(angle - Math.PI / 6)
+      );
+      ctx.lineTo(
+        pt.x - arrowSize * Math.cos(angle + Math.PI / 6),
+        pt.y - arrowSize * Math.sin(angle + Math.PI / 6)
+      );
+      ctx.closePath();
+      ctx.fillStyle = "rgba(30,30,30,0.6)";
+      ctx.fill();
+    }
+
+    ctx.restore();
+  });
 
   // notes
   notes.forEach((note) => {
@@ -263,35 +263,7 @@ connectors.forEach((conn) => {
   }
 }
 
-// export function drawHandlesForNote(note) {
-//   const { scale } = getState();
-
-//   const s = worldToScreen(note.x, note.y);
-//   const sw = note.w * scale,
-//     sh = note.h * scale;
-//   const size = Math.max(8, 8 * scale) * 1 ;
-//   const half = size / 2 ;
-
-//   const handles = [
-//     { x: s.x - half, y: s.y - half, cursor: "nwse-resize", name: "nw" },
-//     { x: s.x + sw - half, y: s.y - half, cursor: "nesw-resize", name: "ne" },
-//     { x: s.x - half, y: s.y + sh - half, cursor: "nesw-resize", name: "sw" },
-//     { x: s.x + sw - half, y: s.y + sh - half, cursor: "nwse-resize", name: "se" },
-//   ];
-
-//   ctx.save();
-//   ctx.fillStyle = "pink";
-//   ctx.strokeStyle = "purple";
-//   ctx.lineWidth = 1;
-//   for (const h of handles) {
-//     ctx.beginPath();
-//     ctx.rect(h.x, h.y, size, size);
-//     ctx.fill();
-//     ctx.stroke();
-//   }
-//   ctx.restore();
-// }
-
+ 
 
 export function drawHandlesForNote(note) {
   const { scale } = getState();
@@ -299,11 +271,11 @@ export function drawHandlesForNote(note) {
   const s = worldToScreen(note.x, note.y);
   const sw = note.w * scale;
   const sh = note.h * scale;
-  const size = Math.max(8, 8 * scale);
+  const size = Math.max(8, 8 * scale) ;
   const half = size / 2;
 
   // How much larger the clickable area should be
-  const hitSize = size * 2;
+  const hitSize = size * 4;
   const hitHalf = hitSize / 2;
 
   const handles = [
@@ -323,12 +295,13 @@ export function drawHandlesForNote(note) {
 
   // Draw the visible small handles
   ctx.save();
-  ctx.fillStyle = "pink";
-  ctx.strokeStyle = "purple";
-  ctx.lineWidth = 1;
+  ctx.fillStyle = "skylue";
+  ctx.strokeStyle = "blue";
+  ctx.lineWidth = 1.5;
   for (const h of handles) {
     ctx.beginPath();
-    ctx.rect(h.x, h.y, size, size);
+    // ctx.rect(h.x, h.y, size, size); // square handle
+    ctx.arc(h.x + half, h.y + half, half, 0, Math.PI * 2); // circle handle
     ctx.fill();
     ctx.stroke();
   }
