@@ -1,86 +1,83 @@
-  *{
-    transition: all 0.2s;
-  }
   
-  :root{
+  :root {
     --chip-final-delay: 0.6s;
     --chip-bg: #eee;
     --chip-bg-active: #e8f0fe;
     --chip-text: #2563eb;
     --chip-border: #e6e9ef;
+    --toolbar-border-radius: 1.6rem;
+    --toolbar-space: 0.4rem;
+    --toolbar-font-size: 0.8rem;
   }
-    .toolbar-bottom-wrapper {
-      display: flex;
-      justify-content: center;
-      position: fixed;
-      bottom: 1rem;
-      left: 0;
-      right: 0;
-      margin: auto;
-    }
-
-    .toolbar-bottom {
-      display: flex;
-      align-items: center;
-      gap: 0.4rem;
- padding: 0.4rem 0.8rem ;
-      background: white;
-      border-radius: 2rem;
-      padding: 0.2rem 0.4rem;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-      
-     border: 1px solid var(--chip-border);
-    }
-
-    .chip {
-      opacity: 0;
-      font-size: 0;              /* start tiny */
-      padding: 0;                /* start tiny */
-      border-radius: 2rem;
-      background: var(--chip-bg);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      border: 2px solid var(--chip-border);
-      animation: popIn-chip 0.4s var(--chip-final-delay) ease-in-out forwards;
-     animation: popIn-chip 0.5s var(--chip-final-delay) cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards;
-    }
-
-    /* Staggered chips */
-    .chip:nth-child(1) {
-      animation-delay: var(--chip-final-delay); 
-      
-    }
-    .chip:nth-child(2) { 
-      animation-delay: calc(var(--chip-final-delay) * 1/2)
-      }
-    .chip:nth-child(3) { 
-      animation-delay: calc(var(--chip-final-delay) * 1/2)
-    }
-    .chip:nth-child(4) { 
-      animation-delay: var(--chip-final-delay); 
-
-      }
-
-    .chip:active, .chip.active  {
-      transform: scale(0.9);
-      box-shadow: 0 0 12px rgba(0,0,0,0.2);
-    background: var(--chip-bg-active);
-      border: 2px solid var(--chip-text);
-      color: var(--chip-text)
-    }
+  
+  .toolbar-wrapper {
+    display: flex;
+    justify-content: center;
+    position: fixed;
+    bottom: var(--toolbar-space);
+    left: 0;
+    right: 0;
+    margin: auto;
+  }
+  
+  .toolbar-bottom {
+    display: flex;
+    align-items: center;
+    gap: var(--toolbar-space);
+    padding: var(--toolbar-space);
+    background: white;
+    border-radius: var(--toolbar-border-radius);
+    box-shadow:  0px var(--toolbar-space) calc(var(--toolbar-space)*4) rgba(0, 0, 0, 0.5);
+    border: 1px solid var(--chip-border);
+  }
+  
+  .chip {
+    opacity: 0;
+    font-size: 0;
+    /* start tiny */
+    padding: 0;
+    /* start tiny */
+    border-radius: var(--toolbar-border-radius);
+    background: var(--chip-bg);
+    cursor: pointer;
+    border: 1px solid var(--chip-border);
+   // animation: popIn-chip 0.4s var(--chip-final-delay) ease-in-out forwards;
+    animation: popIn-chip 0.5s var(--chip-final-delay) cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards;
+  }
+  
+  /* Staggered chips */
+  .chip:nth-child(1) {
+    animation-delay: var(--chip-final-delay);
+  }
+  
+  .chip:nth-child(2) {
+    animation-delay: calc(var(--chip-final-delay) * 1/2)
+  }
+  
+  .chip:nth-child(3) {
+    animation-delay: calc(var(--chip-final-delay) * 1/2)
+  }
+  
+  .chip:nth-child(4) {
+    animation-delay: var(--chip-final-delay);
+  }
+  
+  .chip:active {
+    transform: scale(0.9);
+    box-shadow: 0 0 var(--toolbar-space) rgba(0, 0, 0, 0.2);
+  }
   
   .chip.toggle-on {
-      background: var(--chip-bg-active);
-      border: 2px solid var(--chip-text);
-      color: var(--chip-text)
+    background: var(--chip-bg-active);
+    border: 1px solid var(--chip-text);
+    color: var(--chip-text)
   }
   
-
-    @keyframes popIn-chip {
-      to {
-        opacity: 1;
-        font-size: 1rem;   
-        padding: 0.4rem 0.6rem; 
-      }
+  
+  @keyframes popIn-chip {
+    to {
+      opacity: 1;
+      font-size: var(--toolbar-font-size);
+      padding: var(--toolbar-space) ;
     }
+  }
