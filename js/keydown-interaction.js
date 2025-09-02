@@ -6,7 +6,7 @@ import { createNote, hideEditor } from "./notes.js";
 import { screenToWorld, worldToScreen } from "./utils.js";
 import { createConnector, hitTestNotes } from "./connectors.js";
 import { pushHistory, redo, undo } from "./history.js";
-import { handleGridToggle, handleSnapToGrid, setTool } from "./toolbar-interactions.js";
+import { handleGridToggle, handleSnapToGrid, setTool } from "./interactions-toolbar-and-sidebar.js";
 
 
 // --- Keyboard ---

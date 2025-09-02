@@ -7,7 +7,7 @@ import { pushHistory, undo, redo } from "./history.js";
 import { draw } from "./drawing.js";
 import { createNote, hideEditor, openEditor, bringToFront } from "./notes.js";
 import { screenToWorld, worldToScreen } from "./utils.js";
-import { handleGridToggle, handleSnapToGrid, setTool } from "./toolbar-interactions.js";
+import { handleGridToggle, handleSnapToGrid, setTool } from "./interactions-toolbar-and-sidebar.js";
 import { createConnector, hitTestNotes } from "./connectors.js";
 
 // --- Helpers ---
@@ -118,18 +118,8 @@ canvas.addEventListener("pointerdown", (ev) => {
   const isSpace = ev.getModifierState && ev.getModifierState("Space");
   const isShift = ev.shiftKey;
   const isMiddle = ev.button === 1;
+console.log("pannnnning",ev.button)
 
-  // Pan
-  if (isMiddle || isSpace || pointerMap.size >= 2) {
-    updateState({
-      dragging: {
-        type: "pan",
-        startClient: { x: ev.clientX, y: ev.clientY },
-        startPan: { x: panX, y: panY },
-      },
-    });
-    return;
-  }
 
   if (hit) {
     bringToFront(hit.id);
@@ -197,17 +187,7 @@ canvas.addEventListener("pointermove", (ev) => {
 
   pointerMap.set(ev.pointerId, { x: ev.clientX, y: ev.clientY });
 
-  if (dragging?.type === "pan") {
-    const dx = ev.clientX - dragging.startClient.x;
-    const dy = ev.clientY - dragging.startClient.y;
-    updateState({
-      panX: dragging.startPan.x + dx,
-      panY: dragging.startPan.y + dy,
-    });
-    draw();
-    return;
-  }
-
+ 
   if (!dragging) return;
 
   const rect = canvas.getBoundingClientRect();

@@ -19,7 +19,7 @@ const state = {
     connectorIdCounter: 1, // For generating unique connector ids
 
     // --- Interaction state ---
-    currentTool: 'select', // Tool currently active: 'sticky'|'select'|'connect'
+    currentTool: 'select', // Tool currently active: 'sticky'|'select'|'connect' | 'pan'
     selectedIds: new Set(), // Keeps track of selected note ids (multi-select supported)
     primarySelectedId: null, // Main selected note id (used for resize handles, etc.)
     dragging: null, // Info about ongoing drag {type:'move'|'pan'|'resize', ...}

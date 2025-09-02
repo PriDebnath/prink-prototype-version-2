@@ -9,6 +9,7 @@ import {
   getRedoBtn,
   getSnapToggle,
   getGridToggle,
+  getPanBtn,
 } from "./index.js";
 
 import { getState } from "./state.js";
@@ -24,16 +25,22 @@ const undoBtn = getUndoBtn();
 const redoBtn = getRedoBtn();
 const stickyBtn = getStickyBtn();
 const selectBtn = getSelectBtn();
+const panBtn = getPanBtn();
 const connectBtn = getConnectBtn();
 const snapToggle = getSnapToggle();
 const gridToggle = getGridToggle();
 
 const state = getState();
 
+
 // toolbar interactions
+panBtn.addEventListener("click", () => {
+  setTool("pan");
+});
 stickyBtn.addEventListener("click", () => {
   setTool("sticky");
 });
+
 selectBtn.addEventListener("click", () => {
   setTool("select");
 });
@@ -43,9 +50,28 @@ connectBtn.addEventListener("click", () => {
 
 export function setTool(t) {
   state.currentTool = t;
+  panBtn.classList.toggle("active", t === "pan");
   stickyBtn.classList.toggle("active", t === "sticky");
   selectBtn.classList.toggle("active", t === "select");
   connectBtn.classList.toggle("active", t === "connect");
+
+  // set cursor depending on tool // not working on canvas
+  // switch (t) {
+  //   case "pan":
+  //     document.body.style.cursor = "grab"; // for panning
+  //     break;
+  //   case "sticky":
+  //     document.body.style.cursor = "crosshair"; // for placing stickies
+  //     break;
+  //   case "select":
+  //     document.body.style.cursor = "default"; // standard selection
+  //     break;
+  //   case "connect":
+  //     document.body.style.cursor = "pointer"; // connection tool
+  //     break;
+  //   default:
+  //     document.body.style.cursor = "default";
+  // }
 
   // reset connect state
   state.connectFirst = null;
