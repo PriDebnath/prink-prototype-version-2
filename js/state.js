@@ -33,7 +33,7 @@ const state = {
     historyLimit: 80,    // Max number of history steps stored
 
     // --- Options ---
-    snapToGrid: true, // Whether notes snap to grid when moved/resized
+    snapToGrid: false, // Whether notes snap to grid when moved/resized
     gridSize: 16,     // Size of grid squares in px
     showGrid: true,   // Whether grid lines are visible
 };

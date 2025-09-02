@@ -326,33 +326,6 @@ canvas.addEventListener("pointerup", (ev) => {
   }
 });
 
-// --- Zoom ---
-canvas.addEventListener(
-  "wheel",
-  (ev) => {
-    ev.preventDefault();
-    const rect = canvas.getBoundingClientRect();
-    const screenX = ev.clientX - rect.left;
-    const screenY = ev.clientY - rect.top;
-    const worldBefore = screenToWorld(screenX, screenY);
-
-    const s = getState();
-    const delta = -ev.deltaY;
-    const zoomFactor = Math.exp(delta * 0.0015);
-    const newScale = Math.max(0.2, Math.min(3, s.scale * zoomFactor));
-
-    updateState({ scale: newScale });
-
-    const worldAfterScreen = worldToScreen(worldBefore.x, worldBefore.y);
-    updateState({
-      panX: s.panX + (screenX - worldAfterScreen.x),
-      panY: s.panY + (screenY - worldAfterScreen.y),
-    });
-
-    draw();
-  },
-  { passive: false }
-);
 
 // --- Pinch ---
 function handleGesture() {

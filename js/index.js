@@ -50,6 +50,7 @@ import "./state.js";
 import "./toolbar-interactions.js";
 import "./keydown-interaction.js";
 import "./utils.js";
+import "./zoom.js";
 
 
 console.log("Index.js loaded")
