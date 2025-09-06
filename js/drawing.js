@@ -1,11 +1,13 @@
-
-
 import { getCanvas, getCtx } from "./index.js";
 import { worldToScreen } from "./utils.js";
 import { getState } from "./state.js";
 
 const canvas = getCanvas();
 const ctx = getCtx();
+
+export function isOdd(number) {
+ return number % 2 
+}
 
 export function drawGrid() {
   /// Read it bro!!!!!!!!!!!! 
@@ -30,9 +32,6 @@ export function drawGrid() {
   // later we’ll restore it so grid drawing doesn’t interfere
   ctx.save();
 
-  // Set line style for the grid
-  ctx.strokeStyle = "rgba(0,0,0,0.04)"; // very light grey lines
-  ctx.lineWidth = 1;
 
   // // idea
   // // beginPath() → clear previous path and start a new one.
@@ -42,21 +41,47 @@ export function drawGrid() {
 
   //   // ---- Vertical grid lines ----
   //   // The starting X depends on panX (so grid scrolls with pan)
+  let toggleVerLineWidth = true
   const startX = panX % step;
   for (let x = startX; x < canvas.width; x += step) {
     ctx.beginPath();  //→ clear previous path and start a new one
     ctx.moveTo(x, 0);               // top of canvas
+      ctx.strokeStyle = "rgba(0,0,0,0.04)"; // very light grey lines
     ctx.lineTo(x, canvas.height);   // bottom of canvas
+    ///
+    // Set line style for the grid
+    ctx.strokeStyle = "rgba(0,0,0,0.04)"
+       if(toggleVerLineWidth){
+     toggleVerLineWidth = false
+   }else{
+     toggleVerLineWidth = true
+   }
+
+ctx.lineWidth = toggleVerLineWidth ? 0.5 : 2;
+
     ctx.stroke(); //→ draw it on the canvas.
   }
 
   // ---- Horizontal grid lines ----
   // The starting Y depends on panY (so grid scrolls with pan)
   const startY = panY % step;
+  let toggleHoriLineWidth = false
   for (let y = startY; y < canvas.height; y += step) {
     ctx.beginPath();  //→ clear previous path and start a new one
     ctx.moveTo(0, y);               // left of canvas
     ctx.lineTo(canvas.width, y);    // right of canvas
+    ///
+    // Set line style for the grid
+
+    ctx.strokeStyle =  "rgba(0,0,0,0.04)"
+   /// 
+   if(toggleHoriLineWidth){
+     toggleHoriLineWidth = false
+   }else{
+     toggleHoriLineWidth = true
+   }
+    ctx.strokeStyle = "rgba(0,0,0,0.04)"; // very light grey lines
+   ctx.lineWidth = toggleHoriLineWidth ? 0.5 : 2;
     ctx.stroke(); //→ draw it on the canvas.
   }
 

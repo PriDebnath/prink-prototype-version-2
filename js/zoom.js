@@ -8,7 +8,9 @@ const canvas = getCanvas();
 
 //// --- Mobile Zoom Start ------------------------------------------------------------------------------------------
 
-function mobileZoom(startDist, startScale, newDist, midpoint) {
+export function mobileZoom(startDist, startScale, newDist, midpoint) {
+  const state = getState();
+
   // Calculate how much the distance between two fingers has changed
   // newDist / startDist gives the pinch ratio:
   // - If fingers move apart → ratio > 1 (zoom in)

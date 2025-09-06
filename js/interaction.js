@@ -61,23 +61,35 @@ function getHandlesForNote(note, scale) {
     { x: pos.x - half, y: pos.y - half, w: size, h: size, name: "nw" },
     { x: pos.x + sw - half, y: pos.y - half, w: size, h: size, name: "ne" },
     { x: pos.x - half, y: pos.y + sh - half, w: size, h: size, name: "sw" },
-    { x: pos.x + sw - half, y: pos.y + sh - half, w: size, h: size, name: "se" },
+    { x: pos.x + sw - half, y: pos.y + sh - half, w: size, h: size, name: "se" }, 
   ];
 }
 
 // --- Input & Interaction ---
 canvas.addEventListener("pointerdown", (ev) => {
   const state = getState();
-  const { pointerMap, currentTool, panX, panY } = state;
+  const { 
+    pointerMap, 
+    currentTool, 
+    panX, 
+    panY 
+  } = state;
 
   canvas.setPointerCapture(ev.pointerId);
-  pointerMap.set(ev.pointerId, { x: ev.clientX, y: ev.clientY });
+  pointerMap.set(ev.pointerId, { 
+    x: ev.clientX, 
+    y: ev.clientY 
+  });
 
   const rect = canvas.getBoundingClientRect();
-  const screen = { x: ev.clientX - rect.left, y: ev.clientY - rect.top };
+  const screen = { 
+    x: ev.clientX - rect.left, 
+    y: ev.clientY - rect.top 
+  };
   const world = screenToWorld(screen.x, screen.y);
 
-  // Tool: sticky
+
+  /// Tool: sticky
   if (currentTool === "sticky") {
     const newNote = createNote(world.x, world.y, "New note");
     selectNoteId(newNote.id, false);
@@ -86,7 +98,8 @@ canvas.addEventListener("pointerdown", (ev) => {
     return;
   }
 
-  // Tool: connect
+
+  /// Tool: connect
   if (currentTool === "connect") {
     const hit = hitTestNotes(world.x, world.y);
     if (hit) {
@@ -113,17 +126,16 @@ canvas.addEventListener("pointerdown", (ev) => {
     return;
   }
 
-  // Tool: select
+
+ 
   const hit = hitTestNotes(world.x, world.y);
   const isSpace = ev.getModifierState && ev.getModifierState("Space");
   const isShift = ev.shiftKey;
   const isMiddle = ev.button === 1;
-console.log("pannnnning",ev.button)
 
-
+  /// Default hit check
   if (hit) {
     bringToFront(hit.id);
-
     const s2 = getState();
     if (isShift) selectNoteIdToggle(hit.id);
     else if (!s2.selectedIds.has(hit.id)) selectNoteId(hit.id, false);
@@ -159,17 +171,24 @@ console.log("pannnnning",ev.button)
         }
       }
     }
-
-    // --- fallback: move ---
+    // --- on hitting any item help it move ---
     const { notes, selectedIds } = getState();
     const offsets = {};
     selectedIds.forEach((sid) => {
       const n = notes.find((z) => z.id === sid);
       offsets[sid] = { x: world.x - n.x, y: world.y - n.y };
     });
-    updateState({ dragging: { type: "move", offsets } });
+    updateState({ 
+      dragging: { 
+        type: "move", 
+        offsets 
+      } 
+    });
     pushHistory();
-  } else {
+  }
+  
+    /// Tool: select
+  if (!hit &&  currentTool === "select"){
     // Empty click → marquee
     updateState({
       selectedIds: new Set(),
@@ -179,6 +198,9 @@ console.log("pannnnning",ev.button)
     });
     draw();
   }
+
+
+  
 });
 
 canvas.addEventListener("pointermove", (ev) => {
@@ -191,7 +213,10 @@ canvas.addEventListener("pointermove", (ev) => {
   if (!dragging) return;
 
   const rect = canvas.getBoundingClientRect();
-  const screen = { x: ev.clientX - rect.left, y: ev.clientY - rect.top };
+  const screen = {
+    x: ev.clientX - rect.left,
+    y: ev.clientY - rect.top
+    };
   const world = screenToWorld(screen.x, screen.y);
 
   if (dragging.type === "move") {
@@ -293,7 +318,6 @@ canvas.addEventListener("pointerup", (ev) => {
 let lastUpTime = 0;
 canvas.addEventListener("pointerup", (ev) => {
   // double-up detection (runs in addition to the above pointerup handler)
-
   const now = Date.now();
   const dt = now - lastUpTime;
   lastUpTime = now;
@@ -306,52 +330,3 @@ canvas.addEventListener("pointerup", (ev) => {
   }
 });
 
-
-// --- Pinch ---
-function handleGesture() {
-  const s = getState();
-  if (s.pointerMap.size < 2) return;
-  const pts = Array.from(s.pointerMap.values());
-  const [p0, p1] = pts;
-  const midX = (p0.x + p1.x) / 2;
-  const midY = (p0.y + p1.y) / 2;
-  const dist = Math.hypot(p0.x - p1.x, p0.y - p1.y);
-  if (!handleGesture.last) {
-    handleGesture.last = {
-      dist,
-      midX,
-      midY,
-      scale: s.scale,
-      panX: s.panX,
-      panY: s.panY,
-    };
-    return;
-  } else {
-    const ls = handleGesture.last;
-    const factor = dist / ls.dist;
-    const newScale = Math.max(0.2, Math.min(3, ls.scale * factor));
-
-    const rect = canvas.getBoundingClientRect();
-    const screenMidX = midX - rect.left;
-    const screenMidY = midY - rect.top;
-    const worldAtMid = screenToWorld(screenMidX, screenMidY);
-
-    updateState({ scale: newScale });
-
-    const after = worldToScreen(worldAtMid.x, worldAtMid.y);
-    updateState({
-      panX: ls.panX + (screenMidX - after.x),
-      panY: ls.panY + (screenMidY - after.y),
-    });
-    draw();
-  }
-}
-
-canvas.addEventListener("pointermove", (ev) => {
-  const s = getState();
-  if (s.pointerMap.size >= 2) handleGesture();
-});
-
-canvas.addEventListener("pointerup", () => {
-  handleGesture.last = null;
-});

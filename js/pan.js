@@ -1,8 +1,6 @@
-
-
-
 import { draw } from "./drawing.js";
 import { getCanvas } from "./index.js";
+import { mobileZoom } from "./zoom.js";
 import { getState, updateState } from "./state.js";
 import { screenToWorld, worldToScreen } from "./utils.js";
 
@@ -26,7 +24,10 @@ canvas.addEventListener("mousedown", (ev) => {
         updateState({
             dragging: {
                 type: "pan",
-                startClient: { x: ev.clientX, y: ev.clientY },
+                startClient: {
+                    x: ev.clientX,
+                    y: ev.clientY
+                },
             },
         });
         return;
@@ -43,7 +44,10 @@ canvas.addEventListener("mousemove", (e) => {
     updateState({
         dragging: {
             type: "pan",
-            startClient: { x: e.clientX, y: e.clientY },
+            startClient: {
+                x: e.clientX,
+                y: e.clientY
+            },
         },
     });
 });
@@ -53,7 +57,7 @@ canvas.addEventListener("mouseleave", () => { updateState({ dragging: null }) })
 
 //// --- Desktop Pan/Move/Camera move End ------------------------------------------------------------------------------------------
 
-//// --- Mobile Pan/Move/Camera move Start ------------------------------------------------------------------------------------------
+//// --- Mobile Zoom/Pan/Move/Camera/ move Start ------------------------------------------------------------------------------------------
 function mobilePan(dx, dy) {
     const state = getState();
     state.panX += dx;
@@ -62,79 +66,110 @@ function mobilePan(dx, dy) {
 }
 
 
-function clearPinch() {
-    const state = getState();
-
-    delete state._pinchStartDist;
-    delete state._pinchStartScale;
-    delete state._pinchMidpoint;
+// === Helper functions for multi-touch ===
+function getDistance(p1, p2) {
+    return Math.hypot(p2.x - p1.x, p2.y - p1.y); // Euclidean distance
 }
+
+function getMidpoint(p1, p2) {
+    return { x: (p1.x + p2.x) / 2, y: (p1.y + p2.y) / 2 }; // Midpoint
+}
+
 
 
 canvas.addEventListener("pointerdown", (e) => {
     const state = getState();
-    console.log({state})
-
-    if (state.currentTool == 'pan' && state. device == 'mobile') {
-    state.pointerMap.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    console.log({ state })
+    
+    if (state.currentTool == 'pan' && state.device == 'mobile') {
+        state.pointerMap.set(e.pointerId, {
+            x: e.clientX,
+            y: e.clientY
+        });
     }
 });
 
 
 canvas.addEventListener("pointermove", (e) => {
     const state = getState();
-
-    if (state.currentTool != 'mobile') return;
+    
+    console.log(
+        state.pointerMap.size,
+        e.pointerId,
+        state.pointerMap.has(e.pointerId),
+        state.currentTool,
+        state.selectedIds.size
+    )
+    if (state.selectedIds.size >= 2) return; // when user have selected more items, let it move.
+    
+    if (state.device != 'mobile') return;
+    
     if (state.currentTool != 'pan') return;
+    
     if (!state.pointerMap.has(e.pointerId)) return;
-    console.log('nanananana')
     state.pointerMap.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    
+    
     if (state.pointerMap.size === 2) {
+        
         // pinch zoom
         const pts = Array.from(state.pointerMap.values());
+        console.log({pts})
         const [p1, p2] = pts;
-        if (!state._pinchStartDist) {
-            state._pinchStartDist = distance(p1, p2);
-            state._pinchStartScale = state.scale;
-            state._pinchMidpoint = midpoint(p1, p2);
+        if (!state?.dragging?.pinch?.startDist) {
+            updateState({
+                dragging: {
+                    type: "pan",
+                    pinch: {
+                        startDist: getDistance(p1, p2),
+                        startScale: state.scale,
+                        midpoint: getMidpoint(p1, p2),
+                        y: e.clientY
+                    },
+                }
+            })
         } else {
-            const newDist = distance(p1, p2);
+            const newDist = getDistance(p1, p2);
             mobileZoom(
-                state._pinchStartDist,
-                state._pinchStartScale,
+                state.dragging.pinch
+                .startDist,
+                state.dragging.pinch.startScale,
                 newDist,
-                state._pinchMidpoint
+                state.dragging.pinch.midpoint
             );
         }
     }
     if (state.pointerMap.size === 1) {
         // single finger pan
-        const p = state.pointerMap.get(e.pointerId);
-        if (state._lastTouch) {
-            const dx = p.x - state._lastTouch.x;
-            const dy = p.y - state._lastTouch.y;
+        const startClient = state.pointerMap.get(e.pointerId);
+        if (state.dragging && state.dragging?.startClient?.x) {
+            const dx = startClient.x - state.dragging.startClient.x;
+            
+            const dy = startClient.y - state.dragging.startClient.y;
             mobilePan(dx, dy);
         }
-        state._lastTouch = { ...p };
+        state.dragging = {
+            type: "pan",
+            startClient: startClient
+        };
     }
 });
 
+function clearMobilePan(e) {
+    const state = getState();
+    state.pointerMap.delete(e.pointerId);
+    state.dragging = null
+}
+
 canvas.addEventListener("pointerup", (e) => {
-    const state = getState();
+    clearMobilePan(e)
+})
 
-    state.pointerMap.delete(e.pointerId);
-    if (state.pointerMap.size < 2) clearPinch();
-    if (state.pointerMap.size === 0) delete state._lastTouch;
-});
 canvas.addEventListener("pointercancel", (e) => {
-    const state = getState();
-
-    state.pointerMap.delete(e.pointerId);
-    if (state.pointerMap.size < 2) clearPinch();
-    if (state.pointerMap.size === 0) delete state._lastTouch;
+    clearMobilePan(e)
 });
 
-//// --- Mobile Pan/Move/Camera move End ------------------------------------------------------------------------------------------
+//// --- Mobile Zoom/Pan/Move/Camera move End ------------------------------------------------------------------------------------------
 
 
 console.log("pan.js loaded");
