@@ -1,10 +1,12 @@
 const state = {
+   // Device
+    device : "mobile", 
     notes: [], // Array of note objects {id, x, y, w, h, text, color}
     connectors: [], // Array of connector objects {id, a, b} (a/b = connected note ids)
 
     // --- Viewport transform ---
-    // panX and panY represent how far the "camera" (viewport)
-    // has been shifted horizontally and vertically from the origin (0,0).
+    // panX and panY represent how far the "camera" (viewport) has been shifted horizontally and vertically from the origin (0,0).
+    // 
     // Instead of moving all notes on canvas, we move the virtual viewport.
     // For example:
     //   panX = +100 → means the view is shifted right by 100px
@@ -19,7 +21,7 @@ const state = {
     connectorIdCounter: 1, // For generating unique connector ids
 
     // --- Interaction state ---
-    currentTool: 'select', // Tool currently active: 'sticky'|'select'|'connect' | 'pan'
+    currentTool: 'pan', // Tool currently active: 'sticky'|'select'|'connect' | 'pan'
     selectedIds: new Set(), // Keeps track of selected note ids (multi-select supported)
     primarySelectedId: null, // Main selected note id (used for resize handles, etc.)
     dragging: null, // Info about ongoing drag {type:'move'|'pan'|'resize', ...}
