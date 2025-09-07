@@ -1,6 +1,10 @@
-const state = {
-   // Device
-    device : "mobile", 
+
+let device = window.innerWidth <= 768 ? "mobile" : "desktop"
+
+function createInitialState() {
+  return {
+    // Device
+    device: device,
     notes: [], // Array of note objects {id, x, y, w, h, text, color}
     connectors: [], // Array of connector objects {id, a, b} (a/b = connected note ids)
 
@@ -38,12 +42,35 @@ const state = {
     snapToGrid: false, // Whether notes snap to grid when moved/resized
     gridSize: 16,     // Size of grid squares in px
     showGrid: true,   // Whether grid lines are visible
-};
+  };
+}
 
-export function getState() { 
-  return state; 
+let state = createInitialState()
+
+export function getState() {
+  return state;
 }
 
 export function updateState(partial) {
   Object.assign(state, partial);
+}
+
+export function resetStatePreserveHistory() {
+  const fresh = createInitialState();
+
+  // keep these fields intact
+  const preserved = {
+    history: state.history,
+    historyIndex: state.historyIndex,
+    historyLimit: state.historyLimit,
+  };
+
+  // overwrite state object in place
+  Object.keys(state).forEach(key => {
+    if (preserved[key] !== undefined) {
+      state[key] = preserved[key];
+    } else {
+      state[key] = fresh[key];
+    }
+  });
 }

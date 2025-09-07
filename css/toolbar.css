@@ -1,6 +1,6 @@
   
   :root {
-    --chip-final-delay: 0.6s;
+    --chip-final-delay: 1s;
     --chip-bg: #eee;
     --chip-bg-active: #e8f0fe;
     --chip-text: #2563eb;
@@ -49,7 +49,7 @@
     animation: popIn-chip 0.5s var(--chip-final-delay) cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards;
   }
   
-  /* Staggered chips */
+  /* Staggered chips (5) */
   .chip:nth-child(1) {
     animation-delay: var(--chip-final-delay);
   }
@@ -59,10 +59,14 @@
   }
   
   .chip:nth-child(3) {
-    animation-delay: calc(var(--chip-final-delay) * 1/2)
+    animation-delay: calc(var(--chip-final-delay) * 1/4)
   }
   
   .chip:nth-child(4) {
+    animation-delay: calc(var(--chip-final-delay) * 1/2)
+  }
+
+    .chip:nth-child(5) {
     animation-delay: var(--chip-final-delay);
   }
   

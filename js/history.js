@@ -1,7 +1,7 @@
  
 
 import { draw } from "./drawing.js";
-import { getState } from "./state.js";
+import { getState, resetStatePreserveHistory } from "./state.js";
 import { getUndoBtn, getRedoBtn } from "./index.js";
 
 const undoBtn = getUndoBtn()
@@ -61,4 +61,11 @@ export function redo() {
   setTimeout(() => {
     redoBtn.classList.remove("active");
   }, 200);
+}
+
+
+// --- Clear state but keep undo ---
+export function cleanState() {
+  pushHistory("clear");
+  resetStatePreserveHistory();
 }

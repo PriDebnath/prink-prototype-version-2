@@ -1,10 +1,11 @@
- 
+
 import {
   getCanvas,
   getEditor,
   getStickyBtn,
   getSelectBtn,
   getConnectBtn,
+  getCleanBtn,
   getUndoBtn,
   getRedoBtn,
   getSnapToggle,
@@ -17,12 +18,14 @@ import { draw } from "./drawing.js";
 import { createNote, hideEditor, openEditor } from "./notes.js";
 import { screenToWorld, worldToScreen } from "./utils.js";
 import { createConnector, hitTestNotes } from "./connectors.js";
-import { pushHistory, redo, undo } from "./history.js";
+import { pushHistory, redo, undo, cleanState } from "./history.js";
 
 const canvas = getCanvas();
 const editor = getEditor();
 const undoBtn = getUndoBtn();
 const redoBtn = getRedoBtn();
+const cleanBtn = getCleanBtn();
+
 const stickyBtn = getStickyBtn();
 const selectBtn = getSelectBtn();
 const panBtn = getPanBtn();
@@ -81,22 +84,55 @@ export function setTool(t) {
   draw();
 }
 
-// bottom toolbar toggles
-undoBtn.addEventListener("click", undo);
-redoBtn.addEventListener("click", redo);
+function updateUndoRedoUi() {
+  setTimeout(() => {
+    let { history, historyIndex } = getState()
+    console.log("index, arr.len", historyIndex, history.length)
+    if (historyIndex >= 1) {
+      undoBtn.classList.add("toggle-on")
+    } else {
+      undoBtn.classList.remove("toggle-on")
+    }
+    ///
+    if (historyIndex + 1 < history?.length) {
+      redoBtn.classList.add("toggle-on")
+    } else {
+      redoBtn.classList.remove("toggle-on")
+    }
+  }, 8);
+}
 
-export function handleGridToggle(){
+
+// bottom toolbar toggles
+cleanBtn.addEventListener("click", () => {
+  cleanState()
+  draw()
+});
+undoBtn.addEventListener("click", () => {
+  undo()
+  updateUndoRedoUi()
+
+});
+
+redoBtn.addEventListener("click", () => {
+  redo()
+  updateUndoRedoUi()
+});
+//
+updateUndoRedoUi()// initial call
+
+export function handleGridToggle() {
   state.showGrid = !state.showGrid;
-  console.log(state.showGrid,gridToggle)
+  console.log(state.showGrid, gridToggle)
   gridToggle.classList.toggle("toggle-on", state.showGrid);
   gridToggle.setAttribute("data-tooltip", "Grid: " + (state.showGrid ? "ON" : "OFF"));
   draw();
 }
 gridToggle.addEventListener("click", handleGridToggle);
 
-export function handleSnapToGrid(){
+export function handleSnapToGrid() {
   state.snapToGrid = !state.snapToGrid;
-  console.log(state.snapToGrid,snapToggle)
+  console.log(state.snapToGrid, snapToggle)
   snapToggle.classList.toggle("toggle-on", state.snapToGrid);
   snapToggle.setAttribute("data-tooltip", "Snap: " + (state.snapToGrid ? "ON" : "OFF"));
 }
