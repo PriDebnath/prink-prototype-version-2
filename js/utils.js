@@ -14,4 +14,12 @@ export function screenToWorld(sx, sy) {
     return { x: (sx - panX) / scale, y: (sy - panY) / scale };
 }
 
+export function getDarkenColor(hex, factor = 0.7) {
+  let c = parseInt(hex.slice(1), 16);
+  let r = Math.floor(((c >> 16) & 255) * factor);
+  let g = Math.floor(((c >> 8) & 255) * factor);
+  let b = Math.floor((c & 255) * factor);
+  return `rgb(${r},${g},${b})`;
+}
+
 console.log("utils.js loaded");

@@ -1,5 +1,5 @@
 import { getCanvas, getCtx } from "./index.js";
-import { worldToScreen } from "./utils.js";
+import { getDarkenColor, worldToScreen } from "./utils.js";
 import { getState } from "./state.js";
 
 const canvas = getCanvas();
@@ -195,7 +195,7 @@ export function draw() {
 
     // shadow
     ctx.save();
-    ctx.shadowColor = "rgba(16,24,40,0.08)";
+    ctx.shadowColor = "rgba(16,24,40,0.2)";
     ctx.shadowBlur = 10;
 
     // reset
@@ -204,7 +204,7 @@ export function draw() {
     // shape
     ctx.fillStyle = note.color;
     let hasSelected = selectedIds.has(note.id);
-    ctx.strokeStyle = hasSelected ? "blue" : "#fff59d";
+    ctx.strokeStyle = hasSelected ? "#2563EB" : getDarkenColor(note.color);
     ctx.lineWidth = hasSelected ? 3 : 1.5;
     ctx.roundRect(s.x, s.y, sw, sh, 8 * scale);
     ctx.fill();
