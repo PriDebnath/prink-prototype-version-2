@@ -28,6 +28,10 @@ export function getConnectBtn() {
     return document.getElementById('tool-connect');
 }
 
+export function getCleanBtn() {
+    return document.getElementById('cleanBtn');
+}
+
 export function getUndoBtn() {
     return document.getElementById('undoBtn');
 }
