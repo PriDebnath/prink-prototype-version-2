@@ -41,7 +41,7 @@
     border: 1px solid var(--chip-border);
   }
 
-  .chip {
+  .chip, .header-chip  {
     opacity: 0;
     font-size: 0;
     /* start tiny */

@@ -4,9 +4,45 @@ import { getCanvas } from "./index.js";
 import { draw } from "./drawing.js";
 import { screenToWorld, worldToScreen } from "./utils.js";
 
-let zoomMulti = 10
-let zoomValueSpan = document.getElementById('zoom-value-span')
+let zoomMulti = 20
 const canvas = getCanvas();
+
+function updateZoomValueSpanUi(scale) {
+let zoomValueSpan = document.getElementById('zoom-value-span')
+  zoomValueSpan.textContent = Math.round(scale ) + "%"
+}
+
+export function handleCenterZoomInOut(zoomType = "+") {
+  const state = getState();
+
+  // Decide zoom factor based on type
+  let zoomFactor = zoomType === "+" ? 1.1 : 1 / 1.1;
+  let newScale = state.scale * zoomFactor;
+
+  // Get canvas center point in screen space
+  const rect = canvas.getBoundingClientRect();
+  const canvasClientX = rect.left + rect.width / 2;
+  const canvasClientY = rect.top + rect.height / 2;
+
+  // Convert that point into world coords before zoom
+  const worldX = (canvasClientX - state.panX) / state.scale;
+  const worldY = (canvasClientY - state.panY) / state.scale;
+
+  // Adjust pan so canvas center stays in place
+  state.panX = canvasClientX - worldX * newScale;
+  state.panY = canvasClientY - worldY * newScale;
+
+  // Clamp zoom range
+  state.scale = Math.max(0.1, Math.min(5, newScale));
+
+  // Redraw with new pan + zoom
+  draw();
+
+  // Update UI
+  updateZoomValueSpanUi(state.scale * zoomMulti);
+
+  console.log(state.scale);
+}
 
 
 //// --- Mobile Zoom Start ------------------------------------------------------------------------------------------
@@ -26,7 +62,7 @@ export function mobileZoom(startDist, startScale, newDist, midpoint) {
 
   // Clamp the zoom level so it doesn’t get too small (< 0.2x) or too large (> 5x)
   // Prevents the user from zooming infinitely
-  const clamped = Math.max(0.2, Math.min(5, newScale));
+  const clamped = Math.max(0.1, Math.min(5, newScale));
 
   // Convert the screen midpoint (between two fingers) into world coordinates
   // This ensures zooming is centered around the fingers, not the top-left corner
@@ -42,8 +78,7 @@ export function mobileZoom(startDist, startScale, newDist, midpoint) {
   state.scale = clamped;
 
   /// Updte Ui
-  zoomValueSpan.textContent = Math.round(clamped * zoomMulti) + "%"
-console.log({zoomValueSpan})
+  updateZoomValueSpanUi(clamped * zoomMulti) 
   // Redraw the canvas with the updated pan + zoom values
   draw();
 }
@@ -63,11 +98,11 @@ function desktopZoom(deltaY, clientX, clientY) {
   else if (deltaY < 0) {
     newScale /= zoomFactor // if deltaY less than 0 zoom out
   };
-  newScale = Math.max(0.2, Math.min(5, newScale));
+  newScale = Math.max(0.1, Math.min(5, newScale));
 
   /// Updte Ui
-    zoomValueSpan.textContent = Math.round(newScale * zoomMulti) + "%"
-console.log({zoomValueSpan})
+  updateZoomValueSpanUi(newScale * zoomMulti) 
+
   const worldBefore = screenToWorld(clientX, clientY);
 
   const { x: worldX, y: worldY } = worldBefore

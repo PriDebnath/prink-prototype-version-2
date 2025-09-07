@@ -28,6 +28,8 @@ export function getConnectBtn() {
     return document.getElementById('tool-connect');
 }
 
+///------
+
 export function getCleanBtn() {
     return document.getElementById('cleanBtn');
 }
@@ -47,6 +49,15 @@ export function getSnapToggle() {
 export function getGridToggle() {
     return document.getElementById('gridToggle');
 }
+
+
+export function getZoomInBtn() {
+    return document.getElementById('zoomInBtn');
+}
+
+
+///------
+
 
 // Load files
 import "./canvas.js";

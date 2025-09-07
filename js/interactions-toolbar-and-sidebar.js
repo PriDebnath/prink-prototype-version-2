@@ -11,14 +11,16 @@ import {
   getSnapToggle,
   getGridToggle,
   getPanBtn,
+getZoomInBtn
 } from "./index.js";
 
-import { getState } from "./state.js";
+import { getState, updateState } from "./state.js";
 import { draw } from "./drawing.js";
 import { createNote, hideEditor, openEditor } from "./notes.js";
 import { screenToWorld, worldToScreen } from "./utils.js";
 import { createConnector, hitTestNotes } from "./connectors.js";
 import { pushHistory, redo, undo, cleanState } from "./history.js";
+import { handleCenterZoomInOut } from "./zoom.js";
 
 const canvas = getCanvas();
 const editor = getEditor();
@@ -35,6 +37,11 @@ const gridToggle = getGridToggle();
 
 const state = getState();
 
+// header
+let zoomInBtn = getZoomInBtn()
+zoomInBtn.addEventListener("click", () => {
+  handleCenterZoomInOut("+");
+});
 
 // toolbar interactions
 panBtn.addEventListener("click", () => {
@@ -132,7 +139,6 @@ gridToggle.addEventListener("click", handleGridToggle);
 
 export function handleSnapToGrid() {
   state.snapToGrid = !state.snapToGrid;
-  console.log(state.snapToGrid, snapToggle)
   snapToggle.classList.toggle("toggle-on", state.snapToGrid);
   snapToggle.setAttribute("data-tooltip", "Snap: " + (state.snapToGrid ? "ON" : "OFF"));
 }
