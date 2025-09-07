@@ -130,13 +130,14 @@
 
     <canvas id="board"
             aria-label="Canvas board"></canvas>
-   <div id="editor"
+    <div id="editor"
          contenteditable="true"
-     
-         spellcheck="false"></div> 
-<div id="editor-tray" style="position:absolute; display:none; background:#f0f0f0; padding:4px; border:1px solid #ccc; border-radius:6px;">
-  <input type="color" id="editor-color-picker" />
-</div>
+         spellcheck="false"></div>
+    <div id="editor-tray"
+         style="position:absolute; display:none; background:#f0f0f0; padding:4px; border:1px solid #ccc; border-radius:6px;">
+      <input type="color"
+             id="editor-color-picker" />
+    </div>
 
     <!-- <div id="editor-container"
          style="position:absolute; display:none;">
@@ -169,7 +170,16 @@
       </div>
     </div> -->
 
+    <!-- Header toolbar  -->
+    <div class="header-toolbar-wrapper">
+      <div class="header-toolbar"
+           id="bottomBar">
+         <div> <span>Zoom:</span> <span id="zoom-value-span">100%</span></div>
+      </div>
+    </div>
 
+
+    <!-- Footer toolbar  -->
     <div class="toolbar-wrapper">
       <div class="toolbar-bottom"
            id="bottomBar">

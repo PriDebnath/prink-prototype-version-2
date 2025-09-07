@@ -19,8 +19,18 @@
     right: 0;
     margin: auto;
   }
+
+  .header-toolbar-wrapper{
+    display: flex;
+    justify-content: center;
+    position: fixed;
+    top: var(--toolbar-space);
+    left: 0;
+    right: 0;
+    margin: auto;
+  }
   
-  .toolbar-bottom {
+  .toolbar-bottom, .header-toolbar {
     display: flex;
     align-items: center;
     gap: var(--toolbar-space);
@@ -30,7 +40,7 @@
     box-shadow:  0px var(--toolbar-space) calc(var(--toolbar-space)*4) rgba(0, 0, 0, 0.5);
     border: 1px solid var(--chip-border);
   }
-  
+
   .chip {
     opacity: 0;
     font-size: 0;

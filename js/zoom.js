@@ -3,6 +3,9 @@ import { getState, updateState } from "./state.js";
 import { getCanvas } from "./index.js";
 import { draw } from "./drawing.js";
 import { screenToWorld, worldToScreen } from "./utils.js";
+
+let zoomMulti = 10
+let zoomValueSpan = document.getElementById('zoom-value-span')
 const canvas = getCanvas();
 
 
@@ -38,6 +41,9 @@ export function mobileZoom(startDist, startScale, newDist, midpoint) {
   // Update the global scale with the new zoom level
   state.scale = clamped;
 
+  /// Updte Ui
+  zoomValueSpan.textContent = Math.round(clamped * zoomMulti) + "%"
+console.log({zoomValueSpan})
   // Redraw the canvas with the updated pan + zoom values
   draw();
 }
@@ -58,6 +64,10 @@ function desktopZoom(deltaY, clientX, clientY) {
     newScale /= zoomFactor // if deltaY less than 0 zoom out
   };
   newScale = Math.max(0.2, Math.min(5, newScale));
+
+  /// Updte Ui
+    zoomValueSpan.textContent = Math.round(newScale * zoomMulti) + "%"
+console.log({zoomValueSpan})
   const worldBefore = screenToWorld(clientX, clientY);
 
   const { x: worldX, y: worldY } = worldBefore
