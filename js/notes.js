@@ -1,4 +1,4 @@
- 
+
 
 // notes.js
 import { getCanvas, getEditor } from "./index.js";
@@ -23,7 +23,7 @@ export function createNote(wx, wy, text = "New note") {
     w,
     h,
     text,
-  color: "#fff59d",
+    color: "#fff59d",
   };
 
   // Update state
@@ -46,10 +46,40 @@ export function bringToFront(noteId) {
   }
 }
 
-// Editor overlay
-export function openEditor(note) {
-  const screenPos = worldToScreen(note.x, note.y);
-  const canvasRect = canvas.getBoundingClientRect();
+function openEditorTray(note, screenPos, canvasRect) {
+  const tray = document.getElementById("editor-tray");
+  const colorPicker = document.getElementById("editor-color-picker");
+
+  tray.style.display = "block";
+  tray.style.left = canvasRect.left + screenPos.x + 8 + "px";
+  tray.style.top = canvasRect.top + screenPos.y - 32 + "px"; // above editor
+
+  // set picker initial value
+  colorPicker.value = note.color || "#ffff88";
+
+  // live update color
+  colorPicker.oninput = (ev) => {
+    note.color = ev.target.value;
+    draw();
+  };
+
+    // --- Hide tray if user clicks outside ---
+  function handleClickOutside(e) {
+    if (!tray.contains(e.target)) {
+      tray.style.display = "none";
+      document.removeEventListener("click", handleClickOutside);
+    }
+  }
+
+  // delay so the current click doesn’t instantly close it
+  setTimeout(() => {
+    document.addEventListener("click", handleClickOutside);
+  }, 0);
+}
+
+function openEditorText(note, screenPos, canvasRect) {
+  const editor = getEditor();
+  // --- text editor ---
   editor.style.display = "block";
   editor.style.left = canvasRect.left + screenPos.x + 8 + "px";
   editor.style.top = canvasRect.top + screenPos.y + 8 + "px";
@@ -58,13 +88,14 @@ export function openEditor(note) {
   editor.innerText = note.text;
   editor.focus();
 
-  // save on blur
+  // --- save text on blur ---
   editor.onblur = () => {
     note.text = editor.innerText || "";
     editor.style.display = "none";
     pushHistory();
     draw();
   };
+
   editor.onkeydown = (ev) => {
     if ((ev.ctrlKey || ev.metaKey) && ev.key === "Enter") {
       editor.blur();
@@ -72,7 +103,22 @@ export function openEditor(note) {
   };
 }
 
+export function openEditor(note) {
+  const screenPos = worldToScreen(note.x, note.y);
+  const canvasRect = canvas.getBoundingClientRect();
+
+  openEditorTray(note, screenPos, canvasRect)
+  openEditorText(note, screenPos, canvasRect)
+
+}
+
+
 export function hideEditor() {
+  const tray = document.getElementById("editor-tray");
+
+  const editor = getEditor();
+
+  tray.style.display = "none";
   editor.style.display = "none";
 }
 

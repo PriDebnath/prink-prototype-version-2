@@ -130,9 +130,44 @@
 
     <canvas id="board"
             aria-label="Canvas board"></canvas>
-    <div id="editor"
+   <div id="editor"
          contenteditable="true"
-         spellcheck="false"></div>
+     
+         spellcheck="false"></div> 
+<div id="editor-tray" style="position:absolute; display:none; background:#f0f0f0; padding:4px; border:1px solid #ccc; border-radius:6px;">
+  <input type="color" id="editor-color-picker" />
+</div>
+
+    <!-- <div id="editor-container"
+         style="position:absolute; display:none;">
+      <div id="editor-tray"
+           style="
+    display:flex; 
+    align-items:center; 
+    gap:8px; 
+    padding:4px; 
+    background:#f0f0f0; 
+    border:1px solid #ccc; 
+    border-bottom:none;
+    border-radius:6px 6px 0 0;
+  ">
+        <input type="color"
+               id="editor-color-picker" />
+      </div>
+      <div id="editor"
+           contenteditable="true"
+           style="
+      min-width:120px;
+      min-height:60px;
+      border:1px solid #ccc;
+      border-radius:0 0 6px 6px;
+      background:white;
+      padding:6px;
+      outline:none;
+      resize:none;
+    ">
+      </div>
+    </div> -->
 
 
     <div class="toolbar-wrapper">
