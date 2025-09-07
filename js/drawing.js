@@ -111,43 +111,6 @@ export function draw() {
   drawGrid();
 
   // connectors first (so notes draw on top)
-  // connectors.forEach((conn) => {
-  //   const a = notes.find((n) => n.id === conn.aId);
-  //   const b = notes.find((n) => n.id === conn.bId);
-  //   if (!a || !b) return;
-
-  //   const aC = worldToScreen(a.x + a.w / 2, a.y + a.h / 2);
-  //   const bC = worldToScreen(b.x + b.w / 2, b.y + b.h / 2);
-
-  //   // simple bezier
-  //   ctx.save();
-  //   ctx.strokeStyle = "rgba(30,30,30,0.45)";
-  //   ctx.lineWidth = 2;
-  //   ctx.beginPath();
-  //   ctx.moveTo(aC.x, aC.y);
-  //   const dx = (bC.x - aC.x) * 0.4;
-  //   ctx.bezierCurveTo(aC.x + dx, aC.y, bC.x - dx, bC.y, bC.x, bC.y);
-  //   ctx.stroke();
-
-  //   // arrow head
-  //   const angle = Math.atan2(bC.y - aC.y, bC.x - aC.x);
-  //   const arrowSize = 8;
-  //   ctx.beginPath();
-  //   ctx.moveTo(bC.x, bC.y);
-  //   ctx.lineTo(
-  //     bC.x - arrowSize * Math.cos(angle - Math.PI / 6),
-  //     bC.y - arrowSize * Math.sin(angle - Math.PI / 6)
-  //   );
-  //   ctx.lineTo(
-  //     bC.x - arrowSize * Math.cos(angle + Math.PI / 6),
-  //     bC.y - arrowSize * Math.sin(angle + Math.PI / 6)
-  //   );
-  //   ctx.closePath();
-  //   ctx.fillStyle = "rgba(30,30,30,0.6)";
-  //   ctx.fill();
-  //   ctx.restore();
-  // });
-  // connectors first (so notes draw on top)
   connectors.forEach((conn) => {
     const a = notes.find((n) => n.id === conn.aId);
     const b = notes.find((n) => n.id === conn.bId);
@@ -224,7 +187,7 @@ export function draw() {
 
   // notes
   notes.forEach((note) => {
-    const { scale, selectedIds, primarySelectedId } = getState();
+    const { scale, selectedIds, primarySelectedId, currentTool } = getState();
 
     const s = worldToScreen(note.x, note.y);
     const sw = note.w * scale;
@@ -263,7 +226,7 @@ export function draw() {
     ctx.restore();
 
     // draw handles if single selected
-    if (primarySelectedId === note.id) {
+    if (primarySelectedId === note.id && currentTool == 'select') {
       drawHandlesForNote(note);
     }
   });
