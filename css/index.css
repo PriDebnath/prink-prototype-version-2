@@ -2,6 +2,9 @@
       --bgstart: #f3f6fb;
       --bgend: #fff;
       --accent: #2563eb;
+      --space: 0.4rem;
+      --border-radius: 1.6rem;
+
   }
 
   * {
@@ -48,4 +51,21 @@
       overflow: auto;
       z-index: 1000;
       -webkit-user-modify: read-write-plaintext-only;
+  }
+  
+  input[type="color"]{
+      border-radius: 2.6rem;
+      display: flex;
+      aspect-ratio: 1;
+      width: auto;
+  }
+  
+  #editor-tray{
+      display: flex;
+      align-items: center;
+      gap: var(--space);
+      padding: var(--space);
+      background: red;
+      border-radius: var(--border-radius);
+
   }

@@ -55,8 +55,17 @@ export function getZoomInBtn() {
     return document.getElementById('zoomInBtn');
 }
 
+export function getZoomOutBtn() {
+    return document.getElementById('zoomOutBtn');
+}
+
 
 ///------
+
+export function getCanvasColorPicker() {
+    return document.getElementById('canvas-color-picker');
+}
+
 
 
 // Load files

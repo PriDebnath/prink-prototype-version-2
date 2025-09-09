@@ -137,6 +137,12 @@
          style="position:absolute; display:none; background:#f0f0f0; padding:4px; border:1px solid #ccc; border-radius:6px;">
       <input type="color"
              id="editor-color-picker" />
+             
+             <select name="" id="noteFontSizeSelect" class="">
+  <option value="12" selected>12</option>
+  <option value="24">24</option>
+</select>
+
     </div>
 
     <!-- <div id="editor-container"
@@ -191,6 +197,29 @@
         </button>
 
         <div> <span>Zoom:</span> <span id="zoom-value-span">100%</span></div>
+        
+                <button class="header-chip tooltip toggle-on"
+                data-tooltip="Zoom Out"
+                data-tooltip-pos="bottom"
+                id="zoomOutBtn">
+          <svg id="minis-svg"
+               width="12"
+               height="12"
+               viewBox="0 0 12 12"
+               fill="none"
+               xmlns="http://www.w3.org/2000/svg">
+            <path id="Vector"
+                  d="M10 4.66667H7.33335V2C7.33335 1.64638 7.19288 1.30724 6.94283 1.05719C6.69278 0.807142 6.35364 0.666666 6.00002 0.666666C5.6464 0.666666 5.30726 0.807142 5.05721 1.05719C4.80716 1.30724 4.66669 1.64638 4.66669 2L4.71402 4.66667H2.00002C1.6464 4.66667 1.30726 4.80714 1.05721 5.05719C0.807163 5.30724 0.666687 5.64638 0.666687 6C0.666687 6.35362 0.807163 6.69276 1.05721 6.94281C1.30726 7.19286 1.6464 7.33333 2.00002 7.33333L4.71402 7.286L4.66669 10C4.66669 10.3536 4.80716 10.6928 5.05721 10.9428C5.30726 11.1929 5.6464 11.3333 6.00002 11.3333C6.35364 11.3333 6.69278 11.1929 6.94283 10.9428C7.19288 10.6928 7.33335 10.3536 7.33335 10V7.286L10 7.33333C10.3536 7.33333 10.6928 7.19286 10.9428 6.94281C11.1929 6.69276 11.3334 6.35362 11.3334 6C11.3334 5.64638 11.1929 5.30724 10.9428 5.05719C10.6928 4.80714 10.3536 4.66667 10 4.66667Z"
+                  fill="#2563EB" />
+          </svg>
+        </button>
+
+<div>
+        <input type="color"
+             id="canvas-color-picker" />
+</div>
+
+        
       </div>
     </div>
 

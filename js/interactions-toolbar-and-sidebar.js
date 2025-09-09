@@ -11,7 +11,9 @@ import {
   getSnapToggle,
   getGridToggle,
   getPanBtn,
-getZoomInBtn
+getZoomInBtn,
+getZoomOutBtn,
+getCanvasColorPicker
 } from "./index.js";
 
 import { getState, updateState } from "./state.js";
@@ -39,9 +41,22 @@ const state = getState();
 
 // header
 let zoomInBtn = getZoomInBtn()
+let zoomOutBtn = getZoomOutBtn()
+let canvasColorPicker = getCanvasColorPicker()
+
 zoomInBtn.addEventListener("click", () => {
   handleCenterZoomInOut("+");
 });
+
+zoomOutBtn.addEventListener("click", () => {
+  handleCenterZoomInOut("-");
+});
+
+  canvasColorPicker.oninput = (ev) => {
+    state.bg = ev.target.value;
+    draw();
+  };
+
 
 // toolbar interactions
 panBtn.addEventListener("click", () => {

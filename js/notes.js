@@ -1,5 +1,3 @@
-
-
 // notes.js
 import { getCanvas, getEditor } from "./index.js";
 const canvas = getCanvas();
@@ -15,7 +13,7 @@ export function createNote(wx, wy, text = "New note") {
   const { idCounter, notes } = getState();
   const w = 180,
     h = 120;
-
+  
   const note = {
     id: idCounter,
     x: wx - w / 2,
@@ -23,13 +21,14 @@ export function createNote(wx, wy, text = "New note") {
     w,
     h,
     text,
+    fontSize: 12,
     color: "#fff59d",
   };
-
+  
   // Update state
   notes.push(note);
   updateState({ idCounter: idCounter + 1, notes });
-
+  
   pushHistory();
   draw();
   return note;
@@ -46,33 +45,57 @@ export function bringToFront(noteId) {
   }
 }
 
-function openEditorTray(note, screenPos, canvasRect) {
-  const tray = document.getElementById("editor-tray");
+function handleNoteFontSizeSelect(note) {
+  const noteFontSizeSelect = document.getElementById("noteFontSizeSelect");
+  console.log(noteFontSizeSelect)
+  
+  noteFontSizeSelect.onchange = function() {
+    note.fontSize = this.value;
+    draw();
+  }
+  
+}
+
+
+function handleColorPicker(note) {
   const colorPicker = document.getElementById("editor-color-picker");
-
-  tray.style.display = "block";
-  tray.style.left = canvasRect.left + screenPos.x + 8 + "px";
-  tray.style.top = canvasRect.top + screenPos.y - 32 + "px"; // above editor
-
   // set picker initial value
   colorPicker.value = note.color || "#ffff88";
-
+  
   // live update color
   colorPicker.oninput = (ev) => {
     note.color = ev.target.value;
     draw();
   };
+  
+}
 
-    // --- Hide tray if user clicks outside ---
+
+function openEditorTray(note, screenPos, canvasRect) {
+  const tray = document.getElementById("editor-tray");
+  
+  
+  tray.style.display = "flex"
+  tray.style.left = canvasRect.left + screenPos.x + 8 + "px";
+  tray.style.top = canvasRect.top + screenPos.y - 32 + "px"; // above editor
+  
+  
+  /// handle items
+  handleColorPicker(note)
+  handleNoteFontSizeSelect(note)
+  ///
+  
+  // --- Hide tray if user clicks outside ---
   function handleClickOutside(e) {
     if (!tray.contains(e.target)) {
       tray.style.display = "none";
       document.removeEventListener("click", handleClickOutside);
     }
   }
-
+  
   // delay so the current click doesn’t instantly close it
   setTimeout(() => {
+    note = {}
     document.addEventListener("click", handleClickOutside);
   }, 0);
 }
@@ -86,8 +109,8 @@ function openEditorText(note, screenPos, canvasRect) {
   editor.style.width = Math.max(120, note.w - 12) + "px";
   editor.style.height = Math.max(60, note.h - 12) + "px";
   editor.innerText = note.text;
-  editor.focus();
-
+  //editor.focus();
+  
   // --- save text on blur ---
   editor.onblur = () => {
     note.text = editor.innerText || "";
@@ -95,7 +118,7 @@ function openEditorText(note, screenPos, canvasRect) {
     pushHistory();
     draw();
   };
-
+  
   editor.onkeydown = (ev) => {
     if ((ev.ctrlKey || ev.metaKey) && ev.key === "Enter") {
       editor.blur();
@@ -106,18 +129,18 @@ function openEditorText(note, screenPos, canvasRect) {
 export function openEditor(note) {
   const screenPos = worldToScreen(note.x, note.y);
   const canvasRect = canvas.getBoundingClientRect();
-
+  
   openEditorTray(note, screenPos, canvasRect)
   openEditorText(note, screenPos, canvasRect)
-
+  
 }
 
 
 export function hideEditor() {
   const tray = document.getElementById("editor-tray");
-
+  
   const editor = getEditor();
-
+  
   tray.style.display = "none";
   editor.style.display = "none";
 }

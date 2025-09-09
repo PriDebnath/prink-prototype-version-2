@@ -3,6 +3,7 @@ let device = window.innerWidth <= 768 ? "mobile" : "desktop"
 
 function createInitialState() {
   return {
+    bg: "#f7f9fc",
     // Device
     device: device,
     notes: [], // Array of note objects {id, x, y, w, h, text, color}

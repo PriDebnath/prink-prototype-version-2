@@ -99,12 +99,13 @@ export function draw() {
     primarySelectedId,
     scale,
     marquee,
+    bg
   } = getState();
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   // background
-  ctx.fillStyle = "#f7f9fc";
+  ctx.fillStyle = bg;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   // grid
@@ -212,11 +213,12 @@ export function draw() {
 
     // text (scale friendly)
     ctx.fillStyle = "#111827";
-    ctx.font = `${Math.max(12, 14 * scale)}px Inter, system-ui, Arial`;
+    ctx.font = `${note.fontSize}px Inter, system-ui, Arial`;
 
     const padding = 10 * scale;
     const textMaxWidth = sw - padding * 2;
     const lines = wrapTextLines(ctx, note.text, textMaxWidth);
+    //console .log({lines})
 
     let ty = s.y + padding + 12 * scale;
     for (const line of lines) {

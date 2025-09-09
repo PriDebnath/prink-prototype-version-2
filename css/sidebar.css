@@ -78,6 +78,7 @@
       top: 0;
       bottom: 0;
       margin: auto;
+      pointer-events: none;
   }
 
 
@@ -88,10 +89,13 @@
       display: flex;
       flex-direction: column;
       align-items: center;
+      /*
+      */
+
       padding: var(--sidebar-space);
       gap: var(--sidebar-space);
       box-shadow: 0px var(--sidebar-space) calc(var(--sidebar-space)*4) rgba(0, 0, 0, 0.5);
-
+    pointer-events: auto;
   }
 
 

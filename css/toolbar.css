@@ -18,6 +18,8 @@
     left: 0;
     right: 0;
     margin: auto;
+    pointer-events: none;
+
   }
 
   .header-toolbar-wrapper{
@@ -28,6 +30,8 @@
     left: 0;
     right: 0;
     margin: auto;
+    pointer-events: none;
+
   }
   
   .toolbar-bottom, .header-toolbar {
@@ -39,6 +43,8 @@
     border-radius: var(--toolbar-border-radius);
     box-shadow:  0px var(--toolbar-space) calc(var(--toolbar-space)*4) rgba(0, 0, 0, 0.5);
     border: 1px solid var(--chip-border);
+    pointer-events: auto;
+
   }
 
   .chip, .header-chip  {
