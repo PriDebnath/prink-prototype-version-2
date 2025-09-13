@@ -6,7 +6,7 @@ const canvas = getCanvas();
 const ctx = getCtx();
 
 export function isOdd(number) {
- return number % 2 
+  return number % 2
 }
 
 export function drawGrid() {
@@ -44,20 +44,20 @@ export function drawGrid() {
   let toggleVerLineWidth = true
   const startX = panX % step;
   for (let x = startX; x < canvas.width; x += step) {
-    ctx.beginPath();  //→ clear previous path and start a new one
-    ctx.moveTo(x, 0);               // top of canvas
-      ctx.strokeStyle = "rgba(0,0,0,0.04)"; // very light grey lines
-    ctx.lineTo(x, canvas.height);   // bottom of canvas
+    ctx.beginPath(); //→ clear previous path and start a new one
+    ctx.moveTo(x, 0); // top of canvas
+    ctx.strokeStyle = "rgba(0,0,0,0.04)"; // very light grey lines
+    ctx.lineTo(x, canvas.height); // bottom of canvas
     ///
     // Set line style for the grid
     ctx.strokeStyle = "rgba(0,0,0,0.04)"
-       if(toggleVerLineWidth){
-     toggleVerLineWidth = false
-   }else{
-     toggleVerLineWidth = true
-   }
+    if (toggleVerLineWidth) {
+      toggleVerLineWidth = false
+    } else {
+      toggleVerLineWidth = true
+    }
 
-ctx.lineWidth = toggleVerLineWidth ? 0.5 : 2;
+    ctx.lineWidth = toggleVerLineWidth ? 0.5 : 2;
 
     ctx.stroke(); //→ draw it on the canvas.
   }
@@ -67,21 +67,21 @@ ctx.lineWidth = toggleVerLineWidth ? 0.5 : 2;
   const startY = panY % step;
   let toggleHoriLineWidth = false
   for (let y = startY; y < canvas.height; y += step) {
-    ctx.beginPath();  //→ clear previous path and start a new one
-    ctx.moveTo(0, y);               // left of canvas
-    ctx.lineTo(canvas.width, y);    // right of canvas
+    ctx.beginPath(); //→ clear previous path and start a new one
+    ctx.moveTo(0, y); // left of canvas
+    ctx.lineTo(canvas.width, y); // right of canvas
     ///
     // Set line style for the grid
 
-    ctx.strokeStyle =  "rgba(0,0,0,0.04)"
-   /// 
-   if(toggleHoriLineWidth){
-     toggleHoriLineWidth = false
-   }else{
-     toggleHoriLineWidth = true
-   }
+    ctx.strokeStyle = "rgba(0,0,0,0.04)"
+    /// 
+    if (toggleHoriLineWidth) {
+      toggleHoriLineWidth = false
+    } else {
+      toggleHoriLineWidth = true
+    }
     ctx.strokeStyle = "rgba(0,0,0,0.04)"; // very light grey lines
-   ctx.lineWidth = toggleHoriLineWidth ? 0.5 : 2;
+    ctx.lineWidth = toggleHoriLineWidth ? 0.5 : 2;
     ctx.stroke(); //→ draw it on the canvas.
   }
 
@@ -98,8 +98,11 @@ export function draw() {
     selectedIds,
     primarySelectedId,
     scale,
+    panX,
+    panY,
     marquee,
-    bg
+    bg,
+    pens
   } = getState();
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -164,7 +167,7 @@ export function draw() {
 
     // draw arrows along curve
     const arrowSize = 8;
-    for (let t = 0.2; t < 1; t += 0.2) {  // arrows at 20%, 40%, 60%, 80%
+    for (let t = 0.2; t < 1; t += 0.2) { // arrows at 20%, 40%, 60%, 80%
       const pt = getBezierPoint(t, aC, cp1, cp2, bC);
       const angle = getBezierTangent(t, aC, cp1, cp2, bC);
 
@@ -185,8 +188,50 @@ export function draw() {
 
     ctx.restore();
   });
+  
+  // pens---------------------------
 
-  // notes
+  pens.forEach((pen) => {
+    if (pen.length < 2) return;
+
+    ctx.beginPath();
+    ctx.strokeStyle = "red";
+    ctx.lineWidth = 4;
+    ctx.lineJoin = "round";
+    ctx.lineCap = "round";
+
+    // Start at first point
+    let { x: p0X, y: p0Y } = pen[0];
+    let { x: w0X, y: w0Y } = worldToScreen(p0X, p0Y);
+    ctx.moveTo(w0X, w0Y);
+
+    for (let i = 1; i < pen.length - 1; i++) {
+      let { x: p1X, y: p1Y } = pen[i];
+      let { x: p2X, y: p2Y } = pen[i + 1];
+
+      // Convert both to screen
+      let { x: w1X, y: w1Y } = worldToScreen(p1X, p1Y);
+      let { x: w2X, y: w2Y } = worldToScreen(p2X, p2Y);
+
+      // Midpoint between p1 and p2
+      let midX = (w1X + w2X) / 2;
+      let midY = (w1Y + w2Y) / 2;
+
+      // Quadratic curve from previous point to midpoint
+      ctx.quadraticCurveTo(w1X, w1Y, midX, midY);
+    }
+
+    // Last line to final point
+    let last = pen[pen.length - 1];
+    let { x: wLastX, y: wLastY } = worldToScreen(last.x, last.y);
+    ctx.lineTo(wLastX, wLastY);
+
+    ctx.stroke();
+  });
+  ctx.restore();
+
+
+  // notes---------------------------
   notes.forEach((note) => {
     const { scale, selectedIds, primarySelectedId, currentTool } = getState();
 
@@ -253,7 +298,7 @@ export function draw() {
   }
 }
 
- 
+
 
 export function drawHandlesForNote(note) {
   const { scale } = getState();
@@ -261,7 +306,7 @@ export function drawHandlesForNote(note) {
   const s = worldToScreen(note.x, note.y);
   const sw = note.w * scale;
   const sh = note.h * scale;
-  const size = Math.max(8, 8 * scale) ;
+  const size = Math.max(8, 8 * scale);
   const half = size / 1;
 
   // How much larger the clickable area should be

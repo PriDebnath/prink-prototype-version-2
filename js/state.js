@@ -43,6 +43,12 @@ function createInitialState() {
     snapToGrid: false, // Whether notes snap to grid when moved/resized
     gridSize: 16,     // Size of grid squares in px
     showGrid: true,   // Whether grid lines are visible
+    
+    
+    // pen section 
+    idCounterPen: 1, // For generating unique pen ids
+    pens: [] // store dots in x,y in one pen object
+
   };
 }
 

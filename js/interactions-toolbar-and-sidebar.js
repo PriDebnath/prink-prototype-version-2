@@ -4,6 +4,7 @@ import {
   getEditor,
   getStickyBtn,
   getSelectBtn,
+  getPenBtn,
   getConnectBtn,
   getCleanBtn,
   getUndoBtn,
@@ -13,6 +14,7 @@ import {
   getPanBtn,
 getZoomInBtn,
 getZoomOutBtn,
+getDownloadPngBtn,
 getCanvasColorPicker
 } from "./index.js";
 
@@ -32,8 +34,10 @@ const cleanBtn = getCleanBtn();
 
 const stickyBtn = getStickyBtn();
 const selectBtn = getSelectBtn();
+const penBtn = getPenBtn();
 const panBtn = getPanBtn();
 const connectBtn = getConnectBtn();
+
 const snapToggle = getSnapToggle();
 const gridToggle = getGridToggle();
 
@@ -43,6 +47,9 @@ const state = getState();
 let zoomInBtn = getZoomInBtn()
 let zoomOutBtn = getZoomOutBtn()
 let canvasColorPicker = getCanvasColorPicker()
+let downloadPngBtn = getDownloadPngBtn()
+
+
 
 zoomInBtn.addEventListener("click", () => {
   handleCenterZoomInOut("+");
@@ -56,11 +63,23 @@ zoomOutBtn.addEventListener("click", () => {
     state.bg = ev.target.value;
     draw();
   };
+downloadPngBtn.addEventListener("click", () => {
+  let link = document.createElement("a")
+  link = document.createElement("a");
+    link.download = "my_drawing.png"; // filename
+    link.href = canvas.toDataURL("image/png");
+    link.click()
+});
+
 
 
 // toolbar interactions
 panBtn.addEventListener("click", () => {
   setTool("pan");
+});
+
+penBtn.addEventListener("click", () => {
+  setTool("pen");
 });
 stickyBtn.addEventListener("click", () => {
   setTool("sticky");
@@ -76,6 +95,7 @@ connectBtn.addEventListener("click", () => {
 export function setTool(t) {
   state.currentTool = t;
   panBtn.classList.toggle("active", t === "pan");
+  penBtn.classList.toggle("active", t === "pen");
   stickyBtn.classList.toggle("active", t === "sticky");
   selectBtn.classList.toggle("active", t === "select");
   connectBtn.classList.toggle("active", t === "connect");

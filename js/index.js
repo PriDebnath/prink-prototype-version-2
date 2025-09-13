@@ -24,11 +24,16 @@ export function getSelectBtn() {
     return document.getElementById('tool-select');
 }
 
+export function getPenBtn() {
+    return document.getElementById('tool-pen');
+}
+
+
 export function getConnectBtn() {
     return document.getElementById('tool-connect');
 }
 
-///------
+///---------
 
 export function getCleanBtn() {
     return document.getElementById('cleanBtn');
@@ -59,6 +64,11 @@ export function getZoomOutBtn() {
     return document.getElementById('zoomOutBtn');
 }
 
+export function getDownloadPngBtn() {
+    return document.getElementById('downloadPngBtn');
+}
+
+
 
 ///------
 
@@ -70,12 +80,14 @@ export function getCanvasColorPicker() {
 
 // Load files
 import "./canvas.js";
+import "./color-picker.js";
 import "./connectors.js";
 import "./drawing.js";
 import "./history.js";
 import "./interaction.js";
 import "./state.js";
 import "./pan.js";
+import "./pen.js";
 import "./interactions-toolbar-and-sidebar.js";
 import "./keydown-interaction.js";
 import "./utils.js";

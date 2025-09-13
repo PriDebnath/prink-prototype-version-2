@@ -93,13 +93,6 @@ canvas.addEventListener("pointerdown", (e) => {
 canvas.addEventListener("pointermove", (e) => {
     const state = getState();
     
-    console.log(
-        state.pointerMap.size,
-        e.pointerId,
-        state.pointerMap.has(e.pointerId),
-        state.currentTool,
-        state.selectedIds.size
-    )
     if (state.selectedIds.size >= 2) return; // when user have selected more items, let it move.
     
     if (state.device != 'mobile') return;

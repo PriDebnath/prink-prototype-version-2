@@ -126,6 +126,9 @@ canvas.addEventListener("pointerdown", (ev) => {
     return;
   }
 
+  if (currentTool === "pen") {
+    return
+}
 
  
   const hit = hitTestNotes(world.x, world.y);
@@ -193,7 +196,12 @@ canvas.addEventListener("pointerdown", (ev) => {
     updateState({
       selectedIds: new Set(),
       primarySelectedId: null,
-      marquee: { x1: world.x, y1: world.y, x2: world.x, y2: world.y },
+      marquee: { 
+        x1: world.x, 
+        y1: world.y, 
+        x2: world.x, 
+        y2: world.y 
+      },
       dragging: { type: "marquee" },
     });
     draw();
