@@ -15,7 +15,8 @@ import {
 getZoomInBtn,
 getZoomOutBtn,
 getDownloadPngBtn,
-getCanvasColorPicker
+getCanvasColorPicker,
+getCanvasColorPickerCircle
 } from "./index.js";
 
 import { getState, updateState } from "./state.js";
@@ -47,6 +48,7 @@ const state = getState();
 let zoomInBtn = getZoomInBtn()
 let zoomOutBtn = getZoomOutBtn()
 let canvasColorPicker = getCanvasColorPicker()
+let canvasColorPickerCircle = getCanvasColorPickerCircle()
 let downloadPngBtn = getDownloadPngBtn()
 
 
@@ -60,9 +62,12 @@ zoomOutBtn.addEventListener("click", () => {
 });
 
   canvasColorPicker.oninput = (ev) => {
-    state.bg = ev.target.value;
+    const color = ev.target.value
+    state.bg = color;
+    canvasColorPickerCircle.style.backgroundColor = color
     draw();
   };
+  
 downloadPngBtn.addEventListener("click", () => {
   let link = document.createElement("a")
   link = document.createElement("a");

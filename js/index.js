@@ -76,11 +76,14 @@ export function getCanvasColorPicker() {
     return document.getElementById('canvas-color-picker');
 }
 
+export function getCanvasColorPickerCircle() {
+    return document.getElementById('canvas-color-picker-circle');
+}
+
 
 
 // Load files
 import "./canvas.js";
-import "./color-picker.js";
 import "./connectors.js";
 import "./drawing.js";
 import "./history.js";

@@ -26,7 +26,7 @@ function createInitialState() {
     connectorIdCounter: 1, // For generating unique connector ids
 
     // --- Interaction state ---
-    currentTool: 'pan', // Tool currently active: 'sticky'|'select'|'connect' | 'pan'
+    currentTool: 'pan', // Tool currently active: 'sticky'|'select'|'connect' | 'pan' | 'pen'
     selectedIds: new Set(), // Keeps track of selected note ids (multi-select supported)
     primarySelectedId: null, // Main selected note id (used for resize handles, etc.)
     dragging: null, // Info about ongoing drag {type:'move'|'pan'|'resize', ...}

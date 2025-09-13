@@ -1,6 +1,6 @@
-  
+    /* 
   :root {
-    --chip-final-delay: 1s;
+  --chip-final-delay: 1s;
     --chip-bg: #eee;
     --chip-bg-active: #e8f0fe;
     --chip-text: #2563eb;
@@ -9,7 +9,7 @@
     --toolbar-space: 0.4rem;
     --toolbar-font-size: 0.8rem;
   }
-  
+   */
   .toolbar-wrapper {
     display: flex;
     justify-content: center;
@@ -102,7 +102,8 @@
   @keyframes popIn-chip {
     to {
       opacity: 1;
-      font-size: var(--toolbar-font-size);
+      /* font-size: var(--toolbar-font-size); */
       padding: var(--toolbar-space) ;
+      margin: 0;
     }
   }

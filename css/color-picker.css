@@ -1,0 +1,18 @@
+/* hide the native color input */
+.color-picker input[type="color"] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* the visible circle */
+.color-picker .circle {
+  width: calc(   var(--toolbar-space) * 2 + 16px); /* space * 2 and svg size */
+  display: flex;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  display: inline-block;
+  background-color: #000; /* default */
+  cursor: pointer;
+}
