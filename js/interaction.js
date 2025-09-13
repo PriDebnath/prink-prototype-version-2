@@ -61,30 +61,30 @@ function getHandlesForNote(note, scale) {
     { x: pos.x - half, y: pos.y - half, w: size, h: size, name: "nw" },
     { x: pos.x + sw - half, y: pos.y - half, w: size, h: size, name: "ne" },
     { x: pos.x - half, y: pos.y + sh - half, w: size, h: size, name: "sw" },
-    { x: pos.x + sw - half, y: pos.y + sh - half, w: size, h: size, name: "se" }, 
+    { x: pos.x + sw - half, y: pos.y + sh - half, w: size, h: size, name: "se" },
   ];
 }
 
 // --- Input & Interaction ---
 canvas.addEventListener("pointerdown", (ev) => {
   const state = getState();
-  const { 
-    pointerMap, 
-    currentTool, 
-    panX, 
-    panY 
+  const {
+    pointerMap,
+    currentTool,
+    panX,
+    panY
   } = state;
 
   canvas.setPointerCapture(ev.pointerId);
-  pointerMap.set(ev.pointerId, { 
-    x: ev.clientX, 
-    y: ev.clientY 
+  pointerMap.set(ev.pointerId, {
+    x: ev.clientX,
+    y: ev.clientY
   });
 
   const rect = canvas.getBoundingClientRect();
-  const screen = { 
-    x: ev.clientX - rect.left, 
-    y: ev.clientY - rect.top 
+  const screen = {
+    x: ev.clientX - rect.left,
+    y: ev.clientY - rect.top
   };
   const world = screenToWorld(screen.x, screen.y);
 
@@ -128,9 +128,9 @@ canvas.addEventListener("pointerdown", (ev) => {
 
   if (currentTool === "pen") {
     return
-}
+  }
 
- 
+
   const hit = hitTestNotes(world.x, world.y);
   const isSpace = ev.getModifierState && ev.getModifierState("Space");
   const isShift = ev.shiftKey;
@@ -181,26 +181,26 @@ canvas.addEventListener("pointerdown", (ev) => {
       const n = notes.find((z) => z.id === sid);
       offsets[sid] = { x: world.x - n.x, y: world.y - n.y };
     });
-    updateState({ 
-      dragging: { 
-        type: "move", 
-        offsets 
-      } 
+    updateState({
+      dragging: {
+        type: "move",
+        offsets
+      }
     });
     pushHistory();
   }
-  
-    /// Tool: select
-  if (!hit &&  currentTool === "select"){
+
+  /// Tool: select
+  if (!hit && currentTool === "select") {
     // Empty click → marquee
     updateState({
       selectedIds: new Set(),
       primarySelectedId: null,
-      marquee: { 
-        x1: world.x, 
-        y1: world.y, 
-        x2: world.x, 
-        y2: world.y 
+      marquee: {
+        x1: world.x,
+        y1: world.y,
+        x2: world.x,
+        y2: world.y
       },
       dragging: { type: "marquee" },
     });
@@ -208,23 +208,21 @@ canvas.addEventListener("pointerdown", (ev) => {
   }
 
 
-  
+
 });
 
-canvas.addEventListener("pointermove", (ev) => {
+
+function handleDragging(ev) {
   const state = getState();
   const { pointerMap, dragging } = state;
 
   pointerMap.set(ev.pointerId, { x: ev.clientX, y: ev.clientY });
 
- 
-  if (!dragging) return;
-
   const rect = canvas.getBoundingClientRect();
   const screen = {
     x: ev.clientX - rect.left,
     y: ev.clientY - rect.top
-    };
+  };
   const world = screenToWorld(screen.x, screen.y);
 
   if (dragging.type === "move") {
@@ -301,6 +299,15 @@ canvas.addEventListener("pointermove", (ev) => {
     }
     draw();
   }
+}
+
+canvas.addEventListener("pointermove", (ev) => {
+  const state = getState();
+  const { pointerMap, dragging } = state;
+
+  if (!dragging) return;
+  handleDragging(ev)
+
 });
 
 canvas.addEventListener("pointerup", (ev) => {

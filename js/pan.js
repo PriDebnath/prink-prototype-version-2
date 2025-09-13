@@ -52,8 +52,17 @@ canvas.addEventListener("mousemove", (e) => {
     });
 });
 
-canvas.addEventListener("mouseup", () => { updateState({ dragging: null }) });
-canvas.addEventListener("mouseleave", () => { updateState({ dragging: null }) });
+function clearDesktopPan(e) {
+    const { currentTool, dragging } = getState();
+    if (currentTool != 'pan') return;
+    updateState({ dragging: null })
+}
+
+
+
+canvas.addEventListener("mouseup", clearDesktopPan)
+
+canvas.addEventListener("mouseleave", clearDesktopPan)
 
 //// --- Desktop Pan/Move/Camera move End ------------------------------------------------------------------------------------------
 
@@ -79,14 +88,15 @@ function getMidpoint(p1, p2) {
 
 canvas.addEventListener("pointerdown", (e) => {
     const state = getState();
-    console.log({ state })
+    if (state.device != 'mobile') return;
     
-    if (state.currentTool == 'pan' && state.device == 'mobile') {
-        state.pointerMap.set(e.pointerId, {
-            x: e.clientX,
-            y: e.clientY
-        });
-    }
+    if (state.currentTool != 'pan') return;
+    
+    state.pointerMap.set(e.pointerId, {
+        x: e.clientX,
+        y: e.clientY
+    });
+    
 });
 
 
@@ -107,7 +117,7 @@ canvas.addEventListener("pointermove", (e) => {
         
         // pinch zoom
         const pts = Array.from(state.pointerMap.values());
-        console.log({pts})
+        console.log({ pts })
         const [p1, p2] = pts;
         if (!state?.dragging?.pinch?.startDist) {
             updateState({
@@ -149,9 +159,12 @@ canvas.addEventListener("pointermove", (e) => {
 });
 
 function clearMobilePan(e) {
-    const state = getState();
-    state.pointerMap.delete(e.pointerId);
-    state.dragging = null
+    let { currentTool, pointerMap, dragging , device} = getState();
+    if (currentTool != 'pan') return;
+        if (device != 'mobile') return;
+
+    pointerMap.delete(e.pointerId);
+    dragging = null
 }
 
 canvas.addEventListener("pointerup", (e) => {

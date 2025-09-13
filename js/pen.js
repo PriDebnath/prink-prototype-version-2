@@ -8,6 +8,7 @@ const canvas = getCanvas();
 canvas.addEventListener("pointerdown", (e) => {
   const state = getState();
   if (state.currentTool !== "pen") return;
+  console.log("pointerdown")
 
   // Track active pointer
   let { x, y } = screenToWorld(e.clientX, e.clientY)
@@ -15,7 +16,11 @@ canvas.addEventListener("pointerdown", (e) => {
 
   // Start a new stroke
   state.pens[state.idCounterPen] = [
-    { x, y }
+    { 
+      x, 
+      y,
+      time: Date.now()
+    }
   ];
 });
 
@@ -24,6 +29,7 @@ canvas.addEventListener("pointermove", (e) => {
   const state = getState();
   let { idCounterPen, pens } = state;
   if (state.currentTool !== 'pen') return;
+  console.log(state)
   if (!state.pointerMap.has(e.pointerId)) return;
 
   // Convert to world coords right away
@@ -31,7 +37,10 @@ canvas.addEventListener("pointermove", (e) => {
 
   // Get the active pen stroke
   if (!pens[idCounterPen]) {
-    pens[idCounterPen] = [worldPos];
+    pens[idCounterPen] = [{
+      ...worldPos,
+      time: Date.now()
+    }];
     return;
   }
 
@@ -46,7 +55,10 @@ canvas.addEventListener("pointermove", (e) => {
   // Add only if moved enough (minDist = 2px)
   const minDist = 10;
   if (distSq > minDist * minDist) {
-    pen.push(worldPos);
+    pen.push({
+      ...worldPos,
+      time: Date.now()
+    });
   }
 
   draw();
