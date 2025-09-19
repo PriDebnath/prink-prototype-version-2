@@ -99,43 +99,52 @@ import "./zoom.js";
 
 console.log("Index.js loaded")
 
-     // Rounded rect polyfill
-      if (!CanvasRenderingContext2D.prototype.roundRect) {
-        CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r = 8) {
-          this.beginPath();
-          this.moveTo(x + r, y);
-          this.arcTo(x + w, y, x + w, y + h, r);
-          this.arcTo(x + w, y + h, x, y + h, r);
-          this.arcTo(x, y + h, x, y, r);
-          this.arcTo(x, y, x + w, y, r);
-          this.closePath();
-        };
-      }
+// Rounded rect polyfill
+if (!CanvasRenderingContext2D.prototype.roundRect) {
+    CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r = 8) {
+        this.beginPath();
+        this.moveTo(x + r, y);
+        this.arcTo(x + w, y, x + w, y + h, r);
+        this.arcTo(x + w, y + h, x, y + h, r);
+        this.arcTo(x, y + h, x, y, r);
+        this.arcTo(x, y, x + w, y, r);
+        this.closePath();
+    };
+}
 
 // initial sample data  
-      import { createNote } from "./notes.js";
-      import { createConnector } from "./connectors.js";
+import { createNote } from "./notes.js";
+import { createConnector } from "./connectors.js";
 import { pushHistory, undo, redo } from "./history.js";
 import { draw } from "./drawing.js";
 import { getState } from "./state.js";
 import { setTool } from "./interactions-toolbar-and-sidebar.js";
-let note1 = createNote(200, 200, "Sticky #1");
-let note2 = createNote(400, 200, "Sticky #2");
-let note3 = createNote(350, 400, "Double-tap to edit");
+let note1 = createNote(100, 100, "Sticky #1");
+let note2 = createNote(300, 300, "Sticky #2");
+let note3 = createNote(150, 500, "Double-tap to edit");
 
-createConnector(note1.id, note3.id)
-createConnector(note2.id, note3.id)
+createConnector(note1.id,
+    note3.id, [{
+        id: 1,
+        worldX: 200,
+        worldY: 200
+    }])
+createConnector(note2.id, note3.id, [{
+    id: 2,
+    worldX: 400,
+    worldY: 200
+}])
 
 // helpers exposed for debugging
-  const { idCounter, notes , connectors} = getState();
+const { idCounter, notes, connectors } = getState();
 window._mini = {
-  notes: notes,
-  connectors: connectors,
-  createNote,
-  createConnector,
-  undo,
-  redo,
-  setTool,
+    notes: notes,
+    connectors: connectors,
+    createNote,
+    createConnector,
+    undo,
+    redo,
+    setTool,
 };
 
 // initialize history with initial state
