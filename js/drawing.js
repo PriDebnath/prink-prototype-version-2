@@ -57,7 +57,8 @@ export function drawGrid() {
       toggleVerLineWidth = true
     }
 
-    ctx.lineWidth = toggleVerLineWidth ? 0.5 : 2;
+    //ctx.lineWidth = toggleVerLineWidth ? 0.5 : 2;
+    ctx.lineWidth = 2
 
     ctx.stroke(); //→ draw it on the canvas.
   }
@@ -81,7 +82,8 @@ export function drawGrid() {
       toggleHoriLineWidth = true
     }
     ctx.strokeStyle = "rgba(0,0,0,0.04)"; // very light grey lines
-    ctx.lineWidth = toggleHoriLineWidth ? 0.5 : 2;
+    //ctx.lineWidth = toggleHoriLineWidth ? 0.5 : 2;
+    ctx.lineWidth = 2
     ctx.stroke(); //→ draw it on the canvas.
   }
 
@@ -90,31 +92,7 @@ export function drawGrid() {
   ctx.restore();
 }
 
-
-export function draw() {
-  const {
-    connectors,
-    notes,
-    selectedIds,
-    primarySelectedId,
-    scale,
-    panX,
-    panY,
-    marquee,
-    bg,
-    pens
-  } = getState();
-
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  // background
-  ctx.fillStyle = bg;
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-  // grid
-  drawGrid();
-
-  // connectors first (so notes draw on top)
+function drawConnectors(connectors, notes) {
   connectors.forEach((conn) => {
     const a = notes.find((n) => n.id === conn.aId);
     const b = notes.find((n) => n.id === conn.bId);
@@ -188,9 +166,10 @@ export function draw() {
 
     ctx.restore();
   });
-  
-  // pens---------------------------
+}
 
+
+function drawPens(pens) {
   pens.forEach((pen) => {
     if (pen.length < 2) return;
 
@@ -223,15 +202,18 @@ export function draw() {
 
     // Last line to final point
     let last = pen[pen.length - 1];
+    if (!last) {
+      return
+    }
     let { x: wLastX, y: wLastY } = worldToScreen(last.x, last.y);
     ctx.lineTo(wLastX, wLastY);
 
     ctx.stroke();
   });
   ctx.restore();
+}
 
-
-  // notes---------------------------
+function drawNotes(notes) {
   notes.forEach((note) => {
     const { scale, selectedIds, primarySelectedId, currentTool } = getState();
 
@@ -277,6 +259,40 @@ export function draw() {
       drawHandlesForNote(note);
     }
   });
+
+}
+
+export function draw() {
+  const {
+    connectors,
+    notes,
+    selectedIds,
+    primarySelectedId,
+    scale,
+    panX,
+    panY,
+    marquee,
+    bg,
+    pens
+  } = getState();
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // background
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // grid
+  drawGrid();
+
+  // connectors first (so notes draw on top)
+  drawConnectors(connectors, notes)
+
+  // pens---------------------------
+  drawPens(pens)
+
+  // notes---------------------------
+  drawNotes(notes)
 
   // marquee selection (screen coords)
   if (marquee) {
