@@ -1,11 +1,11 @@
 
-let device = window.innerWidth <= 768 ? "mobile" : "desktop"
+let pritam = window.innerWidth <= 768 ? "mobile" : "desktop"
 
 function createInitialState() {
   return {
     bg: "#f7f9fc",
     // Device
-    device: device,
+    device: pritam,
     notes: [], // Array of note objects {id, x, y, w, h, text, color}
     connectors: [], // Array of connector objects {id, a, b} (a/b = connected note ids)
 
@@ -24,7 +24,7 @@ function createInitialState() {
     // --- Id counters ---
     idCounter: 1,          // For generating unique note ids
     connectorIdCounter: 1, // For generating unique connector ids
-
+    connectorBreakPointSelectedId: null,
     // --- Interaction state ---
     currentTool: 'pan', // Tool currently active: 'sticky'|'select'|'connect' | 'pan' | 'pen'
     selectedIds: new Set(), // Keeps track of selected note ids (multi-select supported)
@@ -46,7 +46,7 @@ function createInitialState() {
     
     
     // pen section 
-    idCounterPen: 1, // For generating unique pen ids
+    idCounterPen: 1,          // For generating unique pen ids
     pens: [] // store dots in x,y in one pen object
 
   };
