@@ -68,14 +68,6 @@ export function hitTestConnectorBreakPoint(wx, wy) {
         return breakPoint
       }
     }
-    return null
-  }
-
-  for (let i = notes.length - 1; i >= 0; i--) {
-    const n = notes[i];
-    if (wx >= n.x && wx <= n.x + n.w && wy >= n.y && wy <= n.y + n.h) {
-      return n;
-    }
   }
   return null;
   //
