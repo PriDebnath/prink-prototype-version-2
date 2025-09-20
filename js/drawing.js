@@ -93,6 +93,113 @@ export function drawGrid() {
 }
 
 function drawConnectors(connectors, notes) {
+  const { connectorBreakPointSelectedId}= getState();
+
+ //------------------------------
+  connectors.forEach((conn) => {
+    const a = notes.find((n) => n.id === conn.aId);
+    const b = notes.find((n) => n.id === conn.bId);
+    if (!a || !b) return;
+
+    // Convert A and B to screen coords
+    const aC = worldToScreen(a.x + a.w / 2, a.y + a.h / 2);
+    const bC = worldToScreen(b.x + b.w / 2, b.y + b.h / 2);
+
+    // Prepare list of all points: A → breakpoints → B
+    const allPoints = [aC];
+    if (conn.breakPoints && conn.breakPoints.length > 0) {
+      conn.breakPoints.forEach((bp) => {
+        allPoints.push({
+          ...worldToScreen(bp.worldX, bp.worldY),
+          id: bp.id
+        })
+      });
+    }
+    allPoints.push(bC);
+
+    // === Draw curve segment by segment ===
+    ctx.save();
+    ctx.strokeStyle = "rgba(30,30,30,0.45)";
+    ctx.lineWidth = 3;
+
+    for (let i = 0; i < allPoints.length - 1; i++) {
+      const start = allPoints[i];
+      const end = allPoints[i + 1];
+
+      // bezier control points (like before)
+      const dx = (end.x - start.x) * 0.4;
+      const cp1 = { x: start.x + dx, y: start.y };
+      const cp2 = { x: end.x - dx, y: end.y };
+
+      ctx.beginPath();
+      let isSelected = connectorBreakPointSelectedId == start.id
+      ctx.arc(start.x, start.y, 4, 0, Math.PI * 4); // circle handle
+      ctx.fillStyle = isSelected ? "#2563EB" : 'grey'
+      ctx.fill()
+
+      ctx.moveTo(start.x, start.y);
+      ctx.bezierCurveTo(cp1.x, cp1.y, cp2.x, cp2.y, end.x, end.y);
+      ////
+      ////
+
+      ctx.stroke();
+
+      // helpers (reuse your existing functions)
+      function getBezierPoint(t, p0, p1, p2, p3) {
+        const x =
+          Math.pow(1 - t, 3) * p0.x +
+          3 * Math.pow(1 - t, 2) * t * p1.x +
+          3 * (1 - t) * Math.pow(t, 2) * p2.x +
+          Math.pow(t, 3) * p3.x;
+        const y =
+          Math.pow(1 - t, 3) * p0.y +
+          3 * Math.pow(1 - t, 2) * t * p1.y +
+          3 * (1 - t) * Math.pow(t, 2) * p2.y +
+          Math.pow(t, 3) * p3.y;
+        return { x, y };
+      }
+
+      function getBezierTangent(t, p0, p1, p2, p3) {
+        const x =
+          3 * Math.pow(1 - t, 2) * (p1.x - p0.x) +
+          6 * (1 - t) * t * (p2.x - p1.x) +
+          3 * Math.pow(t, 2) * (p3.x - p2.x);
+        const y =
+          3 * Math.pow(1 - t, 2) * (p1.y - p0.y) +
+          6 * (1 - t) * t * (p2.y - p1.y) +
+          3 * Math.pow(t, 2) * (p3.y - p2.y);
+        return Math.atan2(y, x);
+      }
+
+      // draw arrows along this segment
+      const arrowSize = 8;
+      for (let t = 0.2; t < 1; t += 0.2) {
+        const pt = getBezierPoint(t, start, cp1, cp2, end);
+        const angle = getBezierTangent(t, start, cp1, cp2, end);
+
+        ctx.beginPath();
+        ctx.moveTo(pt.x, pt.y);
+        ctx.lineTo(
+          pt.x - arrowSize * Math.cos(angle - Math.PI / 6),
+          pt.y - arrowSize * Math.sin(angle - Math.PI / 6)
+        );
+        ctx.lineTo(
+          pt.x - arrowSize * Math.cos(angle + Math.PI / 6),
+          pt.y - arrowSize * Math.sin(angle + Math.PI / 6)
+        );
+        ctx.closePath();
+        ctx.fillStyle = "rgba(30,30,30,0.6)";
+        ctx.fill();
+      }
+    }
+
+    ctx.restore();
+  });
+
+  //------------------------------
+
+}
+function drawConnectors2(connectors, notes) {
   connectors.forEach((conn) => {
     const a = notes.find((n) => n.id === conn.aId);
     const b = notes.find((n) => n.id === conn.bId);

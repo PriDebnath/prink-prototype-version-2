@@ -8,7 +8,7 @@ import { draw } from "./drawing.js";
 import { createNote, hideEditor, openEditor, bringToFront } from "./notes.js";
 import { screenToWorld, worldToScreen } from "./utils.js";
 import { handleGridToggle, handleSnapToGrid, setTool } from "./interactions-toolbar-and-sidebar.js";
-import { createConnector, hitTestNotes } from "./connectors.js";
+import { createConnector, hitTestNotes, hitTestConnectorBreakPoint } from "./connectors.js";
 
 // --- Helpers ---
 // Selection
@@ -72,11 +72,14 @@ canvas.addEventListener("pointerdown", (ev) => {
     pointerMap,
     currentTool,
     panX,
-    panY
+    panY,
+    connectors
   } = state;
 
   canvas.setPointerCapture(ev.pointerId);
   pointerMap.set(ev.pointerId, {
+
+
     x: ev.clientX,
     y: ev.clientY
   });
@@ -101,10 +104,10 @@ canvas.addEventListener("pointerdown", (ev) => {
 
   /// Tool: connect
   if (currentTool === "connect") {
+ if (currentTool === "connect") {
     const hit = hitTestNotes(world.x, world.y);
     if (hit) {
       const { connectFirst } = getState();
-
       if (!connectFirst) {
         updateState({
           connectFirst: hit.id,
@@ -123,7 +126,42 @@ canvas.addEventListener("pointerdown", (ev) => {
         setTool("select")
       }
     }
+    // hit break point
+    const hitConnectorBreakPoint = hitTestConnectorBreakPoint(world.x, world.y);
+    console.log({
+      hitConnectorBreakPoint
+    })
+    // hit check connectter breakPoint
+    if (hitConnectorBreakPoint) {
+      state.connectorBreakPointSelectedId = hitConnectorBreakPoint.id
+      console.log({
+        hitConnectorBreakPoint,
+        id: state.connectorBreakPointSelectedId
+      })
+      draw()
+      console.log({ connectors })
+      for (let { breakPoints } of connectors) {
+        for (let breakPoint of breakPoints) {
+          console.log(
+          {
+            breakPoint
+          })
+          if (state.connectorBreakPointSelectedId == breakPoint.id) {
+            console.log(
+              "updateState"
+            )
+            updateState({
+              dragging: {
+                type: "breakPoint",
+                breakPoint
+              }
+            })
+          }
+        }
+      }
+    }
     return;
+  }
   }
 
   if (currentTool === "pen") {
@@ -214,7 +252,7 @@ canvas.addEventListener("pointerdown", (ev) => {
 
 function handleDragging(ev) {
   const state = getState();
-  const { pointerMap, dragging } = state;
+  const { pointerMap, dragging, connectors } = state;
 
   pointerMap.set(ev.pointerId, { x: ev.clientX, y: ev.clientY });
 
@@ -298,6 +336,24 @@ function handleDragging(ev) {
       }
     }
     draw();
+  } else if (dragging.type === "breakPoint") {
+    console.log("dragging in breakPoint")
+    for (let { breakPoints } of connectors) {
+      for (let breakPoint of breakPoints) {
+        console.log(
+        {
+          breakPoint
+        })
+        if (dragging.breakPoint.id == breakPoint.id) {
+          console.log(
+            "updateState breakipi sorld"
+          )
+          breakPoint.worldX = world.x
+          breakPoint.worldY = world.y         
+        }
+      }
+    }
+    draw()
   }
 }
 
