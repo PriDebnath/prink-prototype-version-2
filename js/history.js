@@ -1,4 +1,4 @@
- 
+
 
 import { draw } from "./drawing.js";
 import { getState, resetStatePreserveHistory } from "./state.js";
@@ -10,8 +10,10 @@ const state = getState();
 
 // Utility: deep copy of state for history
 export function snapshot() {
+  const state = getState();
   return {
     notes: state.notes.map(n => ({ ...n })),
+    pens: [...state.pens.map(pen => pen ? [...pen.map(pt => ({ ...pt }))] : [])],
     connectors: state.connectors.map(c => ({ ...c })),
     selectedIds: Array.from(state.selectedIds),
   };
@@ -19,6 +21,7 @@ export function snapshot() {
 
 export function restoreSnapshot(snap) {
   state.notes = snap.notes.map(n => ({ ...n }));
+  state.pens = snap.pens.map(pen => pen ? [...pen.map(pt => ({ ...pt }))] : []);
   state.connectors = snap.connectors.map(c => ({ ...c }));
   state.selectedIds = new Set(snap.selectedIds);
   state.primarySelectedId =
@@ -44,7 +47,7 @@ export function undo() {
   const snap = state.history[state.historyIndex];
   restoreSnapshot(snap);
 
-//
+  //
   undoBtn.classList.add("active");
   setTimeout(() => {
     undoBtn.classList.remove("active");
@@ -57,7 +60,7 @@ export function redo() {
   const snap = state.history[state.historyIndex];
   restoreSnapshot(snap);
 
-    redoBtn.classList.add("active");
+  redoBtn.classList.add("active");
   setTimeout(() => {
     redoBtn.classList.remove("active");
   }, 200);

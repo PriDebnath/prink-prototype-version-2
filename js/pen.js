@@ -1,4 +1,5 @@
 import { draw } from "./drawing.js";
+import { pushHistory } from "./history.js";
 import { getCanvas } from "./index.js";
 import { getState, updateState } from "./state.js";
 import { screenToWorld, worldToScreen } from "./utils.js";
@@ -8,7 +9,6 @@ const canvas = getCanvas();
 canvas.addEventListener("pointerdown", (e) => {
   const state = getState();
   if (state.currentTool !== "pen") return;
-  console.log("pointerdown")
 
   // Track active pointer
   let { x, y } = screenToWorld(e.clientX, e.clientY)
@@ -16,8 +16,8 @@ canvas.addEventListener("pointerdown", (e) => {
 
   // Start a new stroke
   state.pens[state.idCounterPen] = [
-    { 
-      x, 
+    {
+      x,
       y,
       time: Date.now()
     }
@@ -29,7 +29,6 @@ canvas.addEventListener("pointermove", (e) => {
   const state = getState();
   let { idCounterPen, pens } = state;
   if (state.currentTool !== 'pen') return;
-  console.log(state)
   if (!state.pointerMap.has(e.pointerId)) return;
 
   // Convert to world coords right away
@@ -67,10 +66,21 @@ canvas.addEventListener("pointermove", (e) => {
 canvas.addEventListener("pointerup", (e) => {
   const state = getState();
   if (state.currentTool !== "pen") return;
+  pushHistory()
 
-  // End stroke → increment counter
-  state.idCounterPen++;
-  state.pointerMap.delete(e.pointerId);
+  // // End stroke → increment counter
+  // state.idCounterPen++;
+  // state.pointerMap.delete(e.pointerId)
+
+  // Only increment counter if we actually drew something
+  if (state.pens[state.idCounterPen]?.length > 1) {
+    state.idCounterPen++;
+
+  } else {
+    // Remove empty pen stroke
+    delete state.pens[state.idCounterPen];
+
+  }
 });
 
 
