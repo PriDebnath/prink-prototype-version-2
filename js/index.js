@@ -54,8 +54,12 @@ export function getSnapToggle() {
 export function getGridToggle() {
     return document.getElementById('gridToggle');
 }
-
-
+export function getName() {
+    return document.getElementById('name');
+}
+export function getNameInput() {
+    return document.getElementById('name-input');
+}
 export function getZoomInBtn() {
     return document.getElementById('zoomInBtn');
 }
@@ -93,6 +97,7 @@ import "./pan.js";
 import "./pen.js";
 import "./interactions-toolbar-and-sidebar.js";
 import "./keydown-interaction.js";
+import "./name.js";
 import "./utils.js";
 import "./zoom.js";
 
@@ -111,8 +116,7 @@ if (!CanvasRenderingContext2D.prototype.roundRect) {
         this.closePath();
     };
 }
-
-// initial sample data  
+// initial sample data 
 import { createNote } from "./notes.js";
 import { createConnector } from "./connectors.js";
 import { pushHistory, undo, redo } from "./history.js";
@@ -122,7 +126,6 @@ import { setTool } from "./interactions-toolbar-and-sidebar.js";
 let note1 = createNote(100, 100, "Sticky #1");
 let note2 = createNote(300, 300, "Sticky #2");
 let note3 = createNote(150, 500, "Double-tap to edit");
-
 createConnector(note1.id,
     note3.id, [{
         id: 1,
@@ -134,7 +137,6 @@ createConnector(note2.id, note3.id, [{
     worldX: 400,
     worldY: 200
 }])
-
 // helpers exposed for debugging
 const { idCounter, notes, connectors } = getState();
 window._mini = {
@@ -146,7 +148,6 @@ window._mini = {
     redo,
     setTool,
 };
-
 // initialize history with initial state
 pushHistory();
 draw();

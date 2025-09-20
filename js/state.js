@@ -4,6 +4,7 @@ let pritam = window.innerWidth <= 768 ? "mobile" : "desktop"
 function createInitialState() {
   return {
     bg: "#f7f9fc",
+    name: "Untitled Board",
     // Device
     device: pritam,
     notes: [], // Array of note objects {id, x, y, w, h, text, color}
