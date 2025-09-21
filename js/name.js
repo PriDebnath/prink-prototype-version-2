@@ -1,25 +1,26 @@
 import { getName, getNameInput } from './index.js';
 import { getState } from './state.js';
-let state = getState()
-let name = getName()
-let nameInput = getNameInput()
-// name
-name.textContent = state.name
-name.addEventListener("click",()=>{
-  name.style.display = 'none'
-  nameInput.value = name.textContent
-  nameInput.style.display = 'block'
-  nameInput.focus()
-})
-// name input
-nameInput.style.display = 'none'
-nameInput.addEventListener('blur',()=>{
-  nameInput.style.display = 'none'
-  name.style.display = 'block'
-  let val = nameInput.value
-  name.textContent = val
-  state.name = val
-})
 
+let state = getState();
+let name = getName();
+let nameInput = getNameInput();
 
+// initialize
+name.textContent = state.name;
+nameInput.classList.add("hidden");
 
+// click to edit
+name.addEventListener("click", () => {
+  name.classList.add("hidden");
+  nameInput.value = name.textContent;
+  nameInput.classList.remove("hidden");
+  nameInput.focus();
+});
+
+// blur to save
+nameInput.addEventListener("blur", () => {
+  nameInput.classList.add("hidden");
+  name.textContent = nameInput.value;
+  state.name = nameInput.value;
+  name.classList.remove("hidden");
+});

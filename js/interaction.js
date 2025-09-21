@@ -103,7 +103,7 @@ canvas.addEventListener("pointerdown", (ev) => {
 
 
   /// Tool: connect
-  if (currentTool === "connect") {
+ 
  if (currentTool === "connect") {
     const hit = hitTestNotes(world.x, world.y);
     if (hit) {
@@ -162,7 +162,7 @@ canvas.addEventListener("pointerdown", (ev) => {
     }
     return;
   }
-  }
+ 
 
   if (currentTool === "pen") {
     return
