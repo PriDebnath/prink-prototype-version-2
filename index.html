@@ -188,7 +188,7 @@
                  value="" />
         </div>
 
-        <button class="header-chip tooltip toggle-on"
+        <button class="header-chip tooltip "
                 data-tooltip="Zoom In"
                 data-tooltip-pos="bottom"
                 id="zoomInBtn">
@@ -205,10 +205,10 @@
         </button>
 
         <div>
-          <span>Zoom:</span> <span id="zoom-value-span">100%</span>
+          <span>Zoom:</span> <span id="zoom-value-span">20%</span>
         </div>
 
-        <button class="header-chip tooltip toggle-on"
+        <button class="header-chip tooltip "
                 data-tooltip="Zoom Out"
                 data-tooltip-pos="bottom"
                 id="zoomOutBtn">
@@ -229,7 +229,7 @@
 
 
 
-        <button class="header-chip tooltip toggle-on"
+        <button class="header-chip tooltip "
                 data-tooltip="Download PNG"
                 data-tooltip-pos="bottom"
                 id="downloadPngBtn">
@@ -249,6 +249,23 @@
 
         </button>
 
+            <button class="header-chip tooltip toggle-on"
+                data-tooltip="Grid: On"
+                data-tooltip-pos="bottom"
+                id="gridToggle">
+          <svg width="16"
+               height="16"
+               viewBox="0 0 16 16"
+               fill="none"
+               xmlns="http://www.w3.org/2000/svg">
+            <g id="mdi-light:grid">
+              <path id="Vector"
+                    d="M4 2H12.6667C13.1971 2 13.7058 2.21071 14.0809 2.58579C14.456 2.96086 14.6667 3.46957 14.6667 4V12.6667C14.6667 13.1971 14.456 13.7058 14.0809 14.0809C13.7058 14.456 13.1971 14.6667 12.6667 14.6667H4C3.46957 14.6667 2.96086 14.456 2.58579 14.0809C2.21071 13.7058 2 13.1971 2 12.6667V4C2 3.46957 2.21071 2.96086 2.58579 2.58579C2.96086 2.21071 3.46957 2 4 2ZM4 2.66667C3.64638 2.66667 3.30724 2.80714 3.05719 3.05719C2.80714 3.30724 2.66667 3.64638 2.66667 4V6H6V2.66667H4ZM2.66667 12.6667C2.66667 13.0203 2.80714 13.3594 3.05719 13.6095C3.30724 13.8595 3.64638 14 4 14H6V10.6667H2.66667V12.6667ZM6 6.66667H2.66667V10H6V6.66667ZM12.6667 14C13.0203 14 13.3594 13.8595 13.6095 13.6095C13.8595 13.3594 14 13.0203 14 12.6667V10.6667H10.6667V14H12.6667ZM14 6.66667H10.6667V10H14V6.66667ZM14 4C14 3.64638 13.8595 3.30724 13.6095 3.05719C13.3594 2.80714 13.0203 2.66667 12.6667 2.66667H10.6667V6H14V4ZM6.66667 2.66667V6H10V2.66667H6.66667ZM6.66667 14H10V10.6667H6.66667V14ZM10 6.66667H6.66667V10H10V6.66667Z"
+                    fill="currentColor" />
+            </g>
+          </svg>
+
+        </button>
         <!-- <div 
          class="tooltip"
           data-tooltip="Background color"
@@ -388,23 +405,7 @@
           </svg>
 
         </button>
-        <button class="chip tooltip toggle-on"
-                data-tooltip="Grid: On"
-                data-tooltip-pos="top"
-                id="gridToggle">
-          <svg width="16"
-               height="16"
-               viewBox="0 0 16 16"
-               fill="none"
-               xmlns="http://www.w3.org/2000/svg">
-            <g id="mdi-light:grid">
-              <path id="Vector"
-                    d="M4 2H12.6667C13.1971 2 13.7058 2.21071 14.0809 2.58579C14.456 2.96086 14.6667 3.46957 14.6667 4V12.6667C14.6667 13.1971 14.456 13.7058 14.0809 14.0809C13.7058 14.456 13.1971 14.6667 12.6667 14.6667H4C3.46957 14.6667 2.96086 14.456 2.58579 14.0809C2.21071 13.7058 2 13.1971 2 12.6667V4C2 3.46957 2.21071 2.96086 2.58579 2.58579C2.96086 2.21071 3.46957 2 4 2ZM4 2.66667C3.64638 2.66667 3.30724 2.80714 3.05719 3.05719C2.80714 3.30724 2.66667 3.64638 2.66667 4V6H6V2.66667H4ZM2.66667 12.6667C2.66667 13.0203 2.80714 13.3594 3.05719 13.6095C3.30724 13.8595 3.64638 14 4 14H6V10.6667H2.66667V12.6667ZM6 6.66667H2.66667V10H6V6.66667ZM12.6667 14C13.0203 14 13.3594 13.8595 13.6095 13.6095C13.8595 13.3594 14 13.0203 14 12.6667V10.6667H10.6667V14H12.6667ZM14 6.66667H10.6667V10H14V6.66667ZM14 4C14 3.64638 13.8595 3.30724 13.6095 3.05719C13.3594 2.80714 13.0203 2.66667 12.6667 2.66667H10.6667V6H14V4ZM6.66667 2.66667V6H10V2.66667H6.66667ZM6.66667 14H10V10.6667H6.66667V14ZM10 6.66667H6.66667V10H10V6.66667Z"
-                    fill="currentColor" />
-            </g>
-          </svg>
-
-        </button>
+    
         <!-- <div style="margin-left:8px;color:#666;font-size:12px">
           Pan: Space+Drag / Middle mouse or two-finger
         </div> -->

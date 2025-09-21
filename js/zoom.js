@@ -11,38 +11,53 @@ function updateZoomValueSpanUi(scale) {
 let zoomValueSpan = document.getElementById('zoom-value-span')
   zoomValueSpan.textContent = Math.round(scale ) + "%"
 }
-
 export function handleCenterZoomInOut(zoomType = "+") {
   const state = getState();
 
-  // Decide zoom factor based on type
+  // Decide zoom factor
   let zoomFactor = zoomType === "+" ? 1.1 : 1 / 1.1;
-  let newScale = state.scale * zoomFactor;
+  let targetScale = Math.max(0.1, Math.min(5, state.scale * zoomFactor));
 
   // Get canvas center point in screen space
   const rect = canvas.getBoundingClientRect();
   const canvasClientX = rect.left + rect.width / 2;
   const canvasClientY = rect.top + rect.height / 2;
 
-  // Convert that point into world coords before zoom
+  // Convert center point into world coords (before zoom)
   const worldX = (canvasClientX - state.panX) / state.scale;
   const worldY = (canvasClientY - state.panY) / state.scale;
 
-  // Adjust pan so canvas center stays in place
-  state.panX = canvasClientX - worldX * newScale;
-  state.panY = canvasClientY - worldY * newScale;
+  // Target pan (so center stays fixed at new scale)
+  const targetPanX = canvasClientX - worldX * targetScale;
+  const targetPanY = canvasClientY - worldY * targetScale;
 
-  // Clamp zoom range
-  state.scale = Math.max(0.1, Math.min(5, newScale));
+  // Animate
+  const startScale = state.scale;
+  const startPanX = state.panX;
+  const startPanY = state.panY;
+  const duration = 200; // ms
+  const startTime = performance.now();
 
-  // Redraw with new pan + zoom
-  draw();
+  function animateZoom(time) {
+    let t = Math.min((time - startTime) / duration, 1); // progress [0,1]
+    // easing for smoothness (easeInOutQuad)
+    t = t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
 
-  // Update UI
-  updateZoomValueSpanUi(state.scale * zoomMulti);
+    state.scale = startScale + (targetScale - startScale) * t;
+    state.panX = startPanX + (targetPanX - startPanX) * t;
+    state.panY = startPanY + (targetPanY - startPanY) * t;
 
-  console.log(state.scale);
+    draw();
+    updateZoomValueSpanUi(state.scale * zoomMulti);
+
+    if (t < 1) {
+      requestAnimationFrame(animateZoom);
+    }
+  }
+
+  requestAnimationFrame(animateZoom);
 }
+
 
 
 //// --- Mobile Zoom Start ------------------------------------------------------------------------------------------

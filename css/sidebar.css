@@ -151,15 +151,24 @@
   /* Animate each button with delay */
 
   .sidebar div:nth-child(1) {
-      animation-delay: var(--sidebar-final-delay);
+      animation-delay: calc(var(--sidebar-final-delay) * 3);
+      
   }
 
   .sidebar div:nth-child(2) {
-      animation-delay: calc(var(--sidebar-final-delay) * 1/2);
+      animation-delay: calc(var(--sidebar-final-delay) * 2);
   }
 
   .sidebar div:nth-child(3) {
-      animation-delay: calc(var(--sidebar-final-delay));
+      animation-delay: calc(var(--sidebar-final-delay)* 1);
+  }
+
+    .sidebar div:nth-child(4) {
+      animation-delay: calc(var(--sidebar-final-delay) * 2);
+  }
+
+  .sidebar div:nth-child(5) {
+      animation-delay: calc(var(--sidebar-final-delay) * 3);
   }
 
 

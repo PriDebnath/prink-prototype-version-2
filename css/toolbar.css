@@ -75,24 +75,21 @@
   }
   
   .chip:nth-child(3) {
-    animation-delay: calc(var(--chip-final-delay) * 1/4)
+    animation-delay: calc(var(--chip-final-delay) * 1/2)
   }
   
   .chip:nth-child(4) {
-    animation-delay: calc(var(--chip-final-delay) * 1/2)
-  }
-
-    .chip:nth-child(5) {
     animation-delay: var(--chip-final-delay);
   }
-  
+
+
   .chip:active {
     transform: scale(0.9);
     box-shadow: 0 0 var(--toolbar-space) rgba(0, 0, 0, 0.2);
     color: var(--chip-text)
   }
   
-  .chip.toggle-on {
+  .chip.toggle-on, .header-chip.toggle-on {
     background: var(--chip-bg-active);
     border: 1px solid var(--chip-text);
     color: var(--chip-text)

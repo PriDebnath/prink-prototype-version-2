@@ -12,11 +12,11 @@ import {
   getSnapToggle,
   getGridToggle,
   getPanBtn,
-getZoomInBtn,
-getZoomOutBtn,
-getDownloadPngBtn,
-getCanvasColorPicker,
-getCanvasColorPickerCircle
+  getZoomInBtn,
+  getZoomOutBtn,
+  getDownloadPngBtn,
+  getCanvasColorPicker,
+  getCanvasColorPickerCircle
 } from "./index.js";
 
 import { getState, updateState } from "./state.js";
@@ -51,29 +51,41 @@ let canvasColorPicker = getCanvasColorPicker()
 let canvasColorPickerCircle = getCanvasColorPickerCircle()
 let downloadPngBtn = getDownloadPngBtn()
 
-
+function makeElementActive(element) {
+  if (!element) {
+    return
+  }
+  element.classList.add("toggle-on")
+  setTimeout(() => {
+    element.classList.remove("toggle-on")
+  }, 300);
+}
 
 zoomInBtn.addEventListener("click", () => {
   handleCenterZoomInOut("+");
+  makeElementActive(zoomInBtn)
 });
 
 zoomOutBtn.addEventListener("click", () => {
   handleCenterZoomInOut("-");
+  makeElementActive(zoomOutBtn)
 });
 
-  canvasColorPicker.oninput = (ev) => {
-    const color = ev.target.value
-    state.bg = color;
-    canvasColorPickerCircle.style.backgroundColor = color
-    draw();
-  };
-  
+canvasColorPicker.oninput = (ev) => {
+  const color = ev.target.value
+  state.bg = color;
+  canvasColorPickerCircle.style.backgroundColor = color
+  draw();
+};
+
 downloadPngBtn.addEventListener("click", () => {
+  makeElementActive(downloadPngBtn)
+  // Create a link and trigger download
   let link = document.createElement("a")
   link = document.createElement("a");
-    link.download = "my_drawing.png"; // filename
-    link.href = canvas.toDataURL("image/png");
-    link.click()
+  link.download = "my_drawing.png"; // filename
+  link.href = canvas.toDataURL("image/png");
+  link.click()
 });
 
 
