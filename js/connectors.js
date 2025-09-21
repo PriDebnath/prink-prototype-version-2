@@ -2,11 +2,39 @@ import { getState, updateState } from "./state.js";
 import { pushHistory } from "./history.js";
 import { draw } from "./drawing.js";
 
+function getMidpoint(x1, y1, x2, y2) {
+  return {
+    x: (x1 + x2) / 2,
+    y: (y1 + y2) / 2
+  };
+}
+
 // Create connector
 export function createConnector(aId, bId, breakPoints) {
   if (!aId || !bId || aId === bId) return null;
 
-  const { connectors, connectorIdCounter } = getState();
+  const { connectors, connectorIdCounter, notes } = getState();
+
+  if (!breakPoints) {
+    let noteA =  notes.find((n) => n.id === aId);
+    let noteB=  notes.find((n) => n.id === bId);
+    
+    if (!noteA || !noteB) return null;
+
+    let aX = noteA.x + noteA.w / 2;
+    let aY = noteA.y + noteA.h / 2;
+    let bX = noteB.x + noteB.w / 2;
+    let bY = noteB.y + noteB.h / 2;
+    let mid = getMidpoint(aX, aY, bX, bY);
+
+    breakPoints = [
+      { 
+        id: Date.now(),
+        worldX: mid.x, 
+        worldY: mid.y
+        }
+    ]
+  }
 
   // prevent duplicates
   // const exists = connectors.some(

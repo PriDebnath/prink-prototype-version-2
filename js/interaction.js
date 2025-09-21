@@ -386,18 +386,51 @@ canvas.addEventListener("pointerup", (ev) => {
 // Double-click → edit
 // Pointer double-tap/dblclick to edit: we'll detect quick successive pointerup
 
+// Double-click → edit OR create new breakpoint
 let lastUpTime = 0;
 canvas.addEventListener("pointerup", (ev) => {
-  // double-up detection (runs in addition to the above pointerup handler)
   const now = Date.now();
   const dt = now - lastUpTime;
   lastUpTime = now;
+
   if (dt < 300) {
     const rect = canvas.getBoundingClientRect();
     const screen = { x: ev.clientX - rect.left, y: ev.clientY - rect.top };
     const world = screenToWorld(screen.x, screen.y);
-    const hit = hitTestNotes(world.x, world.y);
-    if (hit) openEditor(hit);
+
+    // First check if a connector breakpoint was hit
+    const hitBreak = hitTestConnectorBreakPoint(world.x, world.y);
+    if (hitBreak) {
+      // === create a new breakpoint after the clicked one ===
+      const { connectors } = getState();
+      const connector = connectors.find(c =>
+        c.breakPoints.some(bp => bp.id === hitBreak.id)
+      );
+      if (connector) {
+        // new ID for the new breakpoint
+        const newId = Date.now();
+        const newBreak = {
+          id: newId,
+          worldX: hitBreak.worldX + 20, // offset so it doesn’t overlap
+          worldY: hitBreak.worldY + 20
+        };
+
+        // insert new break after the clicked one
+        const idx = connector.breakPoints.findIndex(bp => bp.id === hitBreak.id);
+        connector.breakPoints.splice(idx + 1, 0, newBreak);
+
+        updateState({ connectors: [...connectors] });
+        pushHistory();
+        draw();
+      }
+      return; // don’t fall through to note editing
+    }
+
+    // Otherwise, check if a note was hit → open editor
+    const hitNote = hitTestNotes(world.x, world.y);
+    if (hitNote) {
+      openEditor(hitNote);
+      return
+    }
   }
 });
-

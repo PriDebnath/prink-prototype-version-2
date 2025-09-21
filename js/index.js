@@ -126,17 +126,8 @@ import { setTool } from "./interactions-toolbar-and-sidebar.js";
 let note1 = createNote(100, 100, "Sticky #1");
 let note2 = createNote(300, 300, "Sticky #2");
 let note3 = createNote(150, 500, "Double-tap to edit");
-createConnector(note1.id,
-    note3.id, [{
-        id: 1,
-        worldX: 200,
-        worldY: 200
-    }])
-createConnector(note2.id, note3.id, [{
-    id: 2,
-    worldX: 400,
-    worldY: 200
-}])
+createConnector(note1.id, note3.id)
+createConnector(note2.id, note3.id)
 // helpers exposed for debugging
 const { idCounter, notes, connectors } = getState();
 window._mini = {
