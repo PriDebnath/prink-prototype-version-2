@@ -16,7 +16,10 @@ import {
   getZoomOutBtn,
   getDownloadPngBtn,
   getCanvasColorPicker,
-  getCanvasColorPickerCircle
+  getCanvasColorPickerCircle,
+  getPenColorPickerCircle,
+  getPenColorPicker,
+  getPenFontSizeSelect
 } from "./index.js";
 
 import { getState, updateState } from "./state.js";
@@ -41,6 +44,7 @@ const connectBtn = getConnectBtn();
 
 const snapToggle = getSnapToggle();
 const gridToggle = getGridToggle();
+const penFontSizeSelect = getPenFontSizeSelect();
 
 const state = getState();
 
@@ -50,6 +54,10 @@ let zoomOutBtn = getZoomOutBtn()
 let canvasColorPicker = getCanvasColorPicker()
 let canvasColorPickerCircle = getCanvasColorPickerCircle()
 let downloadPngBtn = getDownloadPngBtn()
+let penColorPicker = getPenColorPicker()
+let penColorPickerCircle = getPenColorPickerCircle()
+
+
 
 function makeElementActive(element) {
   if (!element) {
@@ -78,6 +86,9 @@ canvasColorPicker.oninput = (ev) => {
   draw();
 };
 
+
+
+
 downloadPngBtn.addEventListener("click", () => {
   makeElementActive(downloadPngBtn)
   // Create a link and trigger download
@@ -97,6 +108,12 @@ panBtn.addEventListener("click", () => {
 
 penBtn.addEventListener("click", () => {
   setTool("pen");
+   // hide others
+ penColorPicker.setAttribute("style", "display:auto !important");
+ penColorPickerCircle.setAttribute("style", "display:auto   !important",);
+ penColorPickerCircle.setAttribute("style", "background: " + state.penColor,);
+  penFontSizeSelect.setAttribute("style", "display:auto   !important",);
+
 });
 stickyBtn.addEventListener("click", () => {
   setTool("sticky");
@@ -117,6 +134,12 @@ export function setTool(t) {
   selectBtn.classList.toggle("active", t === "select");
   connectBtn.classList.toggle("active", t === "connect");
 
+ // hide others
+  penColorPicker.setAttribute("style", "display:none !important");
+  penColorPickerCircle.setAttribute("style", "display:none !important");
+  penFontSizeSelect.setAttribute("style", "display:none !important");
+  
+  
   // set cursor depending on tool // not working on canvas
   // switch (t) {
   //   case "pan":

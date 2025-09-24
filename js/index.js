@@ -84,6 +84,23 @@ export function getCanvasColorPickerCircle() {
     return document.getElementById('canvas-color-picker-circle');
 }
 
+//----
+
+export function getPenColorPicker() {
+    return document.getElementById('pen-color-picker');
+}
+
+export function getPenColorPickerCircle() {
+    return document.getElementById('pen-color-picker-circle');
+}
+
+export function getPenFontSizeSelect() {
+    return document.getElementById('penFontSizeSelect');
+}
+
+
+
+//----
 
 
 // Load files
@@ -129,7 +146,7 @@ let note3 = createNote(150, 500, "Double-tap to edit");
 createConnector(note1.id, note3.id)
 createConnector(note2.id, note3.id)
 // helpers exposed for debugging
-const { idCounter, notes, connectors } = getState();
+const { idCounter, notes, connectors , bg} = getState();
 window._mini = {
     notes: notes,
     connectors: connectors,
@@ -140,5 +157,9 @@ window._mini = {
     setTool,
 };
 // initialize history with initial state
+ getCanvasColorPickerCircle().setAttribute("style", "background: " + bg,);
+
 pushHistory();
 draw();
+
+// html, note js, index.css, name.js, pen.js, state.js, draw.js, interactions-toolba

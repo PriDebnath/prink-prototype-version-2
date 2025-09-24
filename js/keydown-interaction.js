@@ -1,6 +1,10 @@
 
 import { getState, updateState } from "./state.js";
-import { getCanvas, getEditor, getSnapToggle, getGridToggle } from "./index.js";
+import { getCanvas, getEditor, getSnapToggle, getGridToggle,
+
+    getPenColorPickerCircle,
+  getPenColorPicker
+} from "./index.js";
 import { draw } from "./drawing.js";
 import { createNote, hideEditor } from "./notes.js";
 import { screenToWorld, worldToScreen } from "./utils.js";

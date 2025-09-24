@@ -252,7 +252,7 @@ canvas.addEventListener("pointerdown", (ev) => {
 
 function handleDragging(ev) {
   const state = getState();
-  const { pointerMap, dragging, connectors } = state;
+  const { pointerMap, dragging, connectors , history} = state;
 
   pointerMap.set(ev.pointerId, { x: ev.clientX, y: ev.clientY });
 
@@ -338,11 +338,13 @@ function handleDragging(ev) {
     draw();
   } else if (dragging.type === "breakPoint") {
     console.log("dragging in breakPoint")
-    for (let { breakPoints } of connectors) {
+    let localConnectors = connectors
+    for (let { breakPoints } of localConnectors) {
       for (let breakPoint of breakPoints) {
         console.log(
         {
-          breakPoint
+          breakPoint,
+          history 
         })
         if (dragging.breakPoint.id == breakPoint.id) {
           console.log(
@@ -353,6 +355,7 @@ function handleDragging(ev) {
         }
       }
     }
+    updateState({ connectors: localConnectors });
     draw()
   }
 }
@@ -373,7 +376,8 @@ canvas.addEventListener("pointerup", (ev) => {
   canvas.releasePointerCapture(ev.pointerId);
   pointerMap.delete(ev.pointerId);
 
-  if (dragging && (dragging.type === "move" || dragging.type === "resize")) {
+  if (dragging && (dragging.type === "move" || dragging.type === "resize" || dragging.type === "breakPoint")) {
+    
     pushHistory();
   }
   if (dragging?.type === "marquee") {
