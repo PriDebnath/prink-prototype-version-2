@@ -71,19 +71,34 @@ function handleColorPicker(note) {
 }
 
 
+// --- Utility: clamp popup inside screen ---
+function positionElement(el, desiredLeft, desiredTop, width, height, padding = 8) {
+  const maxLeft = window.innerWidth - width - padding;
+  const maxTop = window.innerHeight - height - padding;
+  
+  let left = Math.min(Math.max(desiredLeft, padding), maxLeft);
+  let top = Math.min(Math.max(desiredTop, padding), maxTop);
+  
+  el.style.left = left + "px";
+  el.style.top = top + "px";
+}
+
+// --- Tray ---
 function openEditorTray(note, screenPos, canvasRect) {
   const tray = document.getElementById("editor-tray");
+  tray.style.display = "flex";
   
+  const trayWidth = tray.offsetWidth || 200;
+  const trayHeight = tray.offsetHeight || 40;
   
-  tray.style.display = "flex"
-  tray.style.left = canvasRect.left + screenPos.x + 8 + "px";
-  tray.style.top = canvasRect.top + screenPos.y - 32 + "px"; // above editor
+  const desiredLeft = canvasRect.left + screenPos.x + 8;
+  const desiredTop = canvasRect.top + screenPos.y - 32; // default above
   
+  positionElement(tray, desiredLeft, desiredTop, trayWidth, trayHeight);
   
-  /// handle items
-  handleColorPicker(note)
-  handleNoteFontSizeSelect(note)
-  ///
+  // --- handle items ---
+  handleColorPicker(note);
+  handleNoteFontSizeSelect(note);
   
   // --- Hide tray if user clicks outside ---
   function handleClickOutside(e) {
@@ -93,25 +108,31 @@ function openEditorTray(note, screenPos, canvasRect) {
     }
   }
   
-  // delay so the current click doesn’t instantly close it
   setTimeout(() => {
-    note = {}
     document.addEventListener("click", handleClickOutside);
   }, 0);
 }
 
+// --- Text Editor ---
 function openEditorText(note, screenPos, canvasRect) {
   const editor = getEditor();
-  // --- text editor ---
   editor.style.display = "block";
-  editor.style.left = canvasRect.left + screenPos.x + 8 + "px";
-  editor.style.top = canvasRect.top + screenPos.y + 8 + "px";
-  editor.style.width = Math.max(120, note.w - 12) + "px";
-  editor.style.height = Math.max(60, note.h - 12) + "px";
-  editor.innerText = note.text;
-  //editor.focus();
   
-  // --- save text on blur ---
+  const minWidth = 120,
+    minHeight = 60;
+  const editorWidth = Math.max(minWidth, note.w - 12);
+  const editorHeight = Math.max(minHeight, note.h - 12);
+  
+  const desiredLeft = canvasRect.left + screenPos.x + 8;
+  const desiredTop = canvasRect.top + screenPos.y + 8;
+  
+  positionElement(editor, desiredLeft, desiredTop, editorWidth, editorHeight);
+  
+  editor.style.width = editorWidth + "px";
+  editor.style.height = editorHeight + "px";
+  editor.innerText = note.text;
+  
+  // save on blur
   editor.onblur = () => {
     note.text = editor.innerText || "";
     editor.style.display = "none";
@@ -126,15 +147,14 @@ function openEditorText(note, screenPos, canvasRect) {
   };
 }
 
+// --- Entry Point ---
 export function openEditor(note) {
   const screenPos = worldToScreen(note.x, note.y);
   const canvasRect = canvas.getBoundingClientRect();
   
-  openEditorTray(note, screenPos, canvasRect)
-  openEditorText(note, screenPos, canvasRect)
-  
+  openEditorTray(note, screenPos, canvasRect);
+  openEditorText(note, screenPos, canvasRect);
 }
-
 
 export function hideEditor() {
   const tray = document.getElementById("editor-tray");
