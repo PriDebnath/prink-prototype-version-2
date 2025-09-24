@@ -48,7 +48,9 @@ function createInitialState() {
     
     // pen section 
     idCounterPen: 1,          // For generating unique pen ids
-    pens: [] // store dots in x,y in one pen object
+    pens: [], // store dots in x,y in one pen object
+    penColor: "skyblue",
+    penSize: 4,
 
   };
 }
