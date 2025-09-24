@@ -1,5 +1,3 @@
-
-
 import { draw } from "./drawing.js";
 import { getState, resetStatePreserveHistory } from "./state.js";
 import { getUndoBtn, getRedoBtn } from "./index.js";
@@ -13,8 +11,22 @@ export function snapshot() {
   const state = getState();
   return {
     notes: state.notes.map(n => ({ ...n })),
-    pens: [...state.pens.map(pen => pen ? [...pen.map(pt => ({ ...pt }))] : [])],
-    connectors: state.connectors.map(c => ({ ...c })),
+    pens: [
+      ...state.pens.map(pen => pen ? [...pen.map(pt => ({ ...pt }))] : [])
+      
+    ],
+    
+    
+    connectors: state.connectors.map(c => ({
+      ...c,
+      a: { ...c.a },
+      b: { ...c.b },
+      breakPoints: c.breakPoints ?
+        c.breakPoints.map(bp => ({ ...bp })) :
+        []
+    })),
+    
+    
     selectedIds: Array.from(state.selectedIds),
   };
 }
@@ -23,6 +35,11 @@ export function restoreSnapshot(snap) {
   state.notes = snap.notes.map(n => ({ ...n }));
   state.pens = snap.pens.map(pen => pen ? [...pen.map(pt => ({ ...pt }))] : []);
   state.connectors = snap.connectors.map(c => ({ ...c }));
+  
+  
+  
+  
+  
   state.selectedIds = new Set(snap.selectedIds);
   state.primarySelectedId =
     state.selectedIds.size === 1 ? Array.from(state.selectedIds)[0] : null;
@@ -46,7 +63,7 @@ export function undo() {
   state.historyIndex--;
   const snap = state.history[state.historyIndex];
   restoreSnapshot(snap);
-
+  
   //
   undoBtn.classList.add("active");
   setTimeout(() => {
@@ -59,7 +76,7 @@ export function redo() {
   state.historyIndex++;
   const snap = state.history[state.historyIndex];
   restoreSnapshot(snap);
-
+  
   redoBtn.classList.add("active");
   setTimeout(() => {
     redoBtn.classList.remove("active");
