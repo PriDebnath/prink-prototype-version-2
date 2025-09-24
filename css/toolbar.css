@@ -44,8 +44,11 @@
     box-shadow:  0px var(--toolbar-space) calc(var(--toolbar-space)*4) rgba(0, 0, 0, 0.5);
     border: 1px solid var(--chip-border);
     pointer-events: auto;
-
   }
+   .header-toolbar > *{
+     display: flex;
+     align-items: center;
+   }
 
   .chip, .header-chip  {
     opacity: 0;
@@ -61,8 +64,16 @@
     color: grey;
     display: flex !important;
     aspect-ratio: 1;
-   /* // animation: popIn-chip 0.4s var(--chip-final-delay) ease-in-out forwards; */
+    animation: popIn-chip 0.4s var(--chip-final-delay) ease-in-out forwards;
+   
+    /*
     animation: popIn-chip 0.5s var(--chip-final-delay) cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards;
+    */
+  }
+  
+  .header-chip {
+    animation: popIn-chip 0.4s  ease-in-out forwards;
+
   }
   
   /* Staggered chips (5) */
