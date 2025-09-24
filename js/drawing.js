@@ -8,6 +8,8 @@ const ctx = getCtx();
 export function isOdd(number) {
   return number % 2
 }
+  const state = getState();
+
 
 export function drawGrid() {
   /// Read it bro!!!!!!!!!!!! 
@@ -179,13 +181,14 @@ function drawPens(pens) {
     if (pen.length < 2) return;
 
     ctx.beginPath();
-    ctx.strokeStyle = "red";
-    ctx.lineWidth = 4;
     ctx.lineJoin = "round";
     ctx.lineCap = "round";
 
     // Start at first point
-    let { x: p0X, y: p0Y } = pen[0];
+    let { x: p0X, y: p0Y, color, penSize } = pen[0];
+        ctx.strokeStyle = color;
+    ctx.lineWidth = penSize;
+
     let { x: w0X, y: w0Y } = worldToScreen(p0X, p0Y);
     ctx.moveTo(w0X, w0Y);
 

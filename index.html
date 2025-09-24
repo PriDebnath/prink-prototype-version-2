@@ -204,8 +204,8 @@
           </svg>
         </button>
 
-        <div>
-          <span>Zoom:</span> <span id="zoom-value-span">20%</span>
+        <div class="zoom-tag">
+          <span></span> <span id="zoom-value-span">20%</span>
         </div>
 
         <button class="header-chip tooltip "
@@ -225,8 +225,6 @@
             </g>
           </svg>
         </button>
-
-
 
 
         <button class="header-chip tooltip "
@@ -406,6 +404,34 @@
 
         </button>
     
+    
+      <label class="color-picker tooltip "
+               data-tooltip="Pen color"
+               data-tooltip-pos="top">
+          <input type="color"
+                 id="pen-color-picker"
+                 >
+          <span class="circle"
+                id="pen-color-picker-circle"
+                style="display: none"
+
+                ></span>
+        </label>
+        
+                <select name=""
+                style="display: none;"
+                id="penFontSizeSelect"
+                class="">
+                            <option value="2"
+                  selected>2</option>
+
+          <option value="4"
+                  selected>4</option>
+          <option value="8">8</option>
+          <option value="12">12</option>
+          <option value="16">16</option>
+          <option value="20">20</option>
+        </select>
         <!-- <div style="margin-left:8px;color:#666;font-size:12px">
           Pan: Space+Drag / Middle mouse or two-finger
         </div> -->
