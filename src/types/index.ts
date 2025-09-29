@@ -17,6 +17,7 @@ export interface Freehand {
 
 
 export interface CanvasState {
+    device: "mobile" | "desktop";
     scale: number;
     offset: { x: number; y: number };
     paths: Freehand[];
