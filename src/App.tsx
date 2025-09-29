@@ -3,6 +3,7 @@ import type { Tool, CanvasState } from './types';
 import { PenTool, PanTool } from './tools';
 import { draw } from './utils/drawing';
 import { Button } from "./components/button";
+import { Sidebar } from "./components/sidebar";
 
 // ---------- App ----------
 export default function App() {
@@ -45,22 +46,22 @@ export default function App() {
   useEffect(() => {
     const canvas = canvasRef.current!;
     const ctx = canvas.getContext("2d")!;
-  
+
     const resize = () => {
       const dpr = window.devicePixelRatio || 1;
-  
+
       // Match canvas internal resolution to its CSS size * DPR
       canvas.width = canvas.clientWidth * dpr;
       canvas.height = canvas.clientHeight * dpr;
-  
+
       ctx.setTransform(1, 0, 0, 1, 0, 0); // reset before scaling
       ctx.scale(dpr, dpr);
-  
+
       // Update "device" breakpoint state
       const device = window.innerWidth <= 768 ? "mobile" : "desktop";
       canvasStateRef.current.device = device;
     };
-  
+
     // Prefer ResizeObserver
     let ro: ResizeObserver | null = null;
     if ("ResizeObserver" in window) {
@@ -70,43 +71,44 @@ export default function App() {
       // Fallback for older browsers
       (window as Window).addEventListener("resize", resize);
     }
-  
+
     resize(); // run once on mount
-  
+
     return () => {
       ro?.disconnect();
       window.removeEventListener("resize", resize as () => void);
     };
   }, []);
-  
+
 
   return (
     <div style={{ width: "100vw", height: "100vh", position: "relative" }}>
       <canvas ref={canvasRef} style={{ width: "100%", height: "100%", touchAction: "none" }} />
+      <Sidebar activeTool={activeTool} setActiveTool={setActiveTool} />
       {/* <!------------------ Sidebar start ------------------> */}
-    <aside className="sidebar-wrapper">
-      <div className="sidebar"
-           role="toolbar"
-           aria-label="Tools">
+      <aside className="sidebar-wrapper">
+        <div className="sidebar"
+          role="toolbar"
+          aria-label="Tools">
 
-        <div className="tool">
-          <Button.pan
-          onClick={() => setActiveTool(new PanTool())}
-          className={activeTool.name === 'pan' ? "active" : ""}
-          
-          />
-          </div>
- 
           <div className="tool">
-           <Button.pen
-           onClick={() => setActiveTool(new PenTool())}
-           className={activeTool.name === 'pen' ? "active" : ""}
-           />
+            <Button.pan
+              onClick={() => setActiveTool(new PanTool())}
+              className={activeTool.name === 'pan' ? "active" : ""}
+
+            />
           </div>
 
+          <div className="tool">
+            <Button.pen
+              onClick={() => setActiveTool(new PenTool())}
+              className={activeTool.name === 'pen' ? "active" : ""}
+            />
           </div>
-          </aside>
-          {/* <!------------------ Sidebar end ------------------> */}
+
+        </div>
+      </aside>
+      {/* <!------------------ Sidebar end ------------------> */}
 
     </div>
   );

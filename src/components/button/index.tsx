@@ -6,6 +6,7 @@ type ButtonProps = React.HTMLAttributes<HTMLButtonElement> & {
     dataTooltipPos?: "top" | "right" | "bottom" | "left"
 }
 
+export type ButtonKeys = keyof typeof Button;
 
 export const Button = {
     pan: (props: ButtonProps) => {
