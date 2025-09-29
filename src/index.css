@@ -1,68 +1,605 @@
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+    --bgstart: #f3f6fb;
+    --bgend: #fff;
+    --accent: #2563eb;
+    --space: 0.4rem;
+    --border-radius: 1.6rem;
+    --input-bg: #eee;
+    
+    --chip-final-delay: 1s;
+    --chip-bg: #eee;
+    --chip-bg-active: #e8f0fe;
+    --chip-text: #2563eb;
+    --chip-border: #e6e9ef;
+    --toolbar-border-radius: 1.6rem;
+    --toolbar-space: 0.4rem;
+    --toolbar-font-size: 0.8rem;
+    
+    --sidebar-w: 72px;
+    --sidebar-bg: #eee;
+    --sidebar-border: #e6e9ef;
+    --sidebar-border-radius: 2.6rem;
+    --sidebar-space: 0.4rem;
+    --sidebar-font-size: 0.8rem;
+    --sidebar-final-delay: 0.6s;
+    
 }
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
+* {
+    transition: all 0.2s;
+    box-sizing: border-box;
 }
 
+html,
 body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
+    height: 100%;
+    margin: 0;
+    font-family: Inter, system-ui, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    overflow: hidden;
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+.app {
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+    touch-action: none;
 }
 
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+canvas {
+    flex: 1;
+    display: block;
+    background: linear-gradient(180deg, var(--bgstart), var(--bgend));
+    touch-action: none;
+    overflow: hidden;
 }
 
-@media (prefers-color-scheme: light) {
+#editor {
+    position: absolute;
+    display: none;
+    box-sizing: border-box;
+    min-width: 120px;
+    min-height: 60px;
+    padding: 8px;
+    border-radius: 8px;
+    font: 14px/1.2 Inter, system-ui, Arial;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.14);
+    background: #fff9c4;
+    border: 1px solid rgba(0, 0, 0, 0.04);
+    outline: none;
+    resize: none;
+    overflow: auto;
+    z-index: 1000;
+    -webkit-user-modify: read-write-plaintext-only;
+}
+
+#editor-tray {
+    display: flex;
+    align-items: center;
+    gap: var(--space);
+    padding: var(--space);
+    background: red;
+    border-radius: var(--border-radius);
+    
+}
+
+
+/* transition: transform 0.25s ease, opacity 0.25s ease; */
+#name,
+#name-input {
+    transition: transform 0.35s cubic-bezier(0.68, -0.55, 0.27, 1.55),
+        opacity 0.25s ease;
+    border-radius: var(--border-radius);
+    transform-origin: center;
+}
+
+#name {
+    max-width: 150px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: inline-block;
+}
+
+#name-input {
+    outline: 2px solid var(--accent);
+    padding: calc(var(--space) / 2);
+    border: none;
+}
+
+
+.hidden {
+    opacity: 0;
+    transform: scale(0.8);
+    pointer-events: none;
+    position: absolute;
+}
+
+select, input{
+    padding: calc(var(--space) / 2);
+    border-radius: var(--border-radius);
+
+}
+
+
+/*
+#bottomBar:focus-within .header-chip,
+#bottomBar:focus-within .zoom-tag,
+#bottomBar:focus-within .color-picker {
+    display: none !important;
+}
+*/
+
+
+/* sidebar css start */
+  /* :root {
+      --sidebar-w: 72px;
+      --sidebar-bg: #eee;
+      --sidebar-border: #e6e9ef;
+      --sidebar-border-radius: 2.6rem;
+      --sidebar-space: 0.4rem;
+      --sidebar-font-size: 0.8rem;
+      --sidebar-final-delay: 0.6s;
+  } */
+
+  /* Animation  starts */
+
+  @keyframes popIn-tool {
+    to {
+        opacity: 1;
+        /* font-size: var(--toolbar-font-size); */
+        padding: var(--toolbar-space);
+    }
+}
+
+/* 
+@keyframes expandToolbar {
+    0% {
+        width: 60px;
+        border-radius: 50%;
+    }
+
+    100% {
+        width: 320px;
+        border-radius: 30px;
+    }
+
+}
+
+@keyframes bubblePop {
+    0% {
+        transform: scale(0.9);
+    }
+
+    50% {
+        transform: scale(1.2);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+} 
+
+@keyframes popIn {
+    0% {
+        opacity: 0;
+        transform: scale(0.5) translateY(20px);
+    }
+
+    80% {
+        transform: scale(1.1) translateY(0);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+
+}
+
+*/
+
+/* Animation  ends */
+
+
+.sidebar-wrapper {
+    /* width: var(--sidebar-w); */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    left: var(--sidebar-space);
+    top: 0;
+    bottom: 0;
+    margin: auto;
+    pointer-events: none;
+}
+
+
+.sidebar {
+    /* width: var(--sidebar-w); */
+    background: white;
+    border-radius: var(--sidebar-border-radius);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /*
+    */
+
+    padding: var(--sidebar-space);
+    gap: var(--sidebar-space);
+    box-shadow: 0px var(--sidebar-space) calc(var(--sidebar-space)*4) rgba(0, 0, 0, 0.5);
+    pointer-events: auto;
+}
+
+
+/* side-bottom button(3) start */
+
+.tool {
+    font-size: 0;
+    padding: 0;
+    opacity: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    animation: popIn-tool 0.4s var(--chip-final-delay) ease forwards;
+    /* animation: popIn-tool 0.5s var(--sidebar-final-delay) cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards; */
+}
+
+.tool-btn {
+    border-radius: var(--sidebar-border-radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--sidebar-border);
+    background: var(--sidebar-bg);
+    cursor: pointer;
+    user-select: none;
+    font-size: inherit;
+    padding: inherit;
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.03);
+    aspect-ratio: 1;
+    animation: popIn-tool 0.4s var(--chip-final-delay) ease-in-out forwards;
+
+}
+
+
+.tool-btn:active {
+    transform: scale(0.9);
+    box-shadow: 0 0 12px rgba(0, 0, 0, 0.2);
+
+}
+
+
+.tool-btn.active {
+    border-color: var(--accent);
+    box-shadow: 0 6px 18px rgba(37, 99, 235, 0.12);
+    background: #e8f0fe;
+    color: var(--accent);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+
+}
+
+
+/* Animate each button with delay */
+
+.sidebar div:nth-child(1) {
+    animation-delay: calc(var(--sidebar-final-delay) * 3);
+    
+}
+
+.sidebar div:nth-child(2) {
+    animation-delay: calc(var(--sidebar-final-delay) * 2);
+}
+
+.sidebar div:nth-child(3) {
+    animation-delay: calc(var(--sidebar-final-delay)* 1);
+}
+
+  .sidebar div:nth-child(4) {
+    animation-delay: calc(var(--sidebar-final-delay) * 2);
+}
+
+.sidebar div:nth-child(5) {
+    animation-delay: calc(var(--sidebar-final-delay) * 3);
+}
+
+
+.tool-label {
+    margin-top: var(--sidebar-space);
+    color: #666;
+    font-size: inherit;
+    padding: inherit;
+    text-align: center
+}
+/* sidebar css end */
+/* toolbar css start */
+    /* 
   :root {
-    color: #213547;
-    background-color: #ffffff;
+  --chip-final-delay: 1s;
+    --chip-bg: #eee;
+    --chip-bg-active: #e8f0fe;
+    --chip-text: #2563eb;
+    --chip-border: #e6e9ef;
+    --toolbar-border-radius: 1.6rem;
+    --toolbar-space: 0.4rem;
+    --toolbar-font-size: 0.8rem;
   }
-  a:hover {
-    color: #747bff;
+   */
+   .toolbar-wrapper {
+    display: flex;
+    justify-content: center;
+    position: fixed;
+    bottom: var(--toolbar-space);
+    left: 0;
+    right: 0;
+    margin: auto;
+    pointer-events: none;
+
   }
-  button {
-    background-color: #f9f9f9;
+
+  .header-toolbar-wrapper{
+    display: flex;
+    justify-content: center;
+    position: fixed;
+    top: var(--toolbar-space);
+    left: 0;
+    right: 0;
+    margin: auto;
+    pointer-events: none;
+
   }
-}
+  
+  .toolbar-bottom, .header-toolbar {
+    display: flex;
+    align-items: center;
+    gap: var(--toolbar-space);
+    padding: var(--toolbar-space);
+    background: white;
+    border-radius: var(--toolbar-border-radius);
+    box-shadow:  0px var(--toolbar-space) calc(var(--toolbar-space)*4) rgba(0, 0, 0, 0.5);
+    border: 1px solid var(--chip-border);
+    pointer-events: auto;
+  }
+   .header-toolbar > *{
+     display: flex;
+     align-items: center;
+   }
+
+  .chip, .header-chip  {
+    opacity: 0;
+    font-size: 0;
+    /* start tiny */
+    padding: 0;
+    /* start tiny */
+    border-radius: var(--toolbar-border-radius);
+    background: var(--chip-bg);
+    cursor: pointer;
+    border: 1px solid var(--chip-border);
+    color: black;
+    color: grey;
+    display: flex !important;
+    aspect-ratio: 1;
+    animation: popIn-chip 0.4s var(--chip-final-delay) ease-in-out forwards;
+   
+    /*
+    animation: popIn-chip 0.5s var(--chip-final-delay) cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards;
+    */
+  }
+  
+  .header-chip {
+    animation: popIn-chip 0.4s  ease-in-out forwards;
+
+  }
+  
+  /* Staggered chips (5) */
+  .chip:nth-child(1) {
+    animation-delay: var(--chip-final-delay);
+  }
+  
+  .chip:nth-child(2) {
+    animation-delay: calc(var(--chip-final-delay) * 1/2)
+  }
+  
+  .chip:nth-child(3) {
+    animation-delay: calc(var(--chip-final-delay) * 1/2)
+  }
+  
+  .chip:nth-child(4) {
+    animation-delay: var(--chip-final-delay);
+  }
+
+
+  .chip:active {
+    transform: scale(0.9);
+    box-shadow: 0 0 var(--toolbar-space) rgba(0, 0, 0, 0.2);
+    color: var(--chip-text)
+  }
+  
+  .chip.toggle-on, .header-chip.toggle-on {
+    background: var(--chip-bg-active);
+    border: 1px solid var(--chip-text);
+    color: var(--chip-text)
+  }
+  
+  
+  @keyframes popIn-chip {
+    to {
+      opacity: 1;
+      /* font-size: var(--toolbar-font-size); */
+      padding: var(--toolbar-space) ;
+      margin: 0;
+    }
+  }
+
+/* toolbar css end */
+
+/* tooltip css start */
+
+/* Beautiful Tooltip CSS 
+   Usage: wrap target with .tooltip and set data-tooltip="Your text".
+   Optional position: data-tooltip-pos="top|right|bottom|left" (default: top)
+   Programmatic open: add .is-open to .tooltip
+   Works on :hover and :focus-within.  
+*/
+
+:root {
+    --tt-bg: #111827;
+    --tt-color: #f9fafb;
+    --tt-radius: 6px;
+    --tt-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+    --tt-padding: 6px 10px;
+    --tt-font: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica, Arial, sans-serif;
+    --tt-font-size: 13px;
+    --tt-line-height: 1.25;
+    --tt-gap: 8px;
+    --tt-arrow: 6px;
+    --tt-z: 9999;
+    --tt-fade: 160ms;
+  }
+  
+  .tooltip {
+    position: relative;
+    display: inline-block;
+    isolation: isolate;
+  }
+  
+  /* Bubble */
+  .tooltip::before {
+    content: attr(data-tooltip);
+    position: absolute;
+    z-index: var(--tt-z);
+    padding: var(--tt-padding);
+    border-radius: var(--tt-radius);
+    background: var(--tt-bg);
+    color: var(--tt-color);
+    box-shadow: var(--tt-shadow);
+    font: 500 var(--tt-font-size)/var(--tt-line-height) var(--tt-font);
+    pointer-events: none;
+    white-space: nowrap; /* no wrap */
+    opacity: 0;
+    transition: opacity var(--tt-fade) ease;
+    visibility: hidden;
+  }
+  
+  /* Arrow */
+  /* .tooltip::after {
+    content: "";
+    position: absolute;
+    z-index: calc(var(--tt-z) + 1);
+    width: 0; height: 0;
+    border: var(--tt-arrow) solid transparent;
+    opacity: 0;
+    transition: opacity var(--tt-fade) ease;
+    visibility: hidden;
+    pointer-events: none;
+    background-color: red;
+  } */
+  
+  /* Show on hover/focus or when forced open */
+  .tooltip:is(:hover, :focus-within, .is-open)::before,
+  .tooltip:is(:hover, :focus-within, .is-open)::after {
+    opacity: 1;
+    visibility: visible;
+  }
+  
+  /* TOP */
+  .tooltip:not([data-tooltip-pos]),
+  .tooltip[data-tooltip-pos="top"]::before {
+    bottom: calc(100% + var(--tt-gap));
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  .tooltip:not([data-tooltip-pos]),
+  .tooltip[data-tooltip-pos="top"]::after {
+    border-top-color: var(--tt-bg);
+    bottom: calc(100% + var(--tt-gap) - (var(--tt-arrow) - 1px));
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  
+  /* BOTTOM */
+  .tooltip[data-tooltip-pos="bottom"]::before {
+    top: calc(100% + var(--tt-gap));
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  .tooltip[data-tooltip-pos="bottom"]::after {
+    border-bottom-color: var(--tt-bg);
+    top: calc(100% + var(--tt-gap) - (var(--tt-arrow) - 1px));
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  
+  /* LEFT */
+  .tooltip[data-tooltip-pos="left"]::before {
+    right: calc(100% + var(--tt-gap));
+    top: 50%;
+    transform: translateY(-50%);
+  }
+  .tooltip[data-tooltip-pos="left"]::after {
+    border-left-color: var(--tt-bg);
+    left: auto;
+    right: calc(100% + var(--tt-gap) - (var(--tt-arrow) - 1px));
+    top: 50%;
+    transform: translateY(-50%);
+  }
+  
+  /* RIGHT */
+  .tooltip[data-tooltip-pos="right"]::before {
+    left: calc(100% + var(--tt-gap));
+    top: 50%;
+    transform: translateY(-50%);
+  }
+  .tooltip[data-tooltip-pos="right"]::after {
+    border-right-color: var(--tt-bg);
+    left: calc(100% + var(--tt-gap) - (var(--tt-arrow) - 1px));
+    top: 50%;
+    transform: translateY(-50%);
+  }
+  
+  /* Variants */
+  .tooltip[data-tooltip-variant="light"] {
+    --tt-bg: #ffffff;
+    --tt-color: #0f172a;
+    --tt-shadow: 0 6px 16px rgba(2, 6, 23, 0.18);
+  }
+  
+  .tooltip[data-tooltip-variant="success"] { --tt-bg: #065f46; }
+  .tooltip[data-tooltip-variant="warning"] { --tt-bg: #92400e; }
+  .tooltip[data-tooltip-variant="danger"]  { --tt-bg: #7f1d1d; }
+  
+  /* Hide when empty */
+  .tooltip[data-tooltip="" i]::before,
+  .tooltip[data-tooltip="" i]::after,
+  .tooltip:not([data-tooltip])::before,
+  .tooltip:not([data-tooltip])::after {
+    display: none !important;
+  }
+
+  
+/* tooltip css end */
+
+/* color picker css start */
+
+/* hide the native color input */
+.color-picker input[type="color"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+  
+  /* the visible circle */
+  .color-picker .circle {
+    width: calc(   var(--toolbar-space) * 2 + 16px); /* space * 2 and svg size */
+    display: flex;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    display: inline-block;
+    background-color: #000; /* default */
+    cursor: pointer;
+  }
+  
+/* color picker css end */
