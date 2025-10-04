@@ -23,3 +23,7 @@ export interface CanvasState {
     paths: Freehand[];
     currentPath: Freehand | null;
 }
+
+export interface AppState{
+  grid: boolean
+}

@@ -1,6 +1,6 @@
 import { useRef, useEffect, useState } from "react";
-import type { Tool, CanvasState } from './types';
-import { PenTool, PanTool } from './tools';
+import type { Tool, CanvasState, AppState } from './types';
+import { PenTool, PanTool, GridTool } from './tools';
 import { draw } from './utils/drawing';
 import { Button } from "./components/button";
 import { Sidebar } from "./components/sidebar";
@@ -11,8 +11,8 @@ import { Topbar } from "./components/topbar";
 export default function App() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [activeTool, setActiveTool] = useState<Tool>(new PenTool());
-  const canvasStateRef = useRef<CanvasState>({ device: "desktop", scale: 1, offset: { x: 0, y: 0 }, paths: [], currentPath: null });
-
+  const canvasStateRef = useRef<CanvasState>({ device: "desktop", scale: 1, offset: { x: 0, y: 0 }, paths: [], currentPath: null, grid: true });
+  const [ appState, setAppState] = useState<AppState>({grid: true})
   // ---------- Render Loop ----------
   useEffect(() => {
     const canvas = canvasRef.current!;
@@ -30,6 +30,7 @@ export default function App() {
     const handlePointerMove = (e: PointerEvent) => activeTool.onPointerMove(e, canvasStateRef.current);
     const handlePointerUp = (e: PointerEvent) => activeTool.onPointerUp(e, canvasStateRef.current);
     const handlePointerCancel = (e: PointerEvent) => activeTool.onPointerUp(e, canvasStateRef.current);
+const handlePointerCan6ycel = (e: PointerEvent) => activeTool.onPointerUp(e, canvasStateRef.current);
 
     canvas.addEventListener('pointerdown', handlePointerDown);
     canvas.addEventListener('pointermove', handlePointerMove);
@@ -88,7 +89,7 @@ export default function App() {
 
       <canvas id="canvas" ref={canvasRef}  />
 
-      <Topbar activeTool={activeTool} setActiveTool={setActiveTool} />
+      <Topbar activeTool={activeTool} setActiveTool={setActiveTool} canvasState={canvasStateRef.current} appState={appState} setAppState={setAppState }    />
       <Sidebar activeTool={activeTool} setActiveTool={setActiveTool} />
 
       <Toolbar activeTool={activeTool} setActiveTool={setActiveTool} />
