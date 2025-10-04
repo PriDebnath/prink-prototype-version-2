@@ -2,7 +2,7 @@ import { PanTool, PenTool } from "../../tools";
 import type { Tool } from "../../types";
 import { Button, type ButtonKeys } from "../button";
 
-export const Sidebar = ({
+export const Topbar = ({
   activeTool,
   setActiveTool,
 }: {
@@ -10,13 +10,12 @@ export const Sidebar = ({
   setActiveTool: (tool: Tool) => void;
 }) => {
   const tools: [ButtonKeys, Tool][] = [
-    ["pan", new PanTool()],
-    ["pen", new PenTool()],
+    ["grid", new PanTool()],
   ];
 
   return (
-    <aside className="sidebar-wrapper">
-      <div className="sidebar" role="toolbar" aria-label="Tools">
+    <footer className="topbar-wrapper">
+      <div className="topbar" role="toolbar" aria-label="Tools">
         {tools.map(([name, tool]) => {
           const Btn = Button[name];
           return (
@@ -30,6 +29,6 @@ export const Sidebar = ({
           );
         })}
       </div>
-    </aside>
+    </footer>
   );
 };

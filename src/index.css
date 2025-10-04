@@ -39,7 +39,7 @@ body {
     overflow: hidden;
 }
 
-.app {
+main {
     display: flex;
     height: 100vh;
     overflow: hidden;
@@ -47,8 +47,9 @@ body {
 }
 
 canvas {
-    flex: 1;
-    display: block;
+height: 100%;  
+width: 100%;  
+  display: block;
     background: linear-gradient(180deg, var(--bgstart), var(--bgend));
     touch-action: none;
     overflow: hidden;
@@ -339,7 +340,7 @@ select, input{
 
   }
 
-  .header-toolbar-wrapper{
+  .topbar-wrapper{
     display: flex;
     justify-content: center;
     position: fixed;
@@ -351,7 +352,7 @@ select, input{
 
   }
   
-  .toolbar-bottom, .header-toolbar {
+  .toolbar, .topbar {
     display: flex;
     align-items: center;
     gap: var(--toolbar-space);
@@ -362,7 +363,7 @@ select, input{
     border: 1px solid var(--chip-border);
     pointer-events: auto;
   }
-   .header-toolbar > *{
+   .topbar > *{
      display: flex;
      align-items: center;
    }

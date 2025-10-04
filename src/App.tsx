@@ -4,6 +4,8 @@ import { PenTool, PanTool } from './tools';
 import { draw } from './utils/drawing';
 import { Button } from "./components/button";
 import { Sidebar } from "./components/sidebar";
+import { Toolbar } from "./components/toolbar";
+import { Topbar } from "./components/topbar";
 
 // ---------- App ----------
 export default function App() {
@@ -82,34 +84,17 @@ export default function App() {
 
 
   return (
-    <div style={{ width: "100vw", height: "100vh", position: "relative" }}>
-      <canvas ref={canvasRef} style={{ width: "100%", height: "100%", touchAction: "none" }} />
+    <main  >
+
+      <canvas id="canvas" ref={canvasRef}  />
+
+      <Topbar activeTool={activeTool} setActiveTool={setActiveTool} />
       <Sidebar activeTool={activeTool} setActiveTool={setActiveTool} />
-      {/* <!------------------ Sidebar start ------------------> */}
-      <aside className="sidebar-wrapper">
-        <div className="sidebar"
-          role="toolbar"
-          aria-label="Tools">
 
-          <div className="tool">
-            <Button.pan
-              onClick={() => setActiveTool(new PanTool())}
-              className={activeTool.name === 'pan' ? "active" : ""}
+      <Toolbar activeTool={activeTool} setActiveTool={setActiveTool} />
 
-            />
-          </div>
+ 
 
-          <div className="tool">
-            <Button.pen
-              onClick={() => setActiveTool(new PenTool())}
-              className={activeTool.name === 'pen' ? "active" : ""}
-            />
-          </div>
-
-        </div>
-      </aside>
-      {/* <!------------------ Sidebar end ------------------> */}
-
-    </div>
+    </main>
   );
 }
