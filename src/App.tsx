@@ -141,7 +141,13 @@ export default function App() {
       />
 
       <Sidebar activeTool={activeTool} setActiveTool={setActiveTool} />
-      <Toolbar activeTool={activeTool} setActiveTool={setActiveTool} />
+      <Toolbar 
+      activeTool={activeTool}
+      setActiveTool={setActiveTool}
+      canvasState={canvasStateRef.current}
+        appState={appState}
+        setAppState={setAppState}
+    />
     </main>
   );
 }

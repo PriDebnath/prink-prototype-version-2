@@ -72,8 +72,10 @@ const drawGrid = (ctx: CanvasRenderingContext2D, state: CanvasState) => {
   ctx.lineWidth = 1;
 
   for (let x = -gridSize + offsetX; x < ctx.canvas.width; x += gridSize) {
+  
     ctx.moveTo(x, 0);
     ctx.lineTo(x, ctx.canvas.height);
+  
   }
   for (let y = -gridSize + offsetY; y < ctx.canvas.height; y += gridSize) {
     ctx.moveTo(0, y);
