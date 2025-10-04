@@ -21,9 +21,11 @@ export const Topbar = ({
       "grid",
       ()=>{
         let value = appState.grid
-        setAppState({
+        setAppState(pri=>{
+        return {
+          pri,
           grid: !value
-        })
+        }})
       }
     ],
   ];
@@ -39,6 +41,7 @@ export const Topbar = ({
                 key={name}
                 onClick={handler}
                 className={ appState.grid ? "active": ""}
+                dataTooltip={ "Grid: " + (appState.grid ? "on": "off")}
                      />
             </div>
           );

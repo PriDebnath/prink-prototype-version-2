@@ -1,101 +1,147 @@
-import { useRef, useEffect, useState } from "react";
-import type { Tool, CanvasState, AppState } from './types';
-import { PenTool, PanTool, GridTool } from './tools';
-import { draw } from './utils/drawing';
-import { Button } from "./components/button";
+// App.tsx
+import React, { useEffect, useRef, useState } from "react";
+import type { Tool, CanvasState, AppState } from "./types";
+import { PenTool } from "./tools";
+import { draw, startDrawingLoop, stopDrawingLoop } from "./utils/drawing";
+import { Topbar } from "./components/topbar";
 import { Sidebar } from "./components/sidebar";
 import { Toolbar } from "./components/toolbar";
-import { Topbar } from "./components/topbar";
 
-// ---------- App ----------
 export default function App() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [activeTool, setActiveTool] = useState<Tool>(new PenTool());
-  const canvasStateRef = useRef<CanvasState>({ device: "desktop", scale: 1, offset: { x: 0, y: 0 }, paths: [], currentPath: null, grid: true });
-  const [ appState, setAppState] = useState<AppState>({grid: true})
-  // ---------- Render Loop ----------
-  useEffect(() => {
-    const canvas = canvasRef.current!;
-    draw({
-      canvas,
-      state: canvasStateRef.current,
-      activeTool,
-    });
-  }, [activeTool]);
+  const canvasStateRef = useRef<CanvasState>({
+    device: "desktop",
+    scale: 1,
+    offset: { x: 0, y: 0 },
+    paths: [],
+    currentPath: null,
+  });
+  const [appState, setAppState] = useState<AppState>({ grid: true });
 
-  // ---------- Pointer Events ----------
-  useEffect(() => {
-    const canvas = canvasRef.current!;
-    const handlePointerDown = (e: PointerEvent) => activeTool.onPointerDown(e, canvasStateRef.current);
-    const handlePointerMove = (e: PointerEvent) => activeTool.onPointerMove(e, canvasStateRef.current);
-    const handlePointerUp = (e: PointerEvent) => activeTool.onPointerUp(e, canvasStateRef.current);
-    const handlePointerCancel = (e: PointerEvent) => activeTool.onPointerUp(e, canvasStateRef.current);
-const handlePointerCan6ycel = (e: PointerEvent) => activeTool.onPointerUp(e, canvasStateRef.current);
+  // Helpers to pass into draw utils so they read fresh values each frame
+  const getters = {
+    get canvas() {
+      return canvasRef.current!;
+    },
+    getState: () => canvasStateRef.current,
+    getActiveTool: () => activeTool,
+    getAppState: () => appState,
+  };
 
-    canvas.addEventListener('pointerdown', handlePointerDown);
-    canvas.addEventListener('pointermove', handlePointerMove);
-    canvas.addEventListener('pointerup', handlePointerUp);
-    canvas.addEventListener('pointercancel', handlePointerCancel);
-
-    return () => {
-      canvas.removeEventListener('pointerdown', handlePointerDown);
-      canvas.removeEventListener('pointermove', handlePointerMove);
-      canvas.removeEventListener('pointerup', handlePointerUp);
-      canvas.removeEventListener('pointercancel', handlePointerCancel);
-    };
-  }, [activeTool]);
-
-  // -------------------- Resize --------------------
+  // Resize handling + initial one-shot draw
   useEffect(() => {
     const canvas = canvasRef.current!;
     const ctx = canvas.getContext("2d")!;
 
     const resize = () => {
       const dpr = window.devicePixelRatio || 1;
-
-      // Match canvas internal resolution to its CSS size * DPR
       canvas.width = canvas.clientWidth * dpr;
       canvas.height = canvas.clientHeight * dpr;
-
-      ctx.setTransform(1, 0, 0, 1, 0, 0); // reset before scaling
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.scale(dpr, dpr);
 
-      // Update "device" breakpoint state
-      const device = window.innerWidth <= 768 ? "mobile" : "desktop";
-      canvasStateRef.current.device = device;
+      // update device breakpoint
+      canvasStateRef.current.device = window.innerWidth <= 768 ? "mobile" : "desktop";
+
+      // draw a single frame (we are not in continuous loop unless user is drawing)
+      draw({
+        canvas: canvasRef.current!,
+        getState: getters.getState,
+        getActiveTool: getters.getActiveTool,
+        getAppState: getters.getAppState,
+      });
     };
 
-    // Prefer ResizeObserver
-    let ro: ResizeObserver | null = null;
-    if ("ResizeObserver" in window) {
-      ro = new ResizeObserver(resize);
-      ro.observe(canvas);
-    } else {
-      // Fallback for older browsers
-      (window as Window).addEventListener("resize", resize);
-    }
+    const ro = "ResizeObserver" in window ? new ResizeObserver(resize) : null;
+    if (ro) ro.observe(canvas);
+    else window.addEventListener("resize", resize);
 
-    resize(); // run once on mount
+    resize();
 
     return () => {
       ro?.disconnect();
-      window.removeEventListener("resize", resize as () => void);
+      window.removeEventListener("resize", resize);
     };
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // run once
 
+  // Redraw one frame when appState or activeTool changes (grid toggle, UI overlays)
+  useEffect(() => {
+    const c = canvasRef.current;
+    if (!c) return;
+    draw({
+      canvas: c,
+      getState: getters.getState,
+      getActiveTool: getters.getActiveTool,
+      getAppState: getters.getAppState,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [appState, activeTool]);
+
+  // Pointer event handlers: start RAF loop on pointerdown, stop on up/cancel
+  useEffect(() => {
+    const canvas = canvasRef.current!;
+    if (!canvas) return;
+
+    const onDown = (e: PointerEvent) => {
+      activeTool.onPointerDown(e, canvasStateRef.current);
+      // start continuous draw (from down -> move -> up)
+      startDrawingLoop({
+        canvas,
+        getState: getters.getState,
+        getActiveTool: getters.getActiveTool,
+        getAppState: getters.getAppState,
+      });
+    };
+
+    const onMove = (e: PointerEvent) => {
+      activeTool.onPointerMove(e, canvasStateRef.current);
+      // continuous loop is running so it will render updates
+    };
+
+    const onUp = (e: PointerEvent) => {
+      activeTool.onPointerUp(e, canvasStateRef.current);
+      // stop continuous drawing after finishing stroke
+      stopDrawingLoop();
+
+      // draw final frame once to ensure final state rendered
+      draw({
+        canvas,
+        getState: getters.getState,
+        getActiveTool: getters.getActiveTool,
+        getAppState: getters.getAppState,
+      });
+    };
+
+    canvas.addEventListener("pointerdown", onDown);
+    canvas.addEventListener("pointermove", onMove);
+    canvas.addEventListener("pointerup", onUp);
+    canvas.addEventListener("pointercancel", onUp);
+
+    return () => {
+      canvas.removeEventListener("pointerdown", onDown);
+      canvas.removeEventListener("pointermove", onMove);
+      canvas.removeEventListener("pointerup", onUp);
+      canvas.removeEventListener("pointercancel", onUp);
+      stopDrawingLoop();
+    };
+  }, [activeTool, getters]); // activeTool in dep so tool handlers are current
 
   return (
-    <main  >
+    <main style={{ width: "100vw", height: "100vh", position: "relative" }}>
+      <canvas id="canvas" ref={canvasRef} style={{ width: "100%", height: "100%" }} />
 
-      <canvas id="canvas" ref={canvasRef}  />
+      <Topbar
+        activeTool={activeTool}
+        setActiveTool={setActiveTool}
+        canvasState={canvasStateRef.current}
+        appState={appState}
+        setAppState={setAppState}
+      />
 
-      <Topbar activeTool={activeTool} setActiveTool={setActiveTool} canvasState={canvasStateRef.current} appState={appState} setAppState={setAppState }    />
       <Sidebar activeTool={activeTool} setActiveTool={setActiveTool} />
-
       <Toolbar activeTool={activeTool} setActiveTool={setActiveTool} />
-
- 
-
     </main>
   );
 }
