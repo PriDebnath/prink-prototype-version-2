@@ -9,6 +9,21 @@ type ButtonProps = React.HTMLAttributes<HTMLButtonElement> & {
 export type ButtonKeys = keyof typeof Button;
 
 export const Button = {
+    // Topbar
+    grid: (props: ButtonProps) => {
+        return (
+            <button id="tool-grid"
+                {...props}
+                data-tooltip={props.dataTooltip || "Toggle Grid"}
+                data-tooltip-pos={props.dataTooltipPos || "right"}
+                className={`tool-btn tooltip ${props.className}`}
+            >
+                <Icons.grid />
+            </button>
+        )
+    }
+    ,
+    // Sidebar
     pan: (props: ButtonProps) => {
         return (
             <button id="tool-pan"
@@ -31,6 +46,20 @@ export const Button = {
                 data-tooltip-pos={props.dataTooltipPos || "right"}
             >
                 <Icons.pen />
+            </button>
+        )
+    }
+    ,
+    // Toolbar
+    clean: (props: ButtonProps) => {
+        return (
+            <button id="tool-clean"
+                {...props}
+                className={`tool-btn tooltip ${props.className}`}
+                data-tooltip={props.dataTooltip || "Clean"}
+                data-tooltip-pos={props.dataTooltipPos || "top"}
+            >
+                <Icons.clean />
             </button>
         )
     }
