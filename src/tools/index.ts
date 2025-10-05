@@ -1,7 +1,7 @@
 // ---------- Tools ----------
 
   // ---------- Tools ----------
-import type { Tool, Point, CanvasState } from '../types';
+import type { Tool, Point, CanvasState , AppState} from '../types';
 
 export { PanTool, PenTool, };
 
@@ -37,16 +37,30 @@ class PanTool implements Tool {
   class PenTool implements Tool {
     name: string = 'pen';
     private drawing = false;
-    onPointerDown(e: PointerEvent, canvasState: CanvasState) {
+    onPointerDown(e: PointerEvent, canvasState: CanvasState,appState: AppState) {
       if (e.button !== 0) return;
       this.drawing = true;
-      const world = PenTool.toWorld(e, canvasState);
-      canvasState.currentPath = { points: [world] };
+      const world = PenTool.toWorld(e, canvasState, );
+      canvasState.currentPath = { 
+        points: [world],
+        pen: { ...appState.pen }
+      };
       canvasState.paths.push(canvasState.currentPath);
+  
     }
-    onPointerMove(e: PointerEvent, canvasState: CanvasState) {
+    
+    onPointerMove(e: PointerEvent, canvasState: CanvasState, appState: AppState) {
       if (!this.drawing || !canvasState.currentPath) return;
       const world = PenTool.toWorld(e, canvasState);
+      
+      console.log("moi ing", {pen: appState.pen})  
+      let appPen = appState.pen
+      console.log({appPen})
+      let pen = {
+        ...world,
+        ...appPen
+      }
+      console.log({pen})
       canvasState.currentPath.points.push(world);
     }
     onPointerUp(e: PointerEvent, canvasState: CanvasState) {

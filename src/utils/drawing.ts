@@ -1,6 +1,6 @@
 // utils/draw.ts
 import type { Tool, CanvasState, AppState } from "../types";
-
+import { getDarkenColor} from "./helpers"
 let animationId: number | null = null;
 
 type Getters = {
@@ -18,17 +18,18 @@ export const draw = (g: Getters) => {
   const state = g.getState();
   const activeTool = g.getActiveTool();
   const appState = g.getAppState();
-  console.log("drawiiiii")
+  console.log("drawiiiii", state)
+  
   const ctx = canvas.getContext("2d")!;
-  ctx.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   // Draw grid if enabled (instant, no animation)
-  if (appState.grid) drawGrid(canvas, ctx, state);
+  if (appState.grid) drawGrid(ctx, state);
 
   // Draw paths & overlay
   ctx.save();
   applyTransform(ctx, state);
-  drawPaths(ctx, state);
+  drawPaths(ctx, state, appState);
   if (activeTool.renderOverlay) activeTool.renderOverlay(ctx, state);
   ctx.restore();
 };
@@ -59,23 +60,26 @@ export const stopDrawingLoop = () => {
 
 // ----------------- helpers -----------------
 
-const drawGrid = (canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D, state: CanvasState) => {
+const drawGrid = (ctx: CanvasRenderingContext2D, state: CanvasState) => {
   const gridSize = 50;
   const offsetX = state.offset.x % gridSize;
   const offsetY = state.offset.y % gridSize;
 
   ctx.save();
+  // full-canvas stroke coordinates are in device pixels — caller should have scaled context already
   ctx.beginPath();
   ctx.strokeStyle = "#e0e0e0";
-  ctx.lineWidth = 1;
+  ctx.lineWidth = 1; 
 
-  for (let x = gridSize + offsetX; x < canvas.clientWidth; x = x + gridSize) {
+  for (let x = -gridSize + offsetX; x < ctx.canvas.width; x += gridSize) {
+  
     ctx.moveTo(x, 0);
-    ctx.lineTo(x, canvas.clientHeight);
+    ctx.lineTo(x, ctx.canvas.height);
+  
   }
-  for (let y = gridSize + offsetY; y < canvas.clientHeight; y = y + gridSize) {
+  for (let y = -gridSize + offsetY; y < ctx.canvas.height; y += gridSize) {
     ctx.moveTo(0, y);
-    ctx.lineTo(canvas.clientWidth, y);
+    ctx.lineTo(ctx.canvas.width, y);
   }
   ctx.stroke();
   ctx.restore();
@@ -86,23 +90,37 @@ const applyTransform = (ctx: CanvasRenderingContext2D, state: CanvasState) => {
   ctx.scale(state.scale, state.scale);
 };
 
-const drawPaths = (ctx: CanvasRenderingContext2D, state: CanvasState) => {
+const drawPaths = (ctx: CanvasRenderingContext2D, state: CanvasState, appState: AppState) => {
   ctx.lineCap = "round";
   ctx.lineJoin = "round";
-  ctx.strokeStyle = "#000";
-  ctx.lineWidth = 2 / state.scale;
 
   for (const path of state.paths) {
     if (path.points.length < 2) continue;
     ctx.beginPath();
+    ctx.lineWidth = path.pen.size / state.scale;
+      let penColor = path.pen.color
+     if(path.pen.type == "highlighter"){
+      penColor = getDarkenColor(penColor)
+      }else{
+       penColor = penColor
+     }
+      
+    ctx.strokeStyle = penColor;
+    console.log({path})
+    
     ctx.moveTo(path.points[0].x, path.points[0].y);
 
     for (let i = 1; i < path.points.length - 1; i++) {
-      const midX = (path.points[i].x + path.points[i + 1].x) / 2;
-      const midY = (path.points[i].y + path.points[i + 1].y) / 2;
-      ctx.quadraticCurveTo(path.points[i].x, path.points[i].y, midX, midY);
+    let point = path.points[i]
+    let pointNext = path.points[i+1]
+      
+      //
+      const midX = (point.x + pointNext.x) / 2;
+      const midY = (point.y + pointNext.y) / 2;
+      ctx.quadraticCurveTo(point.x, point.y, midX, midY);
     }
-
-    ctx.stroke();
+  ctx.stroke();
+   
+    
   }
 };

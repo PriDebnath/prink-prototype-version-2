@@ -28,6 +28,14 @@ export const Topbar = ({
         }})
       }
     ],
+        [
+      "clean",
+      () => {
+        canvasState.paths = [];
+        setAppState((pri) => ({ ...pri })); // force rerender
+      },
+    ],
+
   ];
 
   return (
