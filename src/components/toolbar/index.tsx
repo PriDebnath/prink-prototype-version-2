@@ -13,15 +13,16 @@ export const Toolbar = ({
   setActiveTool: (tool: Tool) => void;
   canvasState: CanvasState,
   appState: AppState,
-  setAppState:  (appState: AppState) => void;
+  setAppState:   React.Dispatch<React.SetStateAction<AppState>>
+
   
 }) => {
-  const tools: [ButtonKeys, any][] = [
+  const tools: [ButtonKeys, ()=> void][] = [
     ["clean", 
     ()=>{
     console.log("clean", canvasState.paths)
     canvasState.paths = []
-    setAppState(pri=>{return {...pri}}) // updating state with no changes, to trigger ui update 
+    setAppState((pri)=>{return {...pri}}) // updating state with no changes, to trigger ui update 
     }
   ],
   ];

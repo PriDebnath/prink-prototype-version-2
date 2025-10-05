@@ -63,10 +63,9 @@ export default function App() {
       ro?.disconnect();
       window.removeEventListener("resize", resize);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // run once
 
-  // Redraw one frame when appState or activeTool changes (grid toggle, UI overlays)
+  // Redraw one frame when appState (grid toggle, UI changes)
   useEffect(() => {
     const c = canvasRef.current;
     if (!c) return;
@@ -76,8 +75,7 @@ export default function App() {
       getActiveTool: getters.getActiveTool,
       getAppState: getters.getAppState,
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [appState, activeTool]);
+  }, [appState]);
 
   // Pointer event handlers: start RAF loop on pointerdown, stop on up/cancel
   useEffect(() => {
@@ -126,7 +124,7 @@ export default function App() {
       canvas.removeEventListener("pointercancel", onUp);
       stopDrawingLoop();
     };
-  }, [activeTool, getters]); // activeTool in dep so tool handlers are current
+  }, [activeTool]); // activeTool in dep so tool handlers are current
 
   return (
     <main style={{ width: "100vw", height: "100vh", position: "relative" }}>

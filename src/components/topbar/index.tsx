@@ -1,4 +1,4 @@
-import { PanTool, PenTool,GridTool} from "../../tools";
+import { PanTool, PenTool} from "../../tools";
 import type { Tool, CanvasState , AppState} from "../../types";
 import { Button, type ButtonKeys } from "../button";
 
@@ -13,14 +13,14 @@ export const Topbar = ({
   setActiveTool: (tool: Tool) => void;
   canvasState: CanvasState,
   appState: AppState,
-  setAppState:  (appState: AppState) => void;
+  setAppState:  React.Dispatch<React.SetStateAction<AppState>>
 }) => {
   
   const tools: [ButtonKeys, ()=>void][] = [
     [
       "grid",
       ()=>{
-        let value = appState.grid
+        const value = appState.grid
         setAppState(pri=>{
         return {
           pri,
