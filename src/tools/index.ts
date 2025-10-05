@@ -3,7 +3,7 @@
   // ---------- Tools ----------
 import type { Tool, Point, CanvasState } from '../types';
 
-export { PanTool, PenTool };
+export { PanTool, PenTool, GridTool };
 
 
 // ---------- Pan Tool ----------
@@ -60,4 +60,30 @@ class PanTool implements Tool {
       };
     }
   }
+  
+  class GridTool implements Tool {
+    name: string = 'grid';
+    onClick(e: PointerEvent, canvasState: CanvasState) {
+    canvasState.grid = !canvasState.grid
+
+    console.log("click",e.currentTarget, canvasState.grid , canvasState)
+    
+  /*
+   if(canvasState.grid){
+     
+   }else{
+     
+   }
+   
+    let element = e.currentTarget
+    element.classList.("active")
+  setTimeout(() => {
+    element.classList.remove("active")
+  }, 300)
+  */
+    }
+  }
+
+
+  
   
