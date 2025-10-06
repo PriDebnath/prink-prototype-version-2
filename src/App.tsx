@@ -17,7 +17,15 @@ export default function App() {
     paths: [],
     currentPath: null,
   });
-  const [appState, setAppState] = useState<AppState>({ grid: true });
+  const [appState, setAppState] = useState<AppState>({ 
+    grid: true,
+    pen: {
+      type: "highlighter",
+      color: "#000000",
+      size: 80,
+    }
+    
+  });
 
   // Helpers to pass into draw utils so they read fresh values each frame
   const getters = {
@@ -83,7 +91,7 @@ export default function App() {
     if (!canvas) return;
 
     const onDown = (e: PointerEvent) => {
-      activeTool.onPointerDown(e, canvasStateRef.current);
+      activeTool.onPointerDown(e, canvasStateRef.current, appState);
       // start continuous draw (from down -> move -> up)
       startDrawingLoop({
         canvas,
@@ -94,7 +102,7 @@ export default function App() {
     };
 
     const onMove = (e: PointerEvent) => {
-      activeTool.onPointerMove(e, canvasStateRef.current);
+      activeTool.onPointerMove(e, canvasStateRef.current, appState);
       // continuous loop is running so it will render updates
     };
 
@@ -124,7 +132,7 @@ export default function App() {
       canvas.removeEventListener("pointercancel", onUp);
       stopDrawingLoop();
     };
-  }, [activeTool]); // activeTool in dep so tool handlers are current
+  }, [activeTool, appState]); // activeTool in dep so tool handlers are current
 
   return (
     <main style={{ width: "100vw", height: "100vh", position: "relative" }}>

@@ -1,5 +1,5 @@
 import { PanTool, PenTool } from "../../tools";
-import type { Tool , AppState, CanvasState} from "../../types";
+import type { Tool, AppState, CanvasState } from "../../types";
 import { Button, type ButtonKeys } from "../button";
 
 export const Toolbar = ({
@@ -7,41 +7,69 @@ export const Toolbar = ({
   setActiveTool,
   appState,
   canvasState,
-  setAppState
+  setAppState,
 }: {
   activeTool: Tool;
   setActiveTool: (tool: Tool) => void;
-  canvasState: CanvasState,
-  appState: AppState,
-  setAppState:   React.Dispatch<React.SetStateAction<AppState>>
-
-  
+  canvasState: CanvasState;
+  appState: AppState;
+  setAppState: React.Dispatch<React.SetStateAction<AppState>>;
 }) => {
-  const tools: [ButtonKeys, ()=> void][] = [
-    ["clean", 
-    ()=>{
-    console.log("clean", canvasState.paths)
-    canvasState.paths = []
-    setAppState((pri)=>{return {...pri}}) // updating state with no changes, to trigger ui update 
-    }
-  ],
+  console.log({    activeTool})
+  // 🔸 Top-level tool buttons (always visible)
+  const mainTools: [ButtonKeys, () => void][] = [
+    [
+      "clean",
+      () => {
+        canvasState.paths = [];
+        setAppState((pri) => ({ ...pri })); // force rerender
+      },
+    ],
   ];
+
+  // ✏️ Pen sub-tools (only shown when PenTool is active)
+  const penTools: [ButtonKeys, () => void][] = [
+    [
+      "pencil",
+      () => {
+        setAppState((prev) => ({
+          ...prev,
+          pen: { ...prev.pen, type: "pencil" },
+        }));
+      },
+    ],
+    [
+      "highlighter",
+      () => {
+        setAppState((pritam) => ({
+          ...pritam,
+          pen: { ...pritam.pen, type: "highlighter" },
+        }));
+      },
+    ],
+  ];
+
+  const renderButtons = (toolList: [ButtonKeys, () => void][]) =>
+    toolList.map(([name, handler]) => {
+      const Btn = Button[name];
+      return (
+        <div className="tool" key={name}>
+          <Btn
+            onClick={handler}
+            className={appState.pen?.type === name ? "active" : ""}
+          />
+        </div>
+      );
+    });
 
   return (
     <footer className="toolbar-wrapper">
       <div className="toolbar" role="toolbar" aria-label="Tools">
-        {tools.map(([name, handler]) => {
-          const Btn = Button[name];
-          return (
-            <div className="tool" key={name}>
-              <Btn
-                key={name}
-                onClick={handler}
-                className={activeTool.name === name ? "active" : ""}
-              />
-            </div>
-          );
-        })}
+        {/* 🔸 Always visible tools */}
+        {renderButtons(mainTools)}
+
+        {/* ✏️ Shown only when active tool is PenTool */}
+        {activeTool.name === "pen" && (renderButtons(penTools))}
       </div>
     </footer>
   );

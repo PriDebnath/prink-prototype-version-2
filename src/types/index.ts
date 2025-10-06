@@ -1,6 +1,12 @@
 // ---------- Types ----------
-
-export type Point = { x: number; y: number };
+type PenType =  "pencil" | "highlighter";
+export type Point = {
+  x: number;
+  y: number;
+  color: string;
+  type: PenType;
+  size: number ;
+};
 
 export interface Tool {
     name: string;
@@ -20,10 +26,21 @@ export interface CanvasState {
     device: "mobile" | "desktop";
     scale: number;
     offset: { x: number; y: number };
-    paths: Freehand[];
     currentPath: Freehand | null;
+    
+    // pen
+    paths: Freehand[];
+    
 }
 
 export interface AppState{
-  grid: boolean
+  grid: boolean;
+  //
+  pen: 
+  { 
+    type: PenType;
+    color: string;
+    size: number;
+  }
+  
 }

@@ -63,6 +63,32 @@ export const Button = {
             </button>
         )
     }
+    ,
+    pencil: (props: ButtonProps) => {
+        return (
+            <button id="tool-pencil"
+                {...props}
+                className={`tool-btn tooltip ${props.className}`}
+                data-tooltip={props.dataTooltip || "Color Pencil"}
+                data-tooltip-pos={props.dataTooltipPos || "top"}
+            >
+                <Icons.pencil />
+            </button>
+        )
+    }
+    ,
+    highlighter: (props: ButtonProps) => {
+        return (
+            <button id="tool-highlighter"
+                {...props}
+                className={`tool-btn tooltip ${props.className}`}
+                data-tooltip={props.dataTooltip || "Highlighter"}
+                data-tooltip-pos={props.dataTooltipPos || "top"}
+            >
+                <Icons.highlighter />
+            </button>
+        )
+    }
 
 }
 
