@@ -1,6 +1,6 @@
 // utils/draw.ts
 import type { Tool, CanvasState, AppState } from "../types";
-import { getDarkenColor} from "./helpers"
+import { getDarkenColor } from "./helpers"
 let animationId: number | null = null;
 
 type Getters = {
@@ -19,7 +19,7 @@ export const draw = (g: Getters) => {
   const activeTool = g.getActiveTool();
   const appState = g.getAppState();
   console.log("drawiiiii", state)
-  
+
   const ctx = canvas.getContext("2d")!;
   ctx.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight);
 
@@ -69,12 +69,12 @@ const drawGrid = (ctx: CanvasRenderingContext2D, state: CanvasState, canvas: HTM
   // full-canvas stroke coordinates are in device pixels — caller should have scaled context already
   ctx.beginPath();
   ctx.strokeStyle = "#e0e0e0";
-  ctx.lineWidth = 1; 
+  ctx.lineWidth = 1;
 
   for (let x = -gridSize + offsetX; x < canvas.clientWidth; x += gridSize) {
     ctx.moveTo(x, 0);
     ctx.lineTo(x, canvas.clientHeight);
-  
+
   }
   for (let y = -gridSize + offsetY; y < canvas.clientHeight; y += gridSize) {
     ctx.moveTo(0, y);
@@ -97,29 +97,27 @@ const drawPaths = (ctx: CanvasRenderingContext2D, state: CanvasState, appState: 
     if (path.points.length < 2) continue;
     ctx.beginPath();
     ctx.lineWidth = path.pen.size / state.scale;
-      let penColor = path.pen.color
-     if(path.pen.type == "highlighter"){
+    let penColor = path.pen.color
+    if (path.pen.type == "highlighter") {
       penColor = getDarkenColor(penColor)
-      }else{
-       penColor = penColor
-     }
-      
+    }
+
     ctx.strokeStyle = penColor;
-    console.log({path})
-    
+    console.log({ path })
+
     ctx.moveTo(path.points[0].x, path.points[0].y);
 
     for (let i = 1; i < path.points.length - 1; i++) {
-    let point = path.points[i]
-    let pointNext = path.points[i+1]
-      
+      const point = path.points[i]
+      const pointNext = path.points[i + 1]
+
       //
       const midX = (point.x + pointNext.x) / 2;
       const midY = (point.y + pointNext.y) / 2;
       ctx.quadraticCurveTo(point.x, point.y, midX, midY);
     }
-  ctx.stroke();
-   
-    
+    ctx.stroke();
+
+
   }
 };
