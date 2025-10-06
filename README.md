@@ -19,4 +19,8 @@ See [full documentation](DOCUMENTATION.md) for details.
 
 - [ ] home button will take you all canvas 
 
-- [ ] home button will take you all canvas 
+- [ ] home button will take you all canvas
+
+# Similar tools
+
+- https://github.com/excalidraw/excalidraw
