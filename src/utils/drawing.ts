@@ -21,10 +21,10 @@ export const draw = (g: Getters) => {
   console.log("drawiiiii", state)
   
   const ctx = canvas.getContext("2d")!;
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight);
 
   // Draw grid if enabled (instant, no animation)
-  if (appState.grid) drawGrid(ctx, state);
+  if (appState.grid) drawGrid(ctx, state, canvas);
 
   // Draw paths & overlay
   ctx.save();
@@ -60,7 +60,7 @@ export const stopDrawingLoop = () => {
 
 // ----------------- helpers -----------------
 
-const drawGrid = (ctx: CanvasRenderingContext2D, state: CanvasState) => {
+const drawGrid = (ctx: CanvasRenderingContext2D, state: CanvasState, canvas: HTMLCanvasElement) => {
   const gridSize = 50;
   const offsetX = state.offset.x % gridSize;
   const offsetY = state.offset.y % gridSize;
@@ -71,15 +71,14 @@ const drawGrid = (ctx: CanvasRenderingContext2D, state: CanvasState) => {
   ctx.strokeStyle = "#e0e0e0";
   ctx.lineWidth = 1; 
 
-  for (let x = -gridSize + offsetX; x < ctx.canvas.width; x += gridSize) {
-  
+  for (let x = -gridSize + offsetX; x < canvas.clientWidth; x += gridSize) {
     ctx.moveTo(x, 0);
-    ctx.lineTo(x, ctx.canvas.height);
+    ctx.lineTo(x, canvas.clientHeight);
   
   }
-  for (let y = -gridSize + offsetY; y < ctx.canvas.height; y += gridSize) {
+  for (let y = -gridSize + offsetY; y < canvas.clientHeight; y += gridSize) {
     ctx.moveTo(0, y);
-    ctx.lineTo(ctx.canvas.width, y);
+    ctx.lineTo(canvas.clientWidth, y);
   }
   ctx.stroke();
   ctx.restore();
