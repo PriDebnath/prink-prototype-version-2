@@ -24,7 +24,6 @@ export default function App() {
       color: "#000000",
       size: 80,
     }
-    
   });
 
   // Helpers to pass into draw utils so they read fresh values each frame

@@ -337,12 +337,28 @@ select, input{
     right: 0;
     margin: auto;
     pointer-events: none;
-
+  }
+  
+    .toolbar-subbar-wrapper {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    position: fixed;
+    bottom: calc(
+    (var(--toolbar-space) * 2)
+    + 64px
+    );
+    left: 0;
+    right: 0;
+    margin: auto;
+    
+    pointer-events: none;
   }
 
   .topbar-wrapper{
     display: flex;
     justify-content: center;
+    
     position: fixed;
     top: var(--toolbar-space);
     left: 0;
@@ -604,3 +620,11 @@ select, input{
   }
   
 /* color picker css end */
+
+.color-ball{
+  height: 1rem;
+  width: 1rem;
+  display: flex;
+  aspect-ratio: 1;
+  border-radius: 1rem;
+}
