@@ -24,6 +24,19 @@ export const Button = {
     }
     ,
     // Sidebar
+    select: (props: ButtonProps) => {
+        return (
+            <button id="select-pan"
+                {...props}
+                data-tooltip={props.dataTooltip || "Select"}
+                data-tooltip-pos={props.dataTooltipPos || "right"}
+                className={`tool-btn tooltip ${props.className}`}
+            >
+                <Icons.select />
+            </button>
+        )
+    }
+    ,
     pan: (props: ButtonProps) => {
         return (
             <button id="tool-pan"
@@ -73,6 +86,19 @@ export const Button = {
                 data-tooltip-pos={props.dataTooltipPos || "top"}
             >
                 <Icons.pencil />
+            </button>
+        )
+    }
+    ,
+    lasso: (props: ButtonProps) => {
+        return (
+            <button id="tool-lasso"
+                {...props}
+                className={`tool-btn tooltip ${props.className}`}
+                data-tooltip={props.dataTooltip || "Lasso"}
+                data-tooltip-pos={props.dataTooltipPos || "top"}
+            >
+                <Icons.lasso />
             </button>
         )
     }

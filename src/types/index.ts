@@ -21,6 +21,7 @@ export interface Tool {
 }
 
 export interface Freehand {
+    id: number;
     points: Point[];
     pen: Pen
 }
@@ -32,6 +33,9 @@ export interface CanvasState {
     currentPath: Freehand | null;
     // pen
     paths: Freehand[];
+    // selection 
+    lasso: Point[] | null;
+    selectedIds: number[];
 }
 
 export interface AppState{

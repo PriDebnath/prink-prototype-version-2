@@ -1,4 +1,4 @@
-import { PanTool, PenTool } from "../../tools";
+import { PanTool, PenTool, SelectTool } from "../../tools";
 import type { Tool } from "../../types";
 import { Button, type ButtonKeys } from "../button";
 
@@ -10,6 +10,7 @@ export const Sidebar = ({
   setActiveTool: (tool: Tool) => void;
 }) => {
   const tools: [ButtonKeys, Tool][] = [
+   // ["select", new SelectTool()],
     ["pan", new PanTool()],
     ["pen", new PenTool()],
   ];

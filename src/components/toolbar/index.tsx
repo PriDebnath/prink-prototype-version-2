@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { PanTool, PenTool } from "../../tools";
+import { PanTool, PenTool, SelectTool } from "../../tools";
 import type { Tool, AppState, CanvasState } from "../../types";
 import { Button, type ButtonKeys } from "../button";
 
@@ -43,6 +43,16 @@ export const Toolbar = ({
       },
     ],
     [
+      "lasso",
+      () => {
+        if(activeTool.name == "lasso"){
+          setActiveTool(new PenTool())
+        }else{
+          setActiveTool(new SelectTool())
+        }
+      },
+    ],
+    [
       "highlighter",
       () => {
         setAppState((pritam) => ({
@@ -62,7 +72,9 @@ export const Toolbar = ({
         <div className="tool" key={name}>
           <Btn
             onClick={handler}
-            className={appState.pen?.type === name ? "active" : ""}
+            className={
+            ( activeTool.name === name || appState.pen?.type === name) ? "active" : ""
+            }
           />
         </div>
       );
@@ -153,8 +165,8 @@ export const Toolbar = ({
         {renderButtons(mainTools)}
 
         {/* ✏️ Shown only when active tool is PenTool */}
-        {activeTool.name === "pen" && (renderButtons(penTools))}
-        {activeTool.name === "pen" && (
+        {(activeTool.name === "pen" || activeTool.name === "lasso" ) && (renderButtons(penTools))}
+        {(activeTool.name === "pen" || activeTool.name === "lasso" ) && (
                 <span class="circle color-ball"
                 id="pen-color-picker-circleg"
                 style={{
