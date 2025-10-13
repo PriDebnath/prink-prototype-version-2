@@ -2,6 +2,7 @@ import { useState } from "react"
 import { PanTool, PenTool, SelectTool } from "../../tools";
 import type { Tool, AppState, CanvasState } from "../../types";
 import { Button, type ButtonKeys } from "../button";
+import { Icons } from "../icon";
 
 export const Toolbar = ({
   activeTool,
@@ -81,80 +82,88 @@ export const Toolbar = ({
     });
 
 
-
   return (
     <footer>
       {
         openColorPellet && (
           <div className="toolbar-subbar-wrapper">
-            <div className="toolbar" role="toolbar" aria-label="Tools">
+            <div className="toolbar" role="toolbar" aria-label="Tools"
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "0.5rem"
+              }}
+            >
+              <div style={{ width: "100%" }}>
+                <input
+                  value={appState.pen.size}
+                  style={{ display: "flex", width: "100%" }} type="range"
+                  onChange={(e) => {
+                    console.log(e.target.value)
+                    const penSize = e.target.value
 
-              <input
-                value={appState.pen.size}
-                style={{ display: "flex", width: "100%" }} type="range"
-                onChange={(e) => {
-                  console.log(e.target.value)
-                  const penSize = e.target.value
+                    setAppState((pritam) => ({
+                      ...pritam,
+                      pen: {
+                        ...pritam.pen,
+                        size: parseInt(penSize)
+                      },
+                    }));
+                  }
 
-                  setAppState((pritam) => ({
-                    ...pritam,
-                    pen: {
-                      ...pritam.pen,
-                      size: parseInt(penSize)
-                    },
-                  }));
-                }
-
-                }
-              />
-            </div>
-            <div className="toolbar" role="toolbar" aria-label="Tools">
-              <label className="color-pick tooltip "
-                data-tooltip="Pen color"
-                data-tooltip-pos="top">
-                <input type="color"
-                  id="pen-color-picker"
-                  onChange={
-                    (e) => {
-                      console.log(e.target)
-                      console.log(e.target.value)
-                      const color = e.target.value
-                      setAppState((pritam) => ({
-                        ...pritam,
-                        pen: { ...pritam.pen, color: color },
-                      }));
-                    }}
-                  style={{ display: "none", }}
+                  }
                 />
-                <span className="circle "
-                  id="pen-color-picker-circleg"
-                  style={{
-                    background: appState.pen.color
-                  }}
-                > 🌈
-                </span>
-              </label>
+              </div>
 
-              {
-                colors.map((color) => {
-                  return (
-                    <div
-                      className="color-ball"
-                      style={{ background: color }}
-                      onClick={
-                        (e) => {
-                          console.log({ color })
-                          setAppState((pritam) => ({
-                            ...pritam,
-                            pen: { ...pritam.pen, color: color },
-                          }));
-                        }}
-                    >
+              <div style={{ display: "flex", gap: "0.5rem" }}>
+                <label className="color-pick tooltip "
+                  data-tooltip="Pen color"
+                  data-tooltip-pos="top">
+                  <input type="color"
+                    id="pen-color-picker"
+                    onChange={
+                      (e) => {
+                        console.log(e.target)
+                        console.log(e.target.value)
+                        const color = e.target.value
+                        setAppState((pritam) => ({
+                          ...pritam,
+                          pen: { ...pritam.pen, color: color },
+                        }));
+                      }}
+                    style={{ display: "none", }}
+                  />
+                  <Button.colorPicker
+                    style={{
+                      pointerEvents: "none",
+                      display: "flex",
+                      aspectRatio: "1"
+                    }}
+                    className="active" />
+                </label>
 
-                    </div>
-                  )
-                })
-              }
+                {
+                  colors.map((color) => {
+                    return (
+                      <div
+                        className="color-ball"
+                        style={{ background: color }}
+                        onClick={
+                          (e) => {
+                            console.log({ color })
+                            setAppState((pritam) => ({
+                              ...pritam,
+                              pen: { ...pritam.pen, color: color },
+                            }));
+                          }}
+                      >
+
+                      </div>
+                    )
+                  })
+                }
+              </div>
+
             </div>
           </div>
         )

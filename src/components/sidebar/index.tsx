@@ -9,23 +9,37 @@ export const Sidebar = ({
   activeTool: Tool;
   setActiveTool: (tool: Tool) => void;
 }) => {
-  const tools: [ButtonKeys, Tool][] = [
-   // ["select", new SelectTool()],
-    ["pan", new PanTool()],
-    ["pen", new PenTool()],
-  ];
+  const tools: {
+    name: ButtonKeys,
+    subToolNames?: ButtonKeys[],
+    tool: Tool
+  }[] = [
+      {
+        name: "pan",
+        tool: new PanTool()
+      },
+      {
+        name: "pen",
+        subToolNames: ["lasso"],
+        tool: new PenTool()
+      }
+    ];
 
   return (
     <aside className="sidebar-wrapper">
       <div className="sidebar" role="toolbar" aria-label="Tools">
-        {tools.map(([name, tool]) => {
-          const Btn = Button[name];
+        {tools.map((toolData) => {
+          const Btn = Button[toolData.name];
           return (
-            <div className="tool" key={name}>
+            <div className="tool" key={"sidebar-tool-" + toolData.name}>
               <Btn
-                key={name}
-                onClick={() => setActiveTool(tool)}
-                className={activeTool.name === name ? "active" : ""}
+                key={"sidebar-tool-button" + toolData.name}
+                id={"sidebar-tool-button" + toolData.name}
+                onClick={() => setActiveTool(toolData.tool)}
+                className={
+                  (activeTool.name === toolData.name
+                    || toolData?.subToolNames?.includes((activeTool.name as ButtonKeys))
+                  ) ? "active" : ""}
               />
             </div>
           );

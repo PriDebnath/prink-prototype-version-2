@@ -1,4 +1,6 @@
 // ---------- Types ----------
+import { Button, type ButtonKeys } from "../components/button";
+
 type PenType =  "pencil" | "highlighter";
 
 export interface Pen {

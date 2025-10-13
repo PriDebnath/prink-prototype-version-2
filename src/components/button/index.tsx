@@ -115,7 +115,19 @@ export const Button = {
             </button>
         )
     }
-
+    ,
+   colorPicker: (props: ButtonProps) => {
+        return (
+            <button id="tool-highlighter"
+                {...props}
+                className={`tool-btn tooltip ${props.className}`}
+                data-tooltip={props.dataTooltip || "Color Picker"}
+                data-tooltip-pos={props.dataTooltipPos || "top"}
+            >
+                <Icons.colorPicker />
+            </button>
+        )
+    }
 }
 
 

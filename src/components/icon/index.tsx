@@ -28,15 +28,15 @@ export const Icons = {
       height="16"
       xmlns="http://www.w3.org/2000/svg"
       {...props}
-      viewBox="0 0 24 24" 
+      viewBox="0 0 24 24"
       fill="#2563EB"
-      stroke="#2563EB" 
-      stroke-width="2" 
-      stroke-linecap="round" 
+      stroke="#2563EB"
+      stroke-width="2"
+      stroke-linecap="round"
       stroke-linejoin="round"
       className="lucide lucide-mouse-pointer2-icon lucide-mouse-pointer-2">
-      <path d="M4.037 4.688a.495.495 0 0 1 .651-.651l16 6.5a.5.5 0 0 1-.063.947l-6.124 1.58a2 2 0 0 0-1.438 1.435l-1.579 6.126a.5.5 0 0 1-.947.063z"/>
-      </svg>
+      <path d="M4.037 4.688a.495.495 0 0 1 .651-.651l16 6.5a.5.5 0 0 1-.063.947l-6.124 1.58a2 2 0 0 0-1.438 1.435l-1.579 6.126a.5.5 0 0 1-.947.063z" />
+    </svg>
   )
   ,
   pan: (props: IconProps) => (
@@ -96,21 +96,33 @@ export const Icons = {
 
   ),
   pencil: (props: IconProps) => (
-    <svg id="pencil-svg" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="lucide lucide-pencil-icon lucide-pencil"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></svg>
+    <svg id="pencil-svg" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="lucide lucide-pencil-icon lucide-pencil"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" /><path d="m15 5 4 4" /></svg>
   )
   ,
   lasso: (props: IconProps) => (
-    <svg 
-    id="lasso-svg" 
-    xmlns="http://www.w3.org/2000/svg"
-    width="16" height="16"
-    viewBox="0 0 24 24" 
-    fill="none" stroke="currentColor"
-    stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="lucide lucide-lasso-select-icon lucide-lasso-select"><path d="M7 22a5 5 0 0 1-2-4"/><path d="M7 16.93c.96.43 1.96.74 2.99.91"/><path d="M3.34 14A6.8 6.8 0 0 1 2 10c0-4.42 4.48-8 10-8s10 3.58 10 8a7.19 7.19 0 0 1-.33 2"/><path d="M5 18a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"/><path d="M14.33 22h-.09a.35.35 0 0 1-.24-.32v-10a.34.34 0 0 1 .33-.34c.08 0 .15.03.21.08l7.34 6a.33.33 0 0 1-.21.59h-4.49l-2.57 3.85a.35.35 0 0 1-.28.14z"/>
+    <svg
+      id="lasso-svg"
+      xmlns="http://www.w3.org/2000/svg"
+      width="16" height="16"
+      viewBox="0 0 24 24"
+      fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="lucide lucide-lasso-select-icon lucide-lasso-select"><path d="M7 22a5 5 0 0 1-2-4" /><path d="M7 16.93c.96.43 1.96.74 2.99.91" /><path d="M3.34 14A6.8 6.8 0 0 1 2 10c0-4.42 4.48-8 10-8s10 3.58 10 8a7.19 7.19 0 0 1-.33 2" /><path d="M5 18a2 2 0 1 0 0-4 2 2 0 0 0 0 4z" /><path d="M14.33 22h-.09a.35.35 0 0 1-.24-.32v-10a.34.34 0 0 1 .33-.34c.08 0 .15.03.21.08l7.34 6a.33.33 0 0 1-.21.59h-4.49l-2.57 3.85a.35.35 0 0 1-.28.14z" />
     </svg>
   )
   ,
   highlighter: (props: IconProps) => (
-    <svg id="highlighter-svg" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="lucide lucide-highlighter-icon lucide-highlighter"><path d="m9 11-6 6v3h9l3-3"/><path d="m22 12-4.6 4.6a2 2 0 0 1-2.8 0l-5.2-5.2a2 2 0 0 1 0-2.8L14 4"/></svg>
+    <svg id="highlighter-svg" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="lucide lucide-highlighter-icon lucide-highlighter"><path d="m9 11-6 6v3h9l3-3" /><path d="m22 12-4.6 4.6a2 2 0 0 1-2.8 0l-5.2-5.2a2 2 0 0 1 0-2.8L14 4" /></svg>
+  )
+  ,
+  colorPicker: (props: IconProps) => (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      id="color-picker-svg"
+      width="16" height="16" viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" stroke-width="2" stroke-linecap="round"
+      stroke-linejoin="round" className="lucide lucide-pipette-icon lucide-pipette"><path d="m12 9-8.414 8.414A2 2 0 0 0 3 18.828v1.344a2 2 0 0 1-.586 1.414A2 2 0 0 1 3.828 21h1.344a2 2 0 0 0 1.414-.586L15 12" />
+      <path d="m18 9 .4.4a1 1 0 1 1-3 3l-3.8-3.8a1 1 0 1 1 3-3l.4.4 3.4-3.4a1 1 0 1 1 3 3z" />
+      <path d="m2 22 .414-.414" />
+    </svg>
   )
 }
