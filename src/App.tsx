@@ -15,6 +15,8 @@ export default function App() {
     scale: 1,
     offset: { x: 0, y: 0 },
     paths: [],
+    lasso: [],
+    selectedIds: [],
     currentPath: null,
   });
   const [appState, setAppState] = useState<AppState>({ 

@@ -22,6 +22,23 @@ export const Icons = {
   )
   ,
   //  Sidebar
+  select: (props: IconProps) => (
+    <svg id="select-svg"
+      width="16"
+      height="16"
+      xmlns="http://www.w3.org/2000/svg"
+      {...props}
+      viewBox="0 0 24 24" 
+      fill="#2563EB"
+      stroke="#2563EB" 
+      stroke-width="2" 
+      stroke-linecap="round" 
+      stroke-linejoin="round"
+      class="lucide lucide-mouse-pointer2-icon lucide-mouse-pointer-2">
+      <path d="M4.037 4.688a.495.495 0 0 1 .651-.651l16 6.5a.5.5 0 0 1-.063.947l-6.124 1.58a2 2 0 0 0-1.438 1.435l-1.579 6.126a.5.5 0 0 1-.947.063z"/>
+      </svg>
+  )
+  ,
   pan: (props: IconProps) => (
     <svg id="pan-svg"
       width="16"
@@ -80,6 +97,17 @@ export const Icons = {
   ),
   pencil: (props: IconProps) => (
     <svg id="pencil-svg" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pencil-icon lucide-pencil"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></svg>
+  )
+  ,
+  lasso: (props: IconProps) => (
+    <svg 
+    id="lasso-svg" 
+    xmlns="http://www.w3.org/2000/svg"
+    width="16" height="16"
+    viewBox="0 0 24 24" 
+    fill="none" stroke="currentColor"
+    stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-lasso-select-icon lucide-lasso-select"><path d="M7 22a5 5 0 0 1-2-4"/><path d="M7 16.93c.96.43 1.96.74 2.99.91"/><path d="M3.34 14A6.8 6.8 0 0 1 2 10c0-4.42 4.48-8 10-8s10 3.58 10 8a7.19 7.19 0 0 1-.33 2"/><path d="M5 18a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"/><path d="M14.33 22h-.09a.35.35 0 0 1-.24-.32v-10a.34.34 0 0 1 .33-.34c.08 0 .15.03.21.08l7.34 6a.33.33 0 0 1-.21.59h-4.49l-2.57 3.85a.35.35 0 0 1-.28.14z"/>
+    </svg>
   )
   ,
   highlighter: (props: IconProps) => (
