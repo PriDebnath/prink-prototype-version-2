@@ -33,7 +33,7 @@ export const draw = (g: Getters) => {
   
  // Drsaw lassi
   if(state?.lasso && state.lasso?.length)  {
-    drawLasso(ctx, state, canvas);
+    drawLasso(ctx, state);
   }
   
   // Draw paths & overlay
@@ -84,7 +84,7 @@ const drawLasso2 = (ctx: CanvasRenderingContext2D, state: CanvasState, canvas: H
  // console .log({l: state.lasso})
   
   ctx.setLineDash([5, 5]);
-  state.lasso.forEach((pt, i) => {
+  state.lasso?.forEach((pt, i) => {
     if (i === 0) ctx.moveTo(pt.x, pt.y);
     else ctx.lineTo(pt.x, pt.y);
   });
@@ -172,7 +172,7 @@ const drawPaths2 = (ctx: CanvasRenderingContext2D, state: CanvasState, appState:
     // highlight selection 
     console. log({ ids: state.selectedIds})
     if(state?.selectedIds?.length){
-      let isSelected = state.selectedIds.some((id)=>id==path.id)
+      const isSelected = state.selectedIds.some((id)=>id==path.id)
       console.log({is: isSelected, ids: state.selectedIds})
       if (isSelected) {
         ctx.save(); // keep original stroke settings

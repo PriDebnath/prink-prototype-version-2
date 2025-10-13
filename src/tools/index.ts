@@ -4,6 +4,12 @@
 import type { Tool, Point, CanvasState , AppState} from '../types';
 
 abstract class BaseTool implements Tool{
+    name = "base";
+    onPointerDown (e: PointerEvent, canvasState: CanvasState, appState: AppState){};
+    onPointerMove (e: PointerEvent, canvasState: CanvasState, appState: AppState){};
+    onPointerUp (e: PointerEvent, canvasState: CanvasState) {};
+    renderOverlay (ctx: CanvasRenderingContext2D, canvasState: CanvasState){}
+
    public toWorld(e: PointerEvent, canvasState: CanvasState): Point {
     return {
       x: (e.clientX - canvasState.offset.x) / canvasState.scale,
@@ -65,9 +71,9 @@ export  class PenTool extends BaseTool {
       const world = this.toWorld(e, canvasState);
       
       //console.log("moving", {pen: appState.pen})  
-      let appPen = appState.pen
+      const appPen = appState.pen
       //console.log({appPen})
-      let pen = {
+      const pen = {
         ...world,
         ...appPen
       }
@@ -110,7 +116,7 @@ export class SelectTool extends BaseTool {
       // detect if clicked on any selected pen stroke
       const clickedSelectedItem = selectedPens.some((pen) =>{
         console.log({clickedSelectedItem: pen})
-        return this.isPointNearStroke(world, pen.points, pixelThreshold(pen.size))
+        return this.isPointNearStroke(world, pen.points, pixelThreshold(pen.pen.size))
       });
 
       if (clickedSelectedItem) {
@@ -160,7 +166,7 @@ export class SelectTool extends BaseTool {
     // otherwise, build the lasso
     else if (!this.dragging) {
       //canvasState.lasso = [];
-      canvasState.lasso.push(world);
+      canvasState.lasso?.push(world);
     }
   }
 
@@ -197,7 +203,7 @@ export class SelectTool extends BaseTool {
       lasso.push({ ...lasso[0] });
     }
 
-    const selectedIds: string[] = [];
+    const selectedIds: number[] = [];
 
     for (const pen of canvasState.paths) {
       // select if any point of the stroke lies inside the lasso polygon

@@ -16,10 +16,10 @@ export const Toolbar = ({
   appState: AppState;
   setAppState: React.Dispatch<React.SetStateAction<AppState>>;
 }) => {
-  
+
   const [openColorPellet, setOpenColorPellet] = useState<boolean>(false)
-   
-  console.log({    activeTool})
+
+  console.log({ activeTool })
   // 🔸 Top-level tool buttons (always visible)
   const mainTools: [ButtonKeys, () => void][] = [
     [
@@ -45,9 +45,9 @@ export const Toolbar = ({
     [
       "lasso",
       () => {
-        if(activeTool.name == "lasso"){
+        if (activeTool.name == "lasso") {
           setActiveTool(new PenTool())
-        }else{
+        } else {
           setActiveTool(new SelectTool())
         }
       },
@@ -62,8 +62,8 @@ export const Toolbar = ({
       },
     ],
   ];
-  
-  const colors = ["#ff0000", "#ff6f00", "#ffb700", "#ffb700", "#c8ff00", "#00ff22" , "#00ff99", "#00fbff", "#0090ff", "#1900ff", "#1900ff", "#7b00ff", "#ff00ff", "#ff006f", "#ff0000"]
+
+  const colors = ["#ff0000", "#ff6f00", "#ffb700", "#ffb700", "#c8ff00", "#00ff22", "#00ff99", "#00fbff", "#0090ff", "#1900ff", "#1900ff", "#7b00ff", "#ff00ff", "#ff006f", "#ff0000"]
 
   const renderButtons = (toolList: [ButtonKeys, () => void][]) =>
     toolList.map(([name, handler]) => {
@@ -73,115 +73,115 @@ export const Toolbar = ({
           <Btn
             onClick={handler}
             className={
-            ( activeTool.name === name || appState.pen?.type === name) ? "active" : ""
+              (activeTool.name === name || appState.pen?.type === name) ? "active" : ""
             }
           />
         </div>
       );
     });
-    
-    
+
+
 
   return (
     <footer>
-    { 
-     openColorPellet && (
-        <div className="toolbar-subbar-wrapper">
-      <div className="toolbar" role="toolbar" aria-label="Tools">
+      {
+        openColorPellet && (
+          <div className="toolbar-subbar-wrapper">
+            <div className="toolbar" role="toolbar" aria-label="Tools">
 
-        <input 
-        value={appState.pen.size}
-        style={{ display: "flex", width : "100%"}} type="range"
-        onChange={(e)=>{
-          console.log(e.target.value)
-          const penSize = e.target.value
-          setAppState((pritam) => ({
-          ...pritam,
-          pen: { ...pritam.pen, 
-          size: penSize },
-        }));
-        }
-          
-        }
-        />
-      </div>
- <div className="toolbar" role="toolbar" aria-label="Tools">
-      <label class="color-pick tooltip "
-               data-tooltip="Pen color"
-               data-tooltip-pos="top">
-          <input type="color"
-                 id="pen-color-picker"
-                 onChange = {
-              (e)=>{
-                console.log(e.target)
-                console.log(e.target.value)
-                let color = e.target.value
-                setAppState((pritam) => ({
-          ...pritam,
-          pen: { ...pritam.pen, color: color },
-        }));
-              }}
-                style={{display: "none",}}
-               />
-                <span class="circle "
-                id="pen-color-picker-circleg"
-                style={{
-                background: appState.pen.color
-                }}
+              <input
+                value={appState.pen.size}
+                style={{ display: "flex", width: "100%" }} type="range"
+                onChange={(e) => {
+                  console.log(e.target.value)
+                  const penSize = e.target.value
+
+                  setAppState((pritam) => ({
+                    ...pritam,
+                    pen: {
+                      ...pritam.pen,
+                      size: parseInt(penSize)
+                    },
+                  }));
+                }
+
+                }
+              />
+            </div>
+            <div className="toolbar" role="toolbar" aria-label="Tools">
+              <label className="color-pick tooltip "
+                data-tooltip="Pen color"
+                data-tooltip-pos="top">
+                <input type="color"
+                  id="pen-color-picker"
+                  onChange={
+                    (e) => {
+                      console.log(e.target)
+                      console.log(e.target.value)
+                      const color = e.target.value
+                      setAppState((pritam) => ({
+                        ...pritam,
+                        pen: { ...pritam.pen, color: color },
+                      }));
+                    }}
+                  style={{ display: "none", }}
+                />
+                <span className="circle "
+                  id="pen-color-picker-circleg"
+                  style={{
+                    background: appState.pen.color
+                  }}
                 > 🌈
                 </span>
-        </label>
+              </label>
 
-        {
-         colors.map((color)=>{
-            return(
-              <div 
-                className="color-ball" 
-                style={{ background: color}}
-                onClick = {
-              (e)=>{
-                 console.log({color})
-                  setAppState((pritam) => ({
-                   ...pritam,
-                   pen: { ...pritam.pen, color: color },
-                  }));
-              }}
-                >
-                
-              </div>
-            )
-          })
-        }
-        
-             
+              {
+                colors.map((color) => {
+                  return (
+                    <div
+                      className="color-ball"
+                      style={{ background: color }}
+                      onClick={
+                        (e) => {
+                          console.log({ color })
+                          setAppState((pritam) => ({
+                            ...pritam,
+                            pen: { ...pritam.pen, color: color },
+                          }));
+                        }}
+                    >
 
-    </div>
-    </div>
-    )
-    }
-    <div className="toolbar-wrapper">
-      <div className="toolbar" role="toolbar" aria-label="Tools">
-        {/* 🔸 Always visible tools */}
-        {renderButtons(mainTools)}
+                    </div>
+                  )
+                })
+              }
+            </div>
+          </div>
+        )
+      }
+      <div className="toolbar-wrapper">
+        <div className="toolbar" role="toolbar" aria-label="Tools">
+          {/* 🔸 Always visible tools */}
+          {renderButtons(mainTools)}
 
-        {/* ✏️ Shown only when active tool is PenTool */}
-        {(activeTool.name === "pen" || activeTool.name === "lasso" ) && (renderButtons(penTools))}
-        {(activeTool.name === "pen" || activeTool.name === "lasso" ) && (
-                <span class="circle color-ball"
-                id="pen-color-picker-circleg"
-                style={{
+          {/* ✏️ Shown only when active tool is PenTool */}
+          {(activeTool.name === "pen" || activeTool.name === "lasso") && (renderButtons(penTools))}
+          {(activeTool.name === "pen" || activeTool.name === "lasso") && (
+            <span className="circle color-ball"
+              id="pen-color-picker-circleg"
+              style={{
                 background: appState.pen.color,
-                outline: openColorPellet? "6px solid blue" : "2px solid transparent" 
-                }}
-                onClick={ ()=>{
+                outline: openColorPellet ? "6px solid blue" : "2px solid transparent"
+              }}
+              onClick={() => {
                 setOpenColorPellet(!openColorPellet)
-                  }
-                }
-                >
-                </span>
+              }
+              }
+            >
+            </span>
           )
-        }
-      </div>
+          }
+        </div>
       </div>
     </footer>
   );

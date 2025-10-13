@@ -1,5 +1,5 @@
-import { PanTool, PenTool} from "../../tools";
-import type { Tool, CanvasState , AppState} from "../../types";
+import { PanTool, PenTool } from "../../tools";
+import type { Tool, CanvasState, AppState } from "../../types";
 import { Button, type ButtonKeys } from "../button";
 
 export const Topbar = ({
@@ -13,22 +13,23 @@ export const Topbar = ({
   setActiveTool: (tool: Tool) => void;
   canvasState: CanvasState,
   appState: AppState,
-  setAppState:  React.Dispatch<React.SetStateAction<AppState>>
+  setAppState: React.Dispatch<React.SetStateAction<AppState>>
 }) => {
-  
-  const tools: [ButtonKeys, ()=>void][] = [
+
+  const tools: [ButtonKeys, () => void][] = [
     [
       "grid",
-      ()=>{
+      () => {
         const value = appState.grid
-        setAppState(pri=>{
-        return {
-          pri,
-          grid: !value
-        }})
+        setAppState(pri => {
+          return {
+            ...pri,
+            grid: !value
+          }
+        })
       }
     ],
-        [
+    [
       "clean",
       () => {
         canvasState.paths = [];
@@ -48,9 +49,9 @@ export const Topbar = ({
               <Btn
                 key={name}
                 onClick={handler}
-                className={ appState.grid ? "active": ""}
-                dataTooltip={ "Grid: " + (appState.grid ? "on": "off")}
-                     />
+                className={appState.grid ? "active" : ""}
+                dataTooltip={"Grid: " + (appState.grid ? "on" : "off")}
+              />
             </div>
           );
         })}
