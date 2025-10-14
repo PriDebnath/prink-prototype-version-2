@@ -50,7 +50,7 @@ export const Topbar = ({
                 key={name}
                 onClick={handler}
                 className={appState.grid ? "active" : ""}
-                dataTooltip={"Grid: " + (appState.grid ? "on" : "off")}
+                datatooltip={"Grid: " + (appState.grid ? "on" : "off")}
               />
             </div>
           );

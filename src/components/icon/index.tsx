@@ -31,9 +31,9 @@ export const Icons = {
       viewBox="0 0 24 24"
       fill="#2563EB"
       stroke="#2563EB"
-      stroke-width="2"
-      stroke-linecap="round"
-      stroke-linejoin="round"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
       className="lucide lucide-mouse-pointer2-icon lucide-mouse-pointer-2">
       <path d="M4.037 4.688a.495.495 0 0 1 .651-.651l16 6.5a.5.5 0 0 1-.063.947l-6.124 1.58a2 2 0 0 0-1.438 1.435l-1.579 6.126a.5.5 0 0 1-.947.063z" />
     </svg>
@@ -88,15 +88,15 @@ export const Icons = {
       {...props}
     >
       <path id="Vector"
-        fill-rule="evenodd"
-        clip-rule="evenodd"
+        fillRule="evenodd"
+        clipRule="evenodd"
         d="M8.12114 0.0994353C8.22545 0.141754 8.32041 0.204206 8.40058 0.283223C8.48075 0.36224 8.54458 0.456276 8.58841 0.559961C8.63224 0.663645 8.65521 0.774948 8.65603 0.887513C8.65684 1.00008 8.63547 1.1117 8.59314 1.21601L5.48572 8.89029C5.89029 9.03201 6.30172 9.24686 6.66286 9.53486C7.29143 10.0366 7.80343 10.792 7.80343 11.7966C7.80343 12.408 7.95314 12.9166 8.18057 13.3326C8.544 14 9.34172 14.2389 10.1029 14.2389C10.3302 14.2389 10.5482 14.3292 10.7089 14.4899C10.8697 14.6507 10.96 14.8687 10.96 15.096C10.96 15.3233 10.8697 15.5414 10.7089 15.7021C10.5482 15.8628 10.3302 15.9531 10.1029 15.9531H10V15.9646H2.57257C1.37486 15.9646 0.110858 15.1634 0.0788578 13.7646C0.0525721 12.592 0.301715 11.2583 1.01029 10.24C1.60457 9.38629 2.49943 8.78858 3.71657 8.68458L7.00572 0.571435C7.04803 0.467125 7.11049 0.372172 7.1895 0.291999C7.26852 0.211825 7.36256 0.148001 7.46624 0.104172C7.56992 0.0603418 7.68123 0.0373645 7.79379 0.0365519C7.90636 0.0357392 8.01684 0.0571071 8.12114 0.0994353ZM15.0651 15.9531C15.2925 15.9531 15.5105 15.8628 15.6712 15.7021C15.832 15.5414 15.9223 15.3233 15.9223 15.096C15.9223 14.8687 15.832 14.6507 15.6712 14.4899C15.5105 14.3292 15.2925 14.2389 15.0651 14.2389H12.8629C12.6355 14.2389 12.4175 14.3292 12.2568 14.4899C12.096 14.6507 12.0057 14.8687 12.0057 15.096C12.0057 15.3233 12.096 15.5414 12.2568 15.7021C12.4175 15.8628 12.6355 15.9531 12.8629 15.9531H15.0651ZM14.9029 11.9852C14.9029 12.2125 14.8126 12.4305 14.6518 12.5912C14.4911 12.752 14.273 12.8423 14.0457 12.8423H11.856C11.6287 12.8423 11.4107 12.752 11.2499 12.5912C11.0892 12.4305 10.9989 12.2125 10.9989 11.9852C10.9989 11.7578 11.0892 11.5398 11.2499 11.3791C11.4107 11.2183 11.6287 11.128 11.856 11.128H14.0457C14.273 11.128 14.4911 11.2183 14.6518 11.3791C14.8126 11.5398 14.9029 11.7578 14.9029 11.9852ZM12.8629 9.61601C13.0902 9.61601 13.3082 9.5257 13.469 9.36496C13.6297 9.20421 13.72 8.98619 13.72 8.75886C13.72 8.53154 13.6297 8.31352 13.469 8.15277C13.3082 7.99203 13.0902 7.90172 12.8629 7.90172H10.672C10.4447 7.90172 10.2267 7.99203 10.0659 8.15277C9.90516 8.31352 9.81486 8.53154 9.81486 8.75886C9.81486 8.98619 9.90516 9.20421 10.0659 9.36496C10.2267 9.5257 10.4447 9.61601 10.672 9.61601H12.8629Z"
         fill="#2563EB" />
     </svg>
 
   ),
   pencil: (props: IconProps) => (
-    <svg id="pencil-svg" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="lucide lucide-pencil-icon lucide-pencil"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" /><path d="m15 5 4 4" /></svg>
+    <svg id="pencil-svg" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-pencil-icon lucide-pencil"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" /><path d="m15 5 4 4" /></svg>
   )
   ,
   lasso: (props: IconProps) => (
@@ -106,12 +106,12 @@ export const Icons = {
       width="16" height="16"
       viewBox="0 0 24 24"
       fill="none" stroke="currentColor"
-      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="lucide lucide-lasso-select-icon lucide-lasso-select"><path d="M7 22a5 5 0 0 1-2-4" /><path d="M7 16.93c.96.43 1.96.74 2.99.91" /><path d="M3.34 14A6.8 6.8 0 0 1 2 10c0-4.42 4.48-8 10-8s10 3.58 10 8a7.19 7.19 0 0 1-.33 2" /><path d="M5 18a2 2 0 1 0 0-4 2 2 0 0 0 0 4z" /><path d="M14.33 22h-.09a.35.35 0 0 1-.24-.32v-10a.34.34 0 0 1 .33-.34c.08 0 .15.03.21.08l7.34 6a.33.33 0 0 1-.21.59h-4.49l-2.57 3.85a.35.35 0 0 1-.28.14z" />
+      strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-lasso-select-icon lucide-lasso-select"><path d="M7 22a5 5 0 0 1-2-4" /><path d="M7 16.93c.96.43 1.96.74 2.99.91" /><path d="M3.34 14A6.8 6.8 0 0 1 2 10c0-4.42 4.48-8 10-8s10 3.58 10 8a7.19 7.19 0 0 1-.33 2" /><path d="M5 18a2 2 0 1 0 0-4 2 2 0 0 0 0 4z" /><path d="M14.33 22h-.09a.35.35 0 0 1-.24-.32v-10a.34.34 0 0 1 .33-.34c.08 0 .15.03.21.08l7.34 6a.33.33 0 0 1-.21.59h-4.49l-2.57 3.85a.35.35 0 0 1-.28.14z" />
     </svg>
   )
   ,
   highlighter: (props: IconProps) => (
-    <svg id="highlighter-svg" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="lucide lucide-highlighter-icon lucide-highlighter"><path d="m9 11-6 6v3h9l3-3" /><path d="m22 12-4.6 4.6a2 2 0 0 1-2.8 0l-5.2-5.2a2 2 0 0 1 0-2.8L14 4" /></svg>
+    <svg id="highlighter-svg" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-highlighter-icon lucide-highlighter"><path d="m9 11-6 6v3h9l3-3" /><path d="m22 12-4.6 4.6a2 2 0 0 1-2.8 0l-5.2-5.2a2 2 0 0 1 0-2.8L14 4" /></svg>
   )
   ,
   colorPicker: (props: IconProps) => (
@@ -119,8 +119,8 @@ export const Icons = {
       xmlns="http://www.w3.org/2000/svg"
       id="color-picker-svg"
       width="16" height="16" viewBox="0 0 24 24" fill="none"
-      stroke="currentColor" stroke-width="2" stroke-linecap="round"
-      stroke-linejoin="round" className="lucide lucide-pipette-icon lucide-pipette"><path d="m12 9-8.414 8.414A2 2 0 0 0 3 18.828v1.344a2 2 0 0 1-.586 1.414A2 2 0 0 1 3.828 21h1.344a2 2 0 0 0 1.414-.586L15 12" />
+      stroke="currentColor" strokeWidth="2" strokeLinecap="round"
+      strokeLinejoin="round" className="lucide lucide-pipette-icon lucide-pipette"><path d="m12 9-8.414 8.414A2 2 0 0 0 3 18.828v1.344a2 2 0 0 1-.586 1.414A2 2 0 0 1 3.828 21h1.344a2 2 0 0 0 1.414-.586L15 12" />
       <path d="m18 9 .4.4a1 1 0 1 1-3 3l-3.8-3.8a1 1 0 1 1 3-3l.4.4 3.4-3.4a1 1 0 1 1 3 3z" />
       <path d="m2 22 .414-.414" />
     </svg>

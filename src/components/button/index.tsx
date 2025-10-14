@@ -2,7 +2,7 @@ import { Icons } from "../icon"
 
 type ButtonProps = React.HTMLAttributes<HTMLButtonElement> & {
     className?: string
-    dataTooltip?: string
+    datatooltip?: string
     dataTooltipPos?: "top" | "right" | "bottom" | "left"
 }
 
@@ -14,7 +14,7 @@ export const Button = {
         return (
             <button id="tool-grid"
                 {...props}
-                data-tooltip={props.dataTooltip || "Toggle Grid"}
+                data-tooltip={props.datatooltip || "Toggle Grid"}
                 data-tooltip-pos={props.dataTooltipPos || "right"}
                 className={`tool-btn tooltip ${props.className}`}
             >
@@ -28,7 +28,7 @@ export const Button = {
         return (
             <button id="select-pan"
                 {...props}
-                data-tooltip={props.dataTooltip || "Select"}
+                data-tooltip={props.datatooltip || "Select"}
                 data-tooltip-pos={props.dataTooltipPos || "right"}
                 className={`tool-btn tooltip ${props.className}`}
             >
@@ -41,7 +41,7 @@ export const Button = {
         return (
             <button id="tool-pan"
                 {...props}
-                data-tooltip={props.dataTooltip || "Pan"}
+                data-tooltip={props.datatooltip || "Pan"}
                 data-tooltip-pos={props.dataTooltipPos || "right"}
                 className={`tool-btn tooltip ${props.className}`}
             >
@@ -55,7 +55,7 @@ export const Button = {
             <button id="tool-pen"
                 {...props}
                 className={`tool-btn tooltip ${props.className}`}
-                data-tooltip={props.dataTooltip || "Pen"}
+                data-tooltip={props.datatooltip || "Pen"}
                 data-tooltip-pos={props.dataTooltipPos || "right"}
             >
                 <Icons.pen />
@@ -69,7 +69,7 @@ export const Button = {
             <button id="tool-clean"
                 {...props}
                 className={`tool-btn tooltip ${props.className}`}
-                data-tooltip={props.dataTooltip || "Clean"}
+                data-tooltip={props.datatooltip || "Clean"}
                 data-tooltip-pos={props.dataTooltipPos || "top"}
             >
                 <Icons.clean />
@@ -82,7 +82,7 @@ export const Button = {
             <button id="tool-pencil"
                 {...props}
                 className={`tool-btn tooltip ${props.className}`}
-                data-tooltip={props.dataTooltip || "Color Pencil"}
+                data-tooltip={props.datatooltip || "Color Pencil"}
                 data-tooltip-pos={props.dataTooltipPos || "top"}
             >
                 <Icons.pencil />
@@ -95,7 +95,7 @@ export const Button = {
             <button id="tool-lasso"
                 {...props}
                 className={`tool-btn tooltip ${props.className}`}
-                data-tooltip={props.dataTooltip || "Lasso"}
+                data-tooltip={props.datatooltip || "Lasso"}
                 data-tooltip-pos={props.dataTooltipPos || "top"}
             >
                 <Icons.lasso />
@@ -108,7 +108,7 @@ export const Button = {
             <button id="tool-highlighter"
                 {...props}
                 className={`tool-btn tooltip ${props.className}`}
-                data-tooltip={props.dataTooltip || "Highlighter"}
+                data-tooltip={props.datatooltip || "Highlighter"}
                 data-tooltip-pos={props.dataTooltipPos || "top"}
             >
                 <Icons.highlighter />
@@ -121,7 +121,7 @@ export const Button = {
             <button id="tool-highlighter"
                 {...props}
                 className={`tool-btn tooltip ${props.className}`}
-                data-tooltip={props.dataTooltip || "Color Picker"}
+                data-tooltip={props.datatooltip || "Color Picker"}
                 data-tooltip-pos={props.dataTooltipPos || "top"}
             >
                 <Icons.colorPicker />
