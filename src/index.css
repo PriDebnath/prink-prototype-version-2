@@ -23,6 +23,16 @@
   --sidebar-font-size: 0.8rem;
   --sidebar-final-delay: 0.6s;
 
+  /* --sunlight: #ffe9b3;
+--transition: #d6ebf8;
+--winter: #e8f2fa; */
+
+  --sunlight: #fff4dd;
+  /* softer sunlight */
+  --transition: #e1f0f8;
+  /* lighter transition */
+  --winter: #f2f7fb;
+  /* very soft winter */
 }
 
 * {
@@ -50,7 +60,8 @@ canvas {
   height: 100%;
   width: 100%;
   display: block;
-  background: linear-gradient(180deg, var(--bgstart), var(--bgend));
+  /* background: linear-gradient(180deg, var(--bgstart), var(--bgend)); */
+  background: linear-gradient(120deg, var(--sunlight) 0%, var(--transition) 50%, var(--winter) 100%);
   touch-action: none;
   overflow: hidden;
 }
