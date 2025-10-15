@@ -1,7 +1,7 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
-import App from './App.tsx'
+// import App from './App.tsx'
 
 
 
@@ -12,9 +12,10 @@ import { createRouter, RouterProvider } from '@tanstack/react-router'
 // Import route files
 import { Route as RootRoute } from './routes/__root'
 import { Route as IndexRoute } from './routes/index'
+import { Route as CanvasRoute } from './routes/canvas/$canvasId'
 
 // Create route tree
-const routeTree = RootRoute.addChildren([IndexRoute])
+const routeTree = RootRoute.addChildren([IndexRoute, CanvasRoute])
 
 // Create the router
 const router = createRouter({

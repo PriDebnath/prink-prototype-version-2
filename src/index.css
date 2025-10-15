@@ -66,6 +66,27 @@ canvas {
   overflow: hidden;
 }
 
+#home-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space);
+  padding: var(--space);
+}
+
+.cards-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space);
+  padding: var(--space);
+}
+
+.card {
+  background: linear-gradient(120deg, var(--sunlight) 0%, var(--transition) 50%, var(--winter) 100%);
+  padding: var(--space);
+  border-radius: var(--border-radius);
+  padding: calc(var(--space) * 4);
+}
+
 #editor {
   position: absolute;
   display: none;
