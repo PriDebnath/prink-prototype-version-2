@@ -2,10 +2,12 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
+import routerPlugin  from '@tanstack/router-plugin/vite'
 
 export default defineConfig({
   plugins: [
     react(),
+    routerPlugin(), // Generate the router code
     VitePWA({
       registerType: 'autoUpdate',   // SW auto updates when you deploy a new build
       includeAssets: ['favicon.ico', 'robots.txt', 'offline.html'],

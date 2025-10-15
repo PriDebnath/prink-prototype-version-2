@@ -1,10 +1,7 @@
-import { createRoute } from "@tanstack/react-router"
-import { Route as RootRoute } from '../__root'
 import CanvasPage from '../../pages/canvas/canvas.page'
+import { createFileRoute } from "@tanstack/react-router"
 
-export const Route = createRoute({
-    getParentRoute: () => RootRoute,
-    path: "/canvas/$canvasId",
+export const Route = createFileRoute('/canvas/$canvasId')({
     component: CanvasPage,
 })
 
