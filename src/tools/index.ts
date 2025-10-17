@@ -1,92 +1,205 @@
 // ---------- Tools ----------
 
-  // ---------- Tools ----------
-import type { Tool, Point, CanvasState , AppState} from '../types';
+// ---------- Tools ----------
+import type { Tool, Point, CanvasState, AppState } from '../types';
 
-abstract class BaseTool implements Tool{
-    name = "base";
-    onPointerDown (e: PointerEvent, canvasState: CanvasState, appState: AppState){};
-    onPointerMove (e: PointerEvent, canvasState: CanvasState, appState: AppState){};
-    onPointerUp (e: PointerEvent, canvasState: CanvasState) {};
-    renderOverlay (ctx: CanvasRenderingContext2D, canvasState: CanvasState){}
+abstract class BaseTool implements Tool {
+  name = "base";
+  onPointerDown(e: PointerEvent, canvasState: CanvasState, appState: AppState) { };
+  onPointerMove(e: PointerEvent, canvasState: CanvasState, appState: AppState) { };
+  onPointerUp(e: PointerEvent, canvasState: CanvasState) { };
+  renderOverlay(ctx: CanvasRenderingContext2D, canvasState: CanvasState) { }
 
-   public toWorld(e: PointerEvent, canvasState: CanvasState): Point {
+  public toWorld(e: PointerEvent, canvasState: CanvasState): Point {
     return {
       x: (e.clientX - canvasState.offset.x) / canvasState.scale,
       y: (e.clientY - canvasState.offset.y) / canvasState.scale,
     };
-}
+  }
 
 }
 
-// ---------- Pan Tool ----------
 export class PanTool extends BaseTool {
-    name: string = 'pan';
-    private isPanning = false;
-    private last: Point | null = null;
-    onPointerDown(e: PointerEvent, canvasState: CanvasState) {
-      console.log('pan tool onPointerDown', e, canvasState);
-      if (e.button !== 0) return;
-      this.isPanning = true;
-      this.last = { x: e.clientX, y: e.clientY };
-    }
-    onPointerMove(e: PointerEvent, canvasState: CanvasState) {
-      console.log('pan tool onPointerMove', e, canvasState);
-      if (!this.isPanning || !this.last) return;
-      const dx = e.clientX - this.last.x;
-      const dy = e.clientY - this.last.y;
-      canvasState.offset.x += dx;
-      canvasState.offset.y += dy;
-      this.last = { x: e.clientX, y: e.clientY };
-    }
-    onPointerUp(e: PointerEvent, canvasState: CanvasState) {
-      console.log('pan tool onPointerUp', e, canvasState);
-      this.isPanning = false;
-      this.last = null;
+  name: string = 'pan';
+  // for pan
+  private lastPointPosition: Point | null = null;
+  /*
+  * Each finger (or mouse button) is assign ed a unique pointerId by the browser.
+  * That same ID persists through the entire interaction:
+  * 🟡 pointerdown  →  🟠 pointermove (0..many times)  →  🔴 pointerup
+  */
+  private activePoints: Map<number, Point> = new Map(); // Tracks all active fingers/pointers
+  private lastDistance: number | null = null;          // Last distance between two touch points (for zoom)
+  private newDistance: number | null = null;           // Current distance (for zoom comparison)
+  private lastCanvasScale: number = 0
+
+  onPointerDown(e: PointerEvent, canvasState: CanvasState) {
+    console.log('pan tool onPointerDown', e, canvasState);
+    if (e.button !== 0) return;
+
+    const pointPosition = { x: e.clientX, y: e.clientY };
+    this.lastPointPosition = pointPosition
+    //@1 Store this pointer's initial position
+    this.activePoints = this.activePoints.set(e.pointerId, pointPosition)
+  }
+
+  onPointerMove(e: PointerEvent, canvasState: CanvasState) {
+    console.log('pan tool onPointerMove');
+    if (!this.lastPointPosition || !this.activePoints.has(e.pointerId)) return
+    console.log({ canvasState, lastPointPosition: this.lastPointPosition });
+    //@2 Update this pointer's current position
+    const pointPosition = { x: e.clientX, y: e.clientY };
+    this.activePoints.set(e.pointerId, pointPosition);
+    // determine if panning/zooming
+    if (this.activePoints?.size >= 2) {
+      this.handlePinchZoom(this.activePoints, canvasState)
+    } else if (this.lastPointPosition) {
+      this.handlePan(this.lastPointPosition, pointPosition, canvasState)
     }
   }
-  
-  // ---------- Pen Tool ----------
+
+  onPointerUp(e: PointerEvent, canvasState: CanvasState) {
+    console.log('pan tool onPointerUp', e, canvasState);
+
+    this.lastDistance = null;
+    this.lastPointPosition = null;
+    //@3 delete activePoint 
+    this.activePoints.delete(e.pointerId)
+  }
+
+  handlePinchZoom(activePoints: Map<number, Point>, canvasState: CanvasState) {
+    if (activePoints?.size < 2) return
+    const [firstPoint, secondPoint] = [...activePoints.values()]
+    const newDistance = this.getDistance(firstPoint, secondPoint)
+    const midpoint = this.getMidpoint(firstPoint, secondPoint)
+    if (this.lastDistance) {
+      this.newDistance = newDistance
+      this.mobileZoom({
+        lastDistance: this.lastDistance,
+        newDistance: this.newDistance, canvasState,
+        midpoint,
+        oldScale: this.lastCanvasScale
+      })
+    } else {
+      this.lastDistance = newDistance
+      this.lastCanvasScale = canvasState.scale
+    }
+  }
+
+  handlePan(lastPointPosition: Point, currentPointPosition: Point, canvasState: CanvasState) {
+    const movedX = currentPointPosition.x - lastPointPosition.x
+    const movedY = currentPointPosition.y - lastPointPosition.y
+
+    canvasState.offset.x += movedX
+    canvasState.offset.y += movedY
+
+    this.lastPointPosition = currentPointPosition
+  }
+
+
+  getDistance(p1: Point, p2: Point) {
+    // 1️⃣ Find the difference between x-coordinates
+    const dx = p2.x - p1.x;
+
+    // 2️⃣ Find the difference between y-coordinates
+    const dy = p2.y - p1.y;
+
+    // 3️⃣ Square both differences
+    const dxSquared = dx * dx;
+    const dySquared = dy * dy;
+
+    // 4️⃣ Add them together
+    const sum = dxSquared + dySquared;
+
+    // 5️⃣ Take the square root to get the final distance
+    const distance = Math.sqrt(sum);
+
+    return distance;
+  }
+
+  getMidpoint(p1: Point, p2: Point) {
+    return { x: (p1.x + p2.x) / 2, y: (p1.y + p2.y) / 2 }; // Midpoint
+  }
+
+  mobileZoom({ lastDistance,
+    newDistance,
+    canvasState,
+    midpoint,
+    oldScale }: {
+      lastDistance: number,
+      newDistance: number,
+      canvasState: CanvasState,
+      midpoint: Point,
+      oldScale: number
+    }) {
+    const scaleFactor = newDistance / lastDistance
+    const newScale = scaleFactor * oldScale
+
+    const clampedNewScale = Math.max(0.1, Math.min(5, newScale));
+
+    // Convert the screen midpoint (between two fingers) into world coordinates
+    // This ensures zooming is centered around the fingers, not the top-left corner
+    const worldX = (midpoint.x - canvasState.offset.x) / canvasState.scale;
+    const worldY = (midpoint.y - canvasState.offset.y) / canvasState.scale;
+
+    // Adjust pan so that after zooming, the midpoint stays fixed under the fingers
+    // Without this step, zoom would always be from (0,0) instead of the pinch point
+    canvasState.offset.x = midpoint.x - worldX * clampedNewScale;
+    canvasState.offset.y = midpoint.y - worldY * clampedNewScale;
+
+    canvasState.scale = clampedNewScale
+
+    console.log({
+      scaleFactor,
+      newScale,
+      clampedNewScale,
+      lastDistance,
+      newDistance
+    })
+
+  }
+
+}
+
 export  class PenTool extends BaseTool {
-    name: string = 'pen';
-    private drawing = false;
-    onPointerDown(e: PointerEvent, canvasState: CanvasState,appState: AppState) {
-      if (e.button !== 0) return;
-      this.drawing = true;
-      const world = this.toWorld(e, canvasState, );
-      //  Making a currently changes object 
-      //and pushing it to store,
-      //later what change you will make in onMove will be store in this current item
-      canvasState.currentPath = { 
-        id: canvasState.paths.length+1,
-        points: [world],
-        pen: { ...appState.pen }
-      };
-      canvasState.paths.push(canvasState.currentPath);// 
-  
-    }
-    
-    onPointerMove(e: PointerEvent, canvasState: CanvasState, appState: AppState) {
-      if (!this.drawing || !canvasState.currentPath) return;
-      const world = this.toWorld(e, canvasState);
-      
-      //console.log("moving", {pen: appState.pen})  
-      const appPen = appState.pen
-      //console.log({appPen})
-      const pen = {
-        ...world,
-        ...appPen
-      }
-      //console.log({pen})
-      canvasState.currentPath.points.push(world);
-    }
-    onPointerUp(e: PointerEvent, canvasState: CanvasState) {
-      this.drawing = false;
-      canvasState.currentPath = null;
-    }
+  name: string = 'pen';
+  private drawing = false;
+  onPointerDown(e: PointerEvent, canvasState: CanvasState,appState: AppState) {
+    if (e.button !== 0) return;
+    this.drawing = true;
+    const world = this.toWorld(e, canvasState, );
+    //  Making a currently changes object 
+    //and pushing it to store,
+    //later what change you will make in onMove will be store in this current item
+    canvasState.currentPath = { 
+      id: canvasState.paths.length+1,
+      points: [world],
+      pen: { ...appState.pen }
+    };
+    canvasState.paths.push(canvasState.currentPath);// 
+
   }
   
-  
+  onPointerMove(e: PointerEvent, canvasState: CanvasState, appState: AppState) {
+    if (!this.drawing || !canvasState.currentPath) return;
+    const world = this.toWorld(e, canvasState);
+    
+    //console.log("moving", {pen: appState.pen})  
+    const appPen = appState.pen
+    //console.log({appPen})
+    const pen = {
+      ...world,
+      ...appPen
+    }
+    //console.log({pen})
+    canvasState.currentPath.points.push(pen);
+  }
+  onPointerUp(e: PointerEvent, canvasState: CanvasState) {
+    this.drawing = false;
+    canvasState.currentPath = null;
+  }
+}
+
 export class SelectTool extends BaseTool {
   name: string = 'lasso';
   dragging: boolean = false;
@@ -97,25 +210,25 @@ export class SelectTool extends BaseTool {
 
     console.log("onPointerDown   select", canvasState);
     const world = this.toWorld(e, canvasState);
-      // after we get selected ids,
-      // check if user clicked on selected ids or not,
-      // if yes meaning user want to drag it
-      if (canvasState.selectedIds && canvasState.selectedIds.length > 0) {
+    // after we get selected ids,
+    // check if user clicked on selected ids or not,
+    // if yes meaning user want to drag it
+    if (canvasState.selectedIds && canvasState.selectedIds.length > 0) {
       const selectedPens = canvasState.paths.filter((pen) =>
         canvasState.selectedIds!.includes(pen.id)
       );
 
       // scale threshold with canvas scale (so 8px on screen remains ~8px regardless of zoom)
       const pixelThreshold = (penSize?: number) => {
-        console.log({penSize})
+        console.log({ penSize })
         const base = penSize ?? appState.pen.size ?? 24;
         const scale = canvasState.scale ?? 1;
         return base / scale;
       };
 
       // detect if clicked on any selected pen stroke
-      const clickedSelectedItem = selectedPens.some((pen) =>{
-        console.log({clickedSelectedItem: pen})
+      const clickedSelectedItem = selectedPens.some((pen) => {
+        console.log({ clickedSelectedItem: pen })
         return this.isPointNearStroke(world, pen.points, pixelThreshold(pen.pen.size))
       });
 
@@ -147,7 +260,7 @@ export class SelectTool extends BaseTool {
     if (canvasState?.selectedIds && this.dragging && this.startPoint) {
       const dx = world.x - this.startPoint.x;
       const dy = world.y - this.startPoint.y;
-      console.log({dy, dx})
+      console.log({ dy, dx })
       // move only selected shapes by delta
       const moved = canvasState.paths.map((pen) => {
         if (canvasState.selectedIds!.includes(pen.id)) {
