@@ -15,10 +15,23 @@ export const Button = {
             <button id="tool-grid"
                 {...props}
                 data-tooltip={props.datatooltip || "Toggle Grid"}
-                data-tooltip-pos={props.dataTooltipPos || "right"}
+                data-tooltip-pos={props.dataTooltipPos || "bottom"}
                 className={`tool-btn tooltip ${props.className}`}
             >
                 <Icons.grid />
+            </button>
+        )
+    }
+    ,
+    settings: (props: ButtonProps) => {
+        return (
+            <button id="tool-settings"
+                {...props}
+                data-tooltip={props.datatooltip || "Settings"}
+                data-tooltip-pos={props.dataTooltipPos || "bottom"}
+                className={`tool-btn tooltip ${props.className}`}
+            >
+                <Icons.settings />
             </button>
         )
     }
@@ -70,7 +83,7 @@ export const Button = {
                 {...props}
                 className={`tool-btn tooltip ${props.className}`}
                 data-tooltip={props.datatooltip || "Clean"}
-                data-tooltip-pos={props.dataTooltipPos || "top"}
+                data-tooltip-pos={props.dataTooltipPos || "bottom"}
             >
                 <Icons.clean />
             </button>

@@ -36,7 +36,12 @@ export const Topbar = ({
         setAppState((pri) => ({ ...pri })); // force rerender
       },
     ],
-
+    [
+      "settings",
+      () => {
+        console.log("settings");
+      },
+    ],
   ];
 
   return (

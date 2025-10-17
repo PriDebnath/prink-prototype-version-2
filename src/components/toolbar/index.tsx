@@ -85,7 +85,7 @@ export const Toolbar = ({
   return (
     <footer>
       {
-        openColorPellet && (
+        (openColorPellet && (activeTool.name === "pen" || activeTool.name === "lasso")) && (
           <div className="toolbar-subbar-wrapper">
             <div className="toolbar" role="toolbar" aria-label="Tools"
               style={{
@@ -143,11 +143,12 @@ export const Toolbar = ({
                 </label>
 
                 {
-                  colors.map((color) => {
+                  colors.map((color, p) => {
                     return (
                       <div
                         className="color-ball"
                         style={{ background: color }}
+                        key={color + p}
                         onClick={
                           (e) => {
                             console.log({ color })
