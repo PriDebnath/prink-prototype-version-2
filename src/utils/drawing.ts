@@ -130,7 +130,7 @@ const drawPaths = (ctx: CanvasRenderingContext2D, state: CanvasState, appState: 
 
   for (const path of state.paths) {
     const pts = path.points;
-    if (pts.length < 1) continue;
+    if (pts.length < 2) continue;
 
     // ✅ Pen size stays as originally chosen
     const baseWidth = path.pen.size;
@@ -138,83 +138,42 @@ const drawPaths = (ctx: CanvasRenderingContext2D, state: CanvasState, appState: 
     if (path.pen.type === "highlighter") {
       penColor = getLightenColor(penColor);  
     }
+    if (path.pen.type === "airbrush") {
+        penColor = getLightenColor(penColor);
+    }
 
     // 🟦 Draw selection highlight behind stroke
     const isSelected = state.selectedIds?.includes(path.id);
     if (isSelected) {
       ctx.save();
-      if (path.pen.type === "airbrush") {
-        // For airbrush, draw selection around each particle
-        for (const pt of pts) {
-          ctx.beginPath();
-          ctx.arc(pt.x, pt.y, baseWidth / 4 + 3, 0, Math.PI * 2);
-          ctx.strokeStyle = "#2563EB";
-          ctx.lineWidth = 2;
-          ctx.globalAlpha = 0.4;
-          ctx.stroke();
-        }
-      } else {
-        ctx.beginPath();
-        buildSmoothPath(ctx, pts);
-        ctx.lineWidth = baseWidth + 6;
-        ctx.strokeStyle = "#2563EB";
-        ctx.globalAlpha = 0.4;
-        ctx.stroke();
-      }
+      ctx.beginPath();
+      buildSmoothPath(ctx, pts);
+      ctx.lineWidth = baseWidth + 6;
+      ctx.strokeStyle = "#2563EB";
+      ctx.globalAlpha = 0.4;
+      ctx.stroke();
       ctx.restore();
     }
 
     // 📝 Actual stroke
     ctx.save();
-    
-    if (path.pen.type === "airbrush") {
-      // Render airbrush with radial gradient for soft edges
-      for (const pt of pts) {
-        ctx.save();
-        
-        // Create radial gradient from center to edge
-        const gradient = ctx.createRadialGradient(
-          pt.x, pt.y, 0,
-          pt.x, pt.y, baseWidth / 2
-        );
-        
-        const opacity = path.pen.opacity || 0.3;
-        const centerOpacity = Math.floor(opacity * 255).toString(16).padStart(2, '0');
-        const edgeOpacity = Math.floor(opacity * 0.3 * 255).toString(16).padStart(2, '0');
-        
-        gradient.addColorStop(0, `${penColor}${centerOpacity}`);
-        gradient.addColorStop(0.5, `${penColor}${edgeOpacity}`);
-        gradient.addColorStop(1, `${penColor}00`);
-        
-        ctx.fillStyle = gradient;
-        ctx.beginPath();
-        ctx.arc(pt.x, pt.y, baseWidth / 2, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.restore();
-      }
-    } else {
-      // Regular stroke rendering
-      if (pts.length < 2) continue;
-      
-      ctx.beginPath();
-      buildSmoothPath(ctx, pts);
+    ctx.beginPath();
+    buildSmoothPath(ctx, pts);
 
-      // Optional: subtle taper using gradient (feels more organic)
-      const gradient = ctx.createLinearGradient(
-        pts[0].x, pts[0].y,
-        pts[pts.length - 1].x, pts[pts.length - 1].y
-      );
-      gradient.addColorStop(0, `${penColor}`);
-      gradient.addColorStop(0.1, penColor);
-      gradient.addColorStop(0.9, penColor);
-      gradient.addColorStop(1, `${penColor}`);
+    // Optional: subtle taper using gradient (feels more organic)
+    const gradient = ctx.createLinearGradient(
+      pts[0].x, pts[0].y,
+      pts[pts.length - 1].x, pts[pts.length - 1].y
+    );
+    gradient.addColorStop(0, `${penColor}`);
+    gradient.addColorStop(0.1, penColor);
+    gradient.addColorStop(0.9, penColor);
+    gradient.addColorStop(1, `${penColor}`);
 
-      ctx.strokeStyle = gradient;
-      ctx.lineWidth = baseWidth;
-      ctx.globalAlpha = 0.9;
-      ctx.stroke();
-    }
-    
+    ctx.strokeStyle = gradient;
+    ctx.lineWidth = baseWidth;
+    ctx.globalAlpha = 0.9;
+    ctx.stroke();
     ctx.restore();
   }
 };
