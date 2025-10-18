@@ -164,41 +164,84 @@ export class PanTool extends BaseTool {
 export  class PenTool extends BaseTool {
   name: string = 'pen';
   private drawing = false;
-  onPointerDown(e: PointerEvent, canvasState: CanvasState,appState: AppState) {
+  private lastTime = 0;
+  private sprayInterval = 16; // ~60fps for airbrush continuous spray
+
+  onPointerDown(e: PointerEvent, canvasState: CanvasState, appState: AppState) {
     if (e.button !== 0) return;
     this.drawing = true;
-    const world = this.toWorld(e, canvasState, );
-    //  Making a currently changes object 
-    //and pushing it to store,
-    //later what change you will make in onMove will be store in this current item
+    this.lastTime = performance.now();
+    
+    const world = this.toWorld(e, canvasState);
+    
+    // Create current path with pen settings
     canvasState.currentPath = { 
-      id: canvasState.paths.length+1,
+      id: canvasState.paths.length + 1,
       points: [world],
-      pen: { ...appState.pen }
+      pen: { 
+        ...appState.pen,
+        opacity: appState.pen.opacity || (appState.pen.type === "airbrush" ? 0.3 : 1.0)
+      }
     };
-    canvasState.paths.push(canvasState.currentPath);// 
-
+    canvasState.paths.push(canvasState.currentPath);
   }
   
   onPointerMove(e: PointerEvent, canvasState: CanvasState, appState: AppState) {
     if (!this.drawing || !canvasState.currentPath) return;
     const world = this.toWorld(e, canvasState);
+    const currentTime = performance.now();
     
-    //console.log("moving", {pen: appState.pen})  
-    const appPen = appState.pen
-    //console.log({appPen})
-    const pen = {
-      ...world,
-      ...appPen
+    // For airbrush, add points based on time interval for continuous spray
+    if (appState.pen.type === "airbrush") {
+      if (currentTime - this.lastTime >= this.sprayInterval) {
+        canvasState.currentPath.points.push(world);
+        this.lastTime = currentTime;
+      }
+    } else {
+      // For regular pen tools, add every point
+      canvasState.currentPath.points.push(world);
     }
-    //console.log({pen})
-    canvasState.currentPath.points.push(pen);
   }
+  
   onPointerUp(e: PointerEvent, canvasState: CanvasState) {
     this.drawing = false;
     canvasState.currentPath = null;
   }
+  
+  renderOverlay(ctx: CanvasRenderingContext2D, canvasState: CanvasState) {
+    if (!this.drawing || !canvasState.currentPath) return;
+    
+    // Only render overlay for airbrush
+    if (canvasState.currentPath.pen.type !== "airbrush") return;
+    
+    const lastPoint = canvasState.currentPath.points[canvasState.currentPath.points.length - 1];
+    if (!lastPoint) return;
+    
+    ctx.save();
+    
+    // Create radial gradient for soft airbrush effect
+    const gradient = ctx.createRadialGradient(
+      lastPoint.x, lastPoint.y, 0,
+      lastPoint.x, lastPoint.y, canvasState.currentPath.pen.size / 2
+    );
+    
+    const opacity = canvasState.currentPath.pen.opacity || 0.3;
+    const centerOpacity = Math.floor(opacity * 255).toString(16).padStart(2, '0');
+    const edgeOpacity = Math.floor(opacity * 0.3 * 255).toString(16).padStart(2, '0');
+    
+    gradient.addColorStop(0, `${canvasState.currentPath.pen.color}${centerOpacity}`);
+    gradient.addColorStop(0.7, `${canvasState.currentPath.pen.color}${edgeOpacity}`);
+    gradient.addColorStop(1, `${canvasState.currentPath.pen.color}00`);
+    
+    ctx.fillStyle = gradient;
+    ctx.beginPath();
+    ctx.arc(lastPoint.x, lastPoint.y, canvasState.currentPath.pen.size / 2, 0, Math.PI * 2);
+    ctx.fill();
+    
+    ctx.restore();
+  }
 }
+
 
 export class SelectTool extends BaseTool {
   name: string = 'lasso';

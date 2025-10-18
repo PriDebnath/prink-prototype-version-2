@@ -54,6 +54,16 @@ export const Toolbar = ({
       },
     ],
     [
+      "airbrush",
+      () => {
+        setAppState((prev) => ({
+          ...prev,
+          pen: { ...prev.pen, type: "airbrush" },
+        }));
+        setActiveTool(new PenTool());
+      },
+    ],
+    [
       "lasso",
       () => {
         if (activeTool.name == "lasso") {

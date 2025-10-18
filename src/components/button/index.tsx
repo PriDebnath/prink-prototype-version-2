@@ -129,6 +129,19 @@ export const Button = {
         )
     }
     ,
+    airbrush: (props: ButtonProps) => {
+        return (
+            <button id="tool-airbrush"
+                {...props}
+                className={`tool-btn tooltip ${props.className}`}
+                data-tooltip={props.datatooltip || "Airbrush"}
+                data-tooltip-pos={props.dataTooltipPos || "top"}
+            >
+                <Icons.airbrush />
+            </button>
+        )
+    }
+    ,
    colorPicker: (props: ButtonProps) => {
         return (
             <button id="tool-highlighter"

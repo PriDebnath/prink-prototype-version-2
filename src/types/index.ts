@@ -6,7 +6,8 @@ type PenType =  "pencil" | "highlighter" | "airbrush";
 export interface Pen {
   color: string;
   type: PenType;
-  size: number ;
+  size: number;
+  opacity?: number; // For airbrush opacity control
 }
 
 export interface Point  {

@@ -131,6 +131,21 @@ export const Icons = {
     <svg id="highlighter-svg" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-highlighter-icon lucide-highlighter"><path d="m9 11-6 6v3h9l3-3" /><path d="m22 12-4.6 4.6a2 2 0 0 1-2.8 0l-5.2-5.2a2 2 0 0 1 0-2.8L14 4" /></svg>
   )
   ,
+  airbrush: (props: IconProps) => (
+    <svg id="airbrush-svg" 
+    width="16" height="16" viewBox="0 0 24 24"
+ fill="none" stroke="currentColor" strokeWidth="2" 
+ strokeLinecap="round" strokeLinejoin="round"
+  className="lucide lucide-spray-can-icon lucide-spray-can"
+  {...props}
+  >
+    <path d="M3 3h.01"/><path d="M7 5h.01"/><path d="M11 7h.01"/>
+    <path d="M3 7h.01"/><path d="M7 9h.01"/><path d="M3 11h.01"/>
+    <rect width="4" height="4" x="15" y="5"/>
+    <path d="m19 9 2 2v10c0 .6-.4 1-1 1h-6c-.6 0-1-.4-1-1V11l2-2"/><path d="m13 14 8-2"/>
+    <path d="m13 19 8-2"/></svg>
+  )
+  ,
   colorPicker: (props: IconProps) => (
     <svg
       xmlns="http://www.w3.org/2000/svg"

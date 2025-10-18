@@ -29,6 +29,7 @@ export default function CanvasPage() {
       type: "airbrush",
       color: "#000000",
       size: 80,
+      opacity: 0.3,
     }
   });
 
