@@ -44,6 +44,15 @@ export const Toolbar = ({
       },
     ],
     [
+      "highlighter",
+      () => {
+        setAppState((pritam) => ({
+          ...pritam,
+          pen: { ...pritam.pen, type: "highlighter" },
+        }));
+      },
+    ],
+    [
       "lasso",
       () => {
         if (activeTool.name == "lasso") {
@@ -53,15 +62,7 @@ export const Toolbar = ({
         }
       },
     ],
-    [
-      "highlighter",
-      () => {
-        setAppState((pritam) => ({
-          ...pritam,
-          pen: { ...pritam.pen, type: "highlighter" },
-        }));
-      },
-    ],
+  
   ];
 
   const colors = ["#ff0000", "#ff6f00", "#ffb700", "#ffb700", "#c8ff00", "#00ff22", "#00ff99", "#00fbff", "#0090ff", "#1900ff", "#1900ff", "#7b00ff", "#ff00ff", "#ff006f", "#ff0000"]
@@ -91,13 +92,15 @@ export const Toolbar = ({
               style={{
                 display: "flex",
                 flexDirection: "column",
-                gap: "0.5rem"
+                gap: canvasState.device == "mobile" ? "0.25rem" :"0.5rem", 
+                borderRadius: canvasState.device == "mobile" ? "0.8rem" :"1.6rem", 
+                
               }}
             >
-              <div style={{ width: "100%" }}>
+              <div style={{ width: "100%", }}>
                 <input
                   value={appState.pen.size}
-                  style={{ display: "flex", width: "100%" }} type="range"
+                  style={{ display: "flex", width: "100%",paddingTop: "0px" , marginTop: "0px" }} type="range"
                   onChange={(e) => {
                     console.log(e.target.value)
                     const penSize = e.target.value
@@ -115,10 +118,17 @@ export const Toolbar = ({
                 />
               </div>
 
-              <div style={{ display: "flex", gap: "0.5rem" }}>
+              <div style={{ 
+              display: "flex", 
+              
+              gap: canvasState.device == "mobile" ? "0.25rem": "0.5rem", 
+                
+              }}>
                 <label className="color-pick tooltip "
                   data-tooltip="Pen color"
-                  data-tooltip-pos="top">
+                  data-tooltip-pos="top"
+                  
+                  >
                   <input type="color"
                     id="pen-color-picker"
                     onChange={
@@ -137,7 +147,15 @@ export const Toolbar = ({
                     style={{
                       pointerEvents: "none",
                       display: "flex",
-                      aspectRatio: "1"
+                      aspectRatio: "1",
+                      ...(  canvasState.device == "mobile" && {
+                         animation: "none",
+                         padding: "4px",
+                         height : "1rem",
+                         width: "1rem",
+                       }     
+                      )
+                    
                     }}
                     className="active" />
                 </label>
@@ -147,7 +165,11 @@ export const Toolbar = ({
                     return (
                       <div
                         className="color-ball"
-                        style={{ background: color }}
+                        style={{ 
+                        background: color,
+                        height: canvasState.device == "mobile" && "1rem",
+                        width: canvasState.device == "mobile" && "1rem",
+                        }}
                         key={color + p}
                         onClick={
                           (e) => {
@@ -181,8 +203,10 @@ export const Toolbar = ({
               id="pen-color-picker-circleg"
               style={{
                 background: appState.pen.color,
-                outline: openColorPellet ? "6px solid blue" : "2px solid transparent"
-              }}
+                outline: openColorPellet
+    ? `${(appState.pen.size ?? 10) / 10}px solid blue`
+    : "0px solid transparent",
+                  }}
               onClick={() => {
                 setOpenColorPellet(!openColorPellet)
               }

@@ -40,6 +40,13 @@ export const Topbar = ({
       "settings",
       () => {
         console.log("settings");
+                const value = appState.openSettings
+        setAppState(pri => {
+          return {
+            ...pri,
+            openSettings: !value
+          }
+        })
       },
     ],
   ];
