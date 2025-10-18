@@ -1,6 +1,6 @@
 // utils/draw.ts
 import type { Tool, CanvasState, AppState } from "../types";
-import { getDarkenColor } from "./helpers"
+import { getLightenColor } from "./helpers"
 let animationId: number | null = null;
 
 type Getters = {
@@ -136,7 +136,10 @@ const drawPaths = (ctx: CanvasRenderingContext2D, state: CanvasState, appState: 
     const baseWidth = path.pen.size;
     let penColor = path.pen.color;
     if (path.pen.type === "highlighter") {
-      penColor = getDarkenColor(penColor);
+      penColor = getLightenColor(penColor);  
+    }
+    if (path.pen.type === "airbrush") {
+        penColor = getLightenColor(penColor);
     }
 
     // 🟦 Draw selection highlight behind stroke

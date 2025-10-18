@@ -1,4 +1,4 @@
-export function getDarkenColor(hex: string): string {
+export function getLightenColor(hex: string): string {
   const c = parseInt(hex.slice(1), 16);
   const r = Math.floor(((c >> 16) & 255));
   const g = Math.floor(((c >> 8) & 255));
