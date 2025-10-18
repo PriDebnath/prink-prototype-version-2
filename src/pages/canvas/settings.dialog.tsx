@@ -1,35 +1,58 @@
+import Themes from "../../components/themes";
+import { Toggle } from "../../components/toggle";
+import type { AppState } from "../../types"
+
+interface SettingsDialogProps {
+  appState: AppState;
+  setAppState: React.Dispatch<React.SetStateAction<AppState>>;
+}
 
 
+export default function SettingsDialog({ appState, setAppState }: SettingsDialogProps) {
 
-export default function SettingsDialog(props) {
-return (
-<div className={
-    "modal-overlay " +
-    (props.appState.openSettings ? "show" : "")
-  } id="modalOverlay">
-  <div className={
-    "modal " +
-    (props.appState.openSettings ? "show" : "")
+
+  const handleClose = () => {
+    const value = appState.openSettings
+    setAppState(pri => {
+      return {
+        ...pri,
+        openSettings: !value
+      }
+    })
   }
-       id="modal">
-    <button class="close-btn"
-    onClick={()=>{
-      const value = props.appState.openSettings
-        props.setAppState(pri => {
-          return {
-            ...pri,
-            openSettings: !value
-          }
-        })
-    }}
-            id="close-btn">X</button>
 
-ddddd
-    <h3 id="modalTitle"></h3>
-ffcvvv
-    <div id="rc-content-box">ddd</div>
-  </div>
-</div>
-  
-)
+  const handleGridChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setAppState(pri => {
+      return {
+        ...pri,
+        grid: e.target.checked
+      };
+    });
+  };
+  return (
+    <div className={
+      "modal-overlay " +
+      (appState.openSettings ? "show" : "")
+    } id="modalOverlay"
+      onClick={handleClose}
+    >
+      <div className={
+        "modal " +
+        (appState.openSettings ? "show" : "")
+      }
+        onClick={(e) => { e.stopPropagation() }}
+
+        id="modal">
+        <button className="close-btn"
+          onClick={handleClose}
+          id="close-btn">X</button>
+
+        <div>
+          <h3 id="modalTitle">Settings</h3>
+          <Toggle label="Grid" id="toggle-grid"  checked={appState.grid} className="toggle-grid" onChange={handleGridChange} />
+          <Themes />
+        </div>
+      </div>
+    </div>
+  );
 }

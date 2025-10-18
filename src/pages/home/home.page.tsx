@@ -6,23 +6,23 @@ export default function Index() {
   const cards = [
     {
       id: 1,
-      name: 'Card 1',
+      name: 'Prink 1',
       description: 'Description 1',
     },
     {
       id: 2,
-      name: 'Card 2',
+      name: 'Prink 2',
       description: 'Description 2',
     },
     {
       id: 3,
-      name: 'Card 3',
+      name: 'Prink 3',
       description: 'Description 3',
     },
   ]
   return (
     <div id="home-page">
-      <h1>Apricity</h1>
+      <h1>Prink</h1>
 
       <div className="cards-container">
         {cards.map((card) => {

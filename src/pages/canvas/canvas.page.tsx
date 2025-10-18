@@ -23,12 +23,12 @@ export default function CanvasPage() {
   });
   const [appState, setAppState] = useState<AppState>({ 
     grid: true,
-    openSettings: true,
+    openSettings: false,
+    selectedTheme: null,
     pen: {
-      type: "airbrush",
+      type: "pencil",
       color: "#000000",
       size: 80,
-      stabilizer: 0.9,
     }
   });
 

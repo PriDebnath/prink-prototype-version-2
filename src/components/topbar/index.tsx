@@ -51,6 +51,16 @@ export const Topbar = ({
     ],
   ];
 
+  const className = (name: ButtonKeys) => {
+    if (name === "grid") {
+      return appState.grid ? "active" : "";
+    }
+    if (name === "settings") {
+      return appState.openSettings ? "active" : "";
+    }
+    return "";
+  }
+
   return (
     <footer className="topbar-wrapper">
       <div className="topbar" role="toolbar" aria-label="Tools">
@@ -61,8 +71,8 @@ export const Topbar = ({
               <Btn
                 key={name}
                 onClick={handler}
-                className={appState.grid ? "active" : ""}
-                datatooltip={"Grid: " + (appState.grid ? "on" : "off")}
+                className={className(name)}
+                datatooltip={name}
               />
             </div>
           );

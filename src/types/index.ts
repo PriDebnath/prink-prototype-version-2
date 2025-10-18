@@ -42,6 +42,23 @@ export interface CanvasState {
 
 export interface AppState{
   grid: boolean;
+  openSettings: boolean;
   //
   pen: Pen
+  selectedTheme: ThemeName | null;
+}
+export type ThemeName = "Apricity" | "Inkflow" | "Coral Splash" | "Graphite" | "Aurora Prink" | "Sunset Paper";
+
+
+export interface Theme {
+  id: string;
+  name: ThemeName;
+  desc: string;
+  colors: {
+    bgs: string[];
+    surface: string;
+    text: string;
+    accent: string;
+    muted: string;
+  }
 }
