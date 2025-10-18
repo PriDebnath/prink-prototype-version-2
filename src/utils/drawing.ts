@@ -74,25 +74,6 @@ export const stopDrawingLoop = () => {
 
 // ----------------- helpers -----------------
 
-const drawLasso2 = (ctx: CanvasRenderingContext2D, state: CanvasState, canvas: HTMLCanvasElement) => {
-  
-  ctx.save();
-  // full-canvas stroke coordinates are in device pixels — caller should have scaled context already
-  ctx.beginPath();
-  ctx.strokeStyle = "#2563EB";
-  ctx.lineWidth = 2;
- // console .log({l: state.lasso})
-  
-  ctx.setLineDash([5, 5]);
-  state.lasso?.forEach((pt, i) => {
-    if (i === 0) ctx.moveTo(pt.x, pt.y);
-    else ctx.lineTo(pt.x, pt.y);
-  });
-  
-  ctx.stroke();
-  ctx.setLineDash([]); // reset
-
-}
 
 export function drawLasso(ctx: CanvasRenderingContext2D, state: CanvasState) {
   if (!state.lasso || state.lasso.length < 2) return;
@@ -114,7 +95,7 @@ export function drawLasso(ctx: CanvasRenderingContext2D, state: CanvasState) {
 
 
 const drawGrid = (ctx: CanvasRenderingContext2D, state: CanvasState, canvas: HTMLCanvasElement) => {
-  const gridSize = 50;
+  const gridSize = 50 * state. scale;
   const offsetX = state.offset.x % gridSize;
   const offsetY = state.offset.y % gridSize;
 
@@ -142,45 +123,72 @@ const applyTransform = (ctx: CanvasRenderingContext2D, state: CanvasState) => {
   ctx.scale(state.scale, state.scale);
 };
 
+
 const drawPaths = (ctx: CanvasRenderingContext2D, state: CanvasState, appState: AppState) => {
   ctx.lineCap = "round";
   ctx.lineJoin = "round";
 
   for (const path of state.paths) {
-    if (path.points.length < 2) continue;
+    const pts = path.points;
+    if (pts.length < 2) continue;
 
-    // Precompute the stroke path
-    ctx.beginPath();
-    ctx.moveTo(path.points[0].x, path.points[0].y);
-    for (let i = 1; i < path.points.length - 1; i++) {
-      const point = path.points[i];
-      const next = path.points[i + 1];
-      const midX = (point.x + next.x) / 2;
-      const midY = (point.y + next.y) / 2;
-      ctx.quadraticCurveTo(point.x, point.y, midX, midY);
-    }
-
-    const baseWidth = path.pen.size / state.scale;
+    // ✅ Pen size stays as originally chosen
+    const baseWidth = path.pen.size;
     let penColor = path.pen.color;
     if (path.pen.type === "highlighter") {
       penColor = getDarkenColor(penColor);
     }
 
-    // 🟦 1. Draw selection highlight BEHIND
+    // 🟦 Draw selection highlight behind stroke
     const isSelected = state.selectedIds?.includes(path.id);
     if (isSelected) {
-      // Drawing a bigger shape behind main shape
       ctx.save();
-      ctx.lineWidth = baseWidth + 6;              // thicker outline
-     //ctx.strokeStyle = "#2563EB";                // blue outline
-      //ctx.globalAlpha = 0.6;                      // slightly transparent
+      ctx.beginPath();
+      buildSmoothPath(ctx, pts);
+      ctx.lineWidth = baseWidth + 6;
+      ctx.strokeStyle = "#2563EB";
+      ctx.globalAlpha = 0.4;
       ctx.stroke();
       ctx.restore();
     }
 
-    // 📝 2. Draw actual stroke ON TOP
+    // 📝 Actual stroke
+    ctx.save();
+    ctx.beginPath();
+    buildSmoothPath(ctx, pts);
+
+    // Optional: subtle taper using gradient (feels more organic)
+    const gradient = ctx.createLinearGradient(
+      pts[0].x, pts[0].y,
+      pts[pts.length - 1].x, pts[pts.length - 1].y
+    );
+    gradient.addColorStop(0, `${penColor}`);
+    gradient.addColorStop(0.1, penColor);
+    gradient.addColorStop(0.9, penColor);
+    gradient.addColorStop(1, `${penColor}`);
+
+    ctx.strokeStyle = gradient;
     ctx.lineWidth = baseWidth;
-    ctx.strokeStyle = penColor;
+    ctx.globalAlpha = 0.9;
     ctx.stroke();
+    ctx.restore();
   }
 };
+
+// ✨ Catmull–Rom to Bezier smoothing
+function buildSmoothPath(ctx: CanvasRenderingContext2D, pts: { x: number; y: number }[]) {
+  ctx.moveTo(pts[0].x, pts[0].y);
+  for (let i = 0; i < pts.length - 1; i++) {
+    const p0 = i > 0 ? pts[i - 1] : pts[i];
+    const p1 = pts[i];
+    const p2 = pts[i + 1];
+    const p3 = i !== pts.length - 2 ? pts[i + 2] : p2;
+
+    const cp1x = p1.x + (p2.x - p0.x) / 6;
+    const cp1y = p1.y + (p2.y - p0.y) / 6;
+    const cp2x = p2.x - (p3.x - p1.x) / 6;
+    const cp2y = p2.y - (p3.y - p1.y) / 6;
+
+    ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, p2.x, p2.y);
+  }
+}

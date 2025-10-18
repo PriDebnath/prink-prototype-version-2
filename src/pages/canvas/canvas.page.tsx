@@ -6,6 +6,8 @@ import { draw, startDrawingLoop, stopDrawingLoop } from "../../utils/drawing";
 import { Topbar } from "../../components/topbar";
 import { Sidebar } from "../../components/sidebar";
 import { Toolbar } from "../../components/toolbar";
+import SettingsDialog from "./settings.dialog"
+
 
 export default function CanvasPage() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -21,10 +23,12 @@ export default function CanvasPage() {
   });
   const [appState, setAppState] = useState<AppState>({ 
     grid: true,
+    openSettings: true,
     pen: {
-      type: "highlighter",
+      type: "airbrush",
       color: "#000000",
       size: 80,
+      stabilizer: 0.9,
     }
   });
 
@@ -155,6 +159,12 @@ export default function CanvasPage() {
         appState={appState}
         setAppState={setAppState}
     />
+    { appState.openSettings && <SettingsDialog 
+    appState={appState}
+    setAppState={setAppState}
+    
+    /> }
+    
     </main>
   );
 }
