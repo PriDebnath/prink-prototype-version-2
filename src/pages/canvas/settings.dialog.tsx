@@ -48,7 +48,7 @@ export default function SettingsDialog({ appState, setAppState }: SettingsDialog
           id="close-btn">X</button>
 
         <div>
-          <h3 id="modalTitle">Settings</h3>
+          <h1 id="modalTitle">Settings</h1>
           <Toggle label="Grid" id="toggle-grid"  checked={appState.grid} className="toggle-grid" onChange={handleGridChange} />
           <Themes />
         </div>

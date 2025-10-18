@@ -94,7 +94,7 @@ export default function Themes() {
             <h1>Themes</h1>
             <div style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))',
                 gap: '1rem'
             }}>
                 {themes.map((theme) => {
@@ -115,22 +115,11 @@ export default function Themes() {
                             <div >
                                 <div>
                                     <div >{theme.name}</div>
-                                    <div style={{ fontSize: '12px', color: 'var(--muted)' }}>
+                                    <div style={{ fontSize: '12px', 
+                                        color: theme.colors.accent }}>
                                         {theme.desc}
                                     </div>
                                 </div>
-                                <button
-                                    style={{
-                                        color: theme.colors.accent,
-                                        backgroundColor: theme.colors.surface,
-                                        border: `1px solid ${theme.colors.accent}`,
-                                        borderRadius: '0.5rem',
-                                        padding: '0.5rem 0 0.5rem 0 0.5rem',
-                                        margin: '0.5rem 0 0 0',
-                                    }}
-                                >
-                                    Apply
-                                </button>
                             </div>
                         </div>
                     )
