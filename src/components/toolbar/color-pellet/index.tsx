@@ -23,6 +23,7 @@ export const ColorPellet = ({ canvasState, appState, setAppState }: ColorPelletP
               }}
             >
               <div style={{ width: "100%", }}>
+                <label>Size </label>
                 <input
                   value={appState.pen.size}
                   style={{ display: "flex", width: "100%", paddingTop: "0px", marginTop: "0px" }} type="range"
@@ -42,17 +43,42 @@ export const ColorPellet = ({ canvasState, appState, setAppState }: ColorPelletP
                   }
                 />
               </div>
+              
+
+              <div style={{ width: "100%", }}>
+                <label>Opacity </label>
+                <input
+                  value={appState.pen.opacity}
+                  max={1}
+                  min={0}
+                  style={{ display: "flex", width: "100%", paddingTop: "0px", marginTop: "0px" }} type="range"
+                  onChange={(e) => {
+                    console.log(e.target.value)
+                    const penOpacity = e.target.value
+
+                    setAppState((pritam) => ({
+                      ...pritam,
+                      pen: {
+                        ...pritam.pen,
+                        opacity: parseInt(penOpacity)
+                      },
+                    }));
+                  }
+
+                  }
+                />
+              </div>
+              
+              
+              
 
               <div style={{
                 display: "flex",
-
                 gap: canvasState.device == "mobile" ? "0.25rem" : "0.5rem",
-
               }}>
                 <label className="color-pick tooltip "
                   data-tooltip="Pen color"
                   data-tooltip-pos="top"
-
                 >
                   <input type="color"
                     id="pen-color-picker"
@@ -80,7 +106,6 @@ export const ColorPellet = ({ canvasState, appState, setAppState }: ColorPelletP
                         width: "1rem",
                       }
                       )
-
                     }}
                     className="active" />
                 </label>
