@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { PanTool, PenTool, SelectTool } from "../../tools";
+import { PanTool, PenTool, SelectTool, EraserTool } from "../../tools";
 import type { Tool, AppState, CanvasState } from "../../types";
 import { Button, type ButtonKeys } from "../button";
 import { Icons } from "../icon";
@@ -64,6 +64,17 @@ export const Toolbar = ({
       },
     ],
     [
+      "eraser",
+      () => {
+        if (activeTool.name == "eraser") {
+          setActiveTool(new PenTool())
+        } else {
+          setActiveTool(new EraserTool())
+        }
+        setAppState((pri) => ({ ...pri }));// side effect to re-render stuff
+    },
+    ],
+    [
       "lasso",
       () => {
         if (activeTool.name == "lasso") {
@@ -107,8 +118,19 @@ export const Toolbar = ({
           {renderButtons(mainTools)}
 
           {/* ✏️ Shown only when active tool is PenTool */}
-          {(activeTool.name === "pen" || activeTool.name === "lasso") && (renderButtons(penTools))}
-          {(activeTool.name === "pen" || activeTool.name === "lasso") && (
+          {(
+            activeTool.name === "pen" 
+            || activeTool.name === "lasso"
+            || activeTool.name === "eraser"
+            ) && (renderButtons(penTools))
+            
+          }
+          {
+          (
+          activeTool.name === "pen"
+          || activeTool.name === "lasso"
+          || activeTool.name === "eraser"
+          ) && (
             <span className="circle color-ball"
               id="pen-color-picker-circleg"
               style={{

@@ -418,3 +418,98 @@ export class SelectTool extends BaseTool {
     return Math.sqrt(dxp * dxp + dyp * dyp);
   }
 }
+
+export class EraserTool extends BaseTool {
+  name: string = 'eraser';
+  startPoint: Point | null = null;
+
+  onPointerDown(e: PointerEvent, canvasState: CanvasState, appState: AppState) {
+    if (e.button !== 0) return;
+
+    console.log("onPointerDown   eraser", canvasState);
+    const world = this.toWorld(e, canvasState);
+      canvasState.lasso = [];
+      canvasState.lasso.push(world);
+  }
+  
+  
+  onPointerMove(e: PointerEvent, canvasState: CanvasState, appState: AppState) {
+    console.log("onPointermove   eraser", canvasState);
+
+    const world = this.toWorld(e, canvasState);
+    canvasState.lasso?.push(world);
+    
+  }
+  
+  
+  onPointerUp(e: PointerEvent, canvasState: CanvasState) {
+  const lasso = canvasState.lasso;
+  if (lasso.length < 2) {
+    canvasState.lasso = [];
+    return;
+  }
+
+  const threshold = 5; // 👈 how close the lasso must be to a point to erase it
+
+  function distPointToSegment(px, py, x1, y1, x2, y2) {
+    const A = px - x1;
+    const B = py - y1;
+    const C = x2 - x1;
+    const D = y2 - y1;
+
+    const dot = A * C + B * D;
+    const lenSq = C * C + D * D;
+    let t = -1;
+    if (lenSq !== 0) t = dot / lenSq;
+
+    let nearestX, nearestY;
+    if (t < 0) {
+      nearestX = x1;
+      nearestY = y1;
+    } else if (t > 1) {
+      nearestX = x2;
+      nearestY = y2;
+    } else {
+      nearestX = x1 + t * C;
+      nearestY = y1 + t * D;
+    }
+
+    const dx = px - nearestX;
+    const dy = py - nearestY;
+    return Math.sqrt(dx * dx + dy * dy);
+  }
+
+  // Check if a stroke point is close to any lasso segment
+  function isPointNearLasso(px, py) {
+    for (let i = 0; i < lasso.length - 1; i++) {
+      const l1 = lasso[i];
+      const l2 = lasso[i + 1];
+      if (distPointToSegment(px, py, l1.x, l1.y, l2.x, l2.y) < threshold) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  // ✅ For each stroke, remove only touched points
+  canvasState.paths = canvasState.paths
+    .map((pen) => {
+      const remainingPoints = pen.points.filter(
+        (pt) => !isPointNearLasso(pt.x, pt.y)
+      );
+
+      // If no points remain, drop the whole stroke
+      if (remainingPoints.length === 0) return null;
+
+      return {
+        ...pen,
+        points: remainingPoints,
+      };
+    })
+    .filter(Boolean); // remove null strokes
+
+  // Clear lasso after erasing
+  canvasState.lasso = [];
+}
+
+}

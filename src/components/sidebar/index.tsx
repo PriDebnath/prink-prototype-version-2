@@ -20,7 +20,7 @@ export const Sidebar = ({
       },
       {
         name: "pen",
-        subToolNames: ["lasso"],
+        subToolNames: ["lasso", "eraser"],
         tool: new PenTool()
       }
     ];
