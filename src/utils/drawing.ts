@@ -32,13 +32,14 @@ export const draw = (g: Getters) => {
   applyTransform(ctx, state);
   
  // Drsaw lassi
-  if(state?.lasso && state.lasso?.length)  {
+  if( activeTool.name == "lasso" && state?.lasso && state.lasso?.length)  {
+    console.log("drawing lasso")
     drawLasso(ctx, state);
   }
   
   // Draw paths & overlay
   if(state?.paths && state.paths?.length)  {
-    drawPaths(ctx, state, appState);
+    drawPaths(ctx, state, appState, activeTool);
   }
   
   if (activeTool.renderOverlay) {
@@ -76,7 +77,7 @@ export const stopDrawingLoop = () => {
 
 
 export function drawLasso(ctx: CanvasRenderingContext2D, state: CanvasState) {
-  if (!state.lasso || state.lasso.length < 2) return;
+  if (  (!state.lasso || state.lasso.length < 2)) return;
   
   ctx.save();
   ctx.beginPath();
@@ -124,7 +125,7 @@ const applyTransform = (ctx: CanvasRenderingContext2D, state: CanvasState) => {
 };
 
 
-const drawPaths = (ctx: CanvasRenderingContext2D, state: CanvasState, appState: AppState) => {
+const drawPaths = (ctx: CanvasRenderingContext2D, state: CanvasState, appState: AppState, activeTool) => {
   ctx.lineCap = "round";
   ctx.lineJoin = "round";
 
@@ -136,7 +137,7 @@ const drawPaths = (ctx: CanvasRenderingContext2D, state: CanvasState, appState: 
     
     // 🟦 Draw selection highlight behind stroke
     const isSelected = state.selectedIds?.includes(path.id);
-    if (isSelected) {
+    if (activeTool.name=="lasso" && isSelected ) {
       buildSelectedPath(ctx, pts, baseWidth, path.pen)
     }
 

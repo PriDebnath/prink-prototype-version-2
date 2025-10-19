@@ -26,7 +26,9 @@ export const ColorPellet = ({ canvasState, appState, setAppState }: ColorPelletP
                 <label>Size </label>
                 <input
                   value={appState.pen.size}
-                  style={{ display: "flex", width: "100%", paddingTop: "0px", marginTop: "0px" }} type="range"
+                  style={{ display: "flex", width: "100%", paddingTop: "0px", marginTop: "0px" }} 
+                  type="range"
+                  step="2"
                   onChange={(e) => {
                     console.log(e.target.value)
                     const penSize = e.target.value
@@ -49,9 +51,11 @@ export const ColorPellet = ({ canvasState, appState, setAppState }: ColorPelletP
                 <label>Opacity </label>
                 <input
                   value={appState.pen.opacity}
-                  max={1}
-                  min={0}
-                  style={{ display: "flex", width: "100%", paddingTop: "0px", marginTop: "0px" }} type="range"
+                  max="1"
+                  min="0"
+                  step="0.1"
+                  type="range"
+                  style={{ display: "flex", width: "100%", paddingTop: "0px", marginTop: "0px" }}
                   onChange={(e) => {
                     console.log(e.target.value)
                     const penOpacity = e.target.value
@@ -60,7 +64,7 @@ export const ColorPellet = ({ canvasState, appState, setAppState }: ColorPelletP
                       ...pritam,
                       pen: {
                         ...pritam.pen,
-                        opacity: parseInt(penOpacity)
+                        opacity: parseFloat(penOpacity)
                       },
                     }));
                   }

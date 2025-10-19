@@ -71,6 +71,7 @@ export const Toolbar = ({
         } else {
           setActiveTool(new SelectTool())
         }
+        setAppState((pri) => ({ ...pri }));// side effect to re-render stuff
       },
     ],
 
