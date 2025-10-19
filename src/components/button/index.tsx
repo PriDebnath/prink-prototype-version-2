@@ -154,6 +154,19 @@ export const Button = {
             </button>
         )
     }
+   ,
+   eraser: (props: ButtonProps) => {
+        return (
+            <button id="tool-highlighter"
+                {...props}
+                className={`tool-btn tooltip ${props.className}`}
+                data-tooltip={props.datatooltip || "Eraser"}
+                data-tooltip-pos={props.dataTooltipPos || "top"}
+            >
+                <Icons.eraser />
+            </button>
+        )
+    }
 }
 
 

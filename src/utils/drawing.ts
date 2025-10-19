@@ -32,9 +32,9 @@ export const draw = (g: Getters) => {
   applyTransform(ctx, state);
   
  // Drsaw lassi
-  if( activeTool.name == "lasso" && state?.lasso && state.lasso?.length)  {
+  if( (activeTool.name == "lasso" || activeTool.name == "eraser" ) && state?.lasso && state.lasso?.length)  {
     console.log("drawing lasso")
-    drawLasso(ctx, state);
+    drawLasso(ctx, state, activeTool);
   }
   
   // Draw paths & overlay
@@ -76,7 +76,7 @@ export const stopDrawingLoop = () => {
 // ----------------- helpers -----------------
 
 
-export function drawLasso(ctx: CanvasRenderingContext2D, state: CanvasState) {
+export function drawLasso(ctx: CanvasRenderingContext2D, state: CanvasState, activeTool) {
   if (  (!state.lasso || state.lasso.length < 2)) return;
   
   ctx.save();
@@ -86,7 +86,14 @@ export function drawLasso(ctx: CanvasRenderingContext2D, state: CanvasState) {
     ctx.lineTo(state.lasso[i].x, state.lasso[i].y);
   }
   ctx.setLineDash([5, 5]);
-  ctx.strokeStyle = '#2563EB';
+  let strokeStyle = "#2563EB"
+  if(activeTool.name == "lasso"){
+    strokeStyle = "#2563EB"
+  }else if (activeTool.name == "eraser"){
+    strokeStyle = "red"
+  }
+  
+  ctx.strokeStyle = strokeStyle;
   ctx.lineWidth = 2
   ctx.stroke();
   ctx.setLineDash([]);
@@ -204,7 +211,7 @@ function sliceSkip(arr, skip = 1) {
       const minDistance = 10; // 👈 adjustable distance threshold (in px)
       let lastDrawn = null;
       const slicedPts = sliceSkip(pts, 1)
-      for (const pt of slicedPts) {
+      for (const pt of pts) {
         // Skip if the point is too close to the previous drawn point
        if (lastDrawn) {
          const dx = pt.x - lastDrawn.x;
