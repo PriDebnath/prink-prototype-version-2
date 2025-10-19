@@ -170,7 +170,7 @@ export  class PenTool extends BaseTool {
   onPointerDown(e: PointerEvent, canvasState: CanvasState, appState: AppState) {
     if (e.button !== 0) return;
     this.drawing = true;
-    this.lastTime = performance.now();
+    //this.lastTime = performance.now();
     
     const world = this.toWorld(e, canvasState);
     
@@ -189,8 +189,8 @@ export  class PenTool extends BaseTool {
   onPointerMove(e: PointerEvent, canvasState: CanvasState, appState: AppState) {
     if (!this.drawing || !canvasState.currentPath) return;
     const world = this.toWorld(e, canvasState);
-    const currentTime = performance.now();
-    
+   // const currentTime = performance.now();
+    /*
     // For airbrush, add points based on time interval for continuous spray
     if (appState.pen.type === "airbrush") {
       if (currentTime - this.lastTime >= this.sprayInterval) {
@@ -198,9 +198,10 @@ export  class PenTool extends BaseTool {
         this.lastTime = currentTime;
       }
     } else {
+      */
       // For regular pen tools, add every point
       canvasState.currentPath.points.push(world);
-    }
+    //}
   }
   
   onPointerUp(e: PointerEvent, canvasState: CanvasState) {
@@ -212,6 +213,7 @@ export  class PenTool extends BaseTool {
     if (!this.drawing || !canvasState.currentPath) return;
     
     // Only render overlay for airbrush
+    return
     if (canvasState.currentPath.pen.type !== "airbrush") return;
     
     const lastPoint = canvasState.currentPath.points[canvasState.currentPath.points.length - 1];
