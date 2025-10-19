@@ -1,12 +1,12 @@
 // App.tsx
-import React, { useEffect, useRef, useState } from "react";
-import type { Tool, CanvasState, AppState } from "../../types";
 import { PenTool } from "../../tools";
-import { draw, startDrawingLoop, stopDrawingLoop } from "../../utils/drawing";
+import SettingsDialog from "./settings.dialog"
 import { Topbar } from "../../components/topbar";
 import { Sidebar } from "../../components/sidebar";
 import { Toolbar } from "../../components/toolbar";
-import SettingsDialog from "./settings.dialog"
+import React, { useEffect, useRef, useState } from "react";
+import type { Tool, CanvasState, AppState } from "../../types";
+import { draw, startDrawingLoop, stopDrawingLoop } from "../../utils/drawing";
 
 
 export default function CanvasPage() {

@@ -142,9 +142,9 @@ export const Button = {
         )
     }
     ,
-   colorPicker: (props: ButtonProps) => {
+    colorPicker: (props: ButtonProps) => {
         return (
-            <button id="tool-highlighter"
+            <button id="tool-color-picker"
                 {...props}
                 className={`tool-btn tooltip ${props.className}`}
                 data-tooltip={props.datatooltip || "Color Picker"}
@@ -154,10 +154,10 @@ export const Button = {
             </button>
         )
     }
-   ,
-   eraser: (props: ButtonProps) => {
+    ,
+    eraser: (props: ButtonProps) => {
         return (
-            <button id="tool-highlighter"
+            <button id="tool-eraser"
                 {...props}
                 className={`tool-btn tooltip ${props.className}`}
                 data-tooltip={props.datatooltip || "Eraser"}

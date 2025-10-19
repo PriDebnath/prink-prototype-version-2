@@ -1,6 +1,6 @@
+import type { AppState } from "../../types"
 import Themes from "../../components/themes";
 import { Toggle } from "../../components/toggle";
-import type { AppState } from "../../types"
 
 interface SettingsDialogProps {
   appState: AppState;

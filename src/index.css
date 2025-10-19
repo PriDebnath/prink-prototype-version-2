@@ -1,5 +1,4 @@
 :root {
-  --bgstart: ivory;
   --bgend: #fff;
   --accent: #2563eb;
   --space: 0.4rem;
@@ -22,13 +21,8 @@
   --sidebar-space: 0.4rem;
   --sidebar-font-size: 0.8rem;
   --sidebar-final-delay: 0.6s;
-
-  /* --sunlight: #ffe9b3;
---transition: #d6ebf8;
---winter: #e8f2fa;
-
-  --sunlight: #fff4dd;
-   */
+  
+  
   /* softer sunlight */
   --sunlight: #fff4dd;
   --transition: #e1f0f8;
@@ -446,75 +440,8 @@ animation: bubblePopPellet  calc(var(--chip-final-delay)*0.25) ease forwards;
   display: flex;
   align-items: center;
 }
-
-.chip,
-.header-chip {
-  opacity: 0;
-  font-size: 0;
-  /* start tiny */
-  padding: 0;
-  /* start tiny */
-  border-radius: var(--toolbar-border-radius);
-  background: var(--chip-bg);
-  cursor: pointer;
-  border: 1px solid var(--chip-border);
-  color: black;
-  color: grey;
-  display: flex !important;
-  aspect-ratio: 1;
-  animation: popIn-chip 0.4s var(--chip-final-delay) ease-in-out forwards;
-
-  /*
-    animation: popIn-chip 0.5s var(--chip-final-delay) cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards;
-    */
-}
-
-.header-chip {
-  animation: popIn-chip 0.4s ease-in-out forwards;
-
-}
-
-/* Staggered chips (5) */
-.chip:nth-child(1) {
-  animation-delay: var(--chip-final-delay);
-}
-
-.chip:nth-child(2) {
-  animation-delay: calc(var(--chip-final-delay) * 1/2)
-}
-
-.chip:nth-child(3) {
-  animation-delay: calc(var(--chip-final-delay) * 1/2)
-}
-
-.chip:nth-child(4) {
-  animation-delay: var(--chip-final-delay);
-}
-
-
-.chip:active {
-  transform: scale(0.9);
-  box-shadow: 0 0 var(--toolbar-space) rgba(0, 0, 0, 0.2);
-  color: var(--chip-text)
-}
-
-.chip.toggle-on,
-.header-chip.toggle-on {
-  background: var(--chip-bg-active);
-  border: 1px solid var(--chip-text);
-  color: var(--chip-text)
-}
-
-
-@keyframes popIn-chip {
-  to {
-    opacity: 1;
-    /* font-size: var(--toolbar-font-size); */
-    padding: var(--toolbar-space);
-    margin: 0;
-  }
-}
-
+  
+ 
 /* toolbar css end */
 
 /* tooltip css start */

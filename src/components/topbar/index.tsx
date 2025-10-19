@@ -1,6 +1,6 @@
 import { PanTool, PenTool } from "../../tools";
-import type { Tool, CanvasState, AppState } from "../../types";
 import { Button, type ButtonKeys } from "../button";
+import type { Tool, CanvasState, AppState } from "../../types";
 
 export const Topbar = ({
   activeTool,
