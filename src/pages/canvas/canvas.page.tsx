@@ -7,9 +7,12 @@ import { Toolbar } from "../../components/toolbar";
 import React, { useEffect, useRef, useState } from "react";
 import type { Tool, CanvasState, AppState } from "../../types";
 import { draw, startDrawingLoop, stopDrawingLoop } from "../../utils/drawing";
+import { useParams } from "@tanstack/react-router";
+import { CANVAS_PRESETS } from "./presets";
 
 
 export default function CanvasPage() {
+  const { canvasId } = useParams({ from: "/canvas/$canvasId" });
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [activeTool, setActiveTool] = useState<Tool>(new PenTool());
   const canvasStateRef = useRef<CanvasState>({
@@ -78,6 +81,28 @@ export default function CanvasPage() {
       window.removeEventListener("resize", resize);
     };
   }, []); // run once
+
+  // Load preset by canvasId when route changes
+  useEffect(() => {
+    if (!canvasId) return;
+    const preset = CANVAS_PRESETS[canvasId];
+    if (preset) {
+      canvasStateRef.current = {
+        ...canvasStateRef.current,
+        ...preset,
+        device: canvasStateRef.current.device,
+      } as CanvasState;
+      const c = canvasRef.current;
+      if (c) {
+        draw({
+          canvas: c,
+          getState: () => canvasStateRef.current,
+          getActiveTool: () => activeTool,
+          getAppState: () => appState,
+        });
+      }
+    }
+  }, [canvasId]);
 
   // Redraw one frame when appState (grid toggle, UI changes)
   useEffect(() => {

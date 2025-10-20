@@ -45,6 +45,7 @@ html,
 body {
   height: 100%;
   margin: 0;
+  padding: 0;
   font-family: Inter, system-ui, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   overflow: hidden;
@@ -58,6 +59,11 @@ main {
   touch-action: none;
 }
 
+#home-page {
+  height: 100vh;
+  background: linear-gradient(120deg, var(--theme-start) 0%, var(--theme-mid) 50%, var(--theme-end) 100%);
+}
+
 canvas {
   height: 100%;
   width: 100%;
@@ -68,13 +74,7 @@ canvas {
   overflow: hidden;
 }
 
-#home-page {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space);
-  padding: var(--space);
-  background: inherit;
-}
+
 
 .cards-container {
   display: flex;
