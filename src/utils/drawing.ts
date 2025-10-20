@@ -188,7 +188,7 @@ function buildSmoothPath(ctx: CanvasRenderingContext2D,
     ctx.strokeStyle = pen.color;
     
     ctx.lineWidth = pen.size;
-    ctx.globalAlpha = 1;
+    ctx.globalAlpha = pen.opacity ?? 1;
     ctx.stroke();
     ctx.restore();
 }

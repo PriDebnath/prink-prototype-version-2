@@ -32,7 +32,7 @@ export default function CanvasPage() {
       type: "pencil",
       color: "#000000",
       size: 16,
-      opacity: 0.3,
+      opacity: 0.9,
     }
   });
 
