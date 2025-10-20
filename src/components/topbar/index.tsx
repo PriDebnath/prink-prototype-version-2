@@ -1,6 +1,7 @@
 import { PanTool, PenTool } from "../../tools";
 import { Button, type ButtonKeys } from "../button";
 import type { Tool, CanvasState, AppState } from "../../types";
+import { useNavigate } from "@tanstack/react-router";
 
 export const Topbar = ({
   activeTool,
@@ -16,19 +17,27 @@ export const Topbar = ({
   setAppState: React.Dispatch<React.SetStateAction<AppState>>
 }) => {
 
+  const navigate = useNavigate()
+
   const tools: [ButtonKeys, () => void][] = [
     [
-      "grid",
+      "home",
       () => {
-        const value = appState.grid
-        setAppState(pri => {
-          return {
-            ...pri,
-            grid: !value
-          }
-        })
+        navigate({ to: "/" })
       }
     ],
+    // [
+    //   "grid",
+    //   () => {
+    //     const value = appState.grid
+    //     setAppState(pri => {
+    //       return {
+    //         ...pri,
+    //         grid: !value
+    //       }
+    //     })
+    //   }
+    // ],
     [
       "clean",
       () => {
@@ -40,7 +49,7 @@ export const Topbar = ({
       "settings",
       () => {
         console.log("settings");
-                const value = appState.openSettings
+        const value = appState.openSettings
         setAppState(pri => {
           return {
             ...pri,

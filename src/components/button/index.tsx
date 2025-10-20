@@ -10,7 +10,20 @@ export type ButtonKeys = keyof typeof Button;
 
 export const Button = {
     // Topbar
-    grid: (props: ButtonProps) => {
+    home: (props: ButtonProps) => {
+        return (
+            <button id="tool-grid"
+                {...props}
+                data-tooltip={props.datatooltip || "Home"}
+                data-tooltip-pos={props.dataTooltipPos || "bottom"}
+                className={`tool-btn tooltip ${props.className}`}
+            >
+                <Icons.home />
+            </button>
+        )
+    } 
+    ,
+       grid: (props: ButtonProps) => {
         return (
             <button id="tool-grid"
                 {...props}
