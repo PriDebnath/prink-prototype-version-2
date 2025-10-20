@@ -205,6 +205,8 @@ export  class PenTool extends BaseTool {
   }
   
   onPointerUp(e: PointerEvent, canvasState: CanvasState) {
+console.log({p: canvasState.paths})
+
     this.drawing = false;
     canvasState.currentPath = null;
   }
@@ -214,33 +216,33 @@ export  class PenTool extends BaseTool {
     
     // Only render overlay for airbrush
     return
-    if (canvasState.currentPath.pen.type !== "airbrush") return;
+  //   if (canvasState.currentPath.pen.type !== "airbrush") return;
     
-    const lastPoint = canvasState.currentPath.points[canvasState.currentPath.points.length - 1];
-    if (!lastPoint) return;
+  //   const lastPoint = canvasState.currentPath.points[canvasState.currentPath.points.length - 1];
+  //   if (!lastPoint) return;
     
-    ctx.save();
+  //   ctx.save();
     
-    // Create radial gradient for soft airbrush effect
-    const gradient = ctx.createRadialGradient(
-      lastPoint.x, lastPoint.y, 0,
-      lastPoint.x, lastPoint.y, canvasState.currentPath.pen.size / 2
-    );
+  //   // Create radial gradient for soft airbrush effect
+  //   const gradient = ctx.createRadialGradient(
+  //     lastPoint.x, lastPoint.y, 0,
+  //     lastPoint.x, lastPoint.y, canvasState.currentPath.pen.size / 2
+  //   );
     
-    const opacity = canvasState.currentPath.pen.opacity || 0.3;
-    const centerOpacity = Math.floor(opacity * 255).toString(16).padStart(2, '0');
-    const edgeOpacity = Math.floor(opacity * 0.3 * 255).toString(16).padStart(2, '0');
+  //   const opacity = canvasState.currentPath.pen.opacity || 0.3;
+  //   const centerOpacity = Math.floor(opacity * 255).toString(16).padStart(2, '0');
+  //   const edgeOpacity = Math.floor(opacity * 0.3 * 255).toString(16).padStart(2, '0');
     
-    gradient.addColorStop(0, `${canvasState.currentPath.pen.color}${centerOpacity}`);
-    gradient.addColorStop(0.7, `${canvasState.currentPath.pen.color}${edgeOpacity}`);
-    gradient.addColorStop(1, `${canvasState.currentPath.pen.color}00`);
+  //   gradient.addColorStop(0, `${canvasState.currentPath.pen.color}${centerOpacity}`);
+  //   gradient.addColorStop(0.7, `${canvasState.currentPath.pen.color}${edgeOpacity}`);
+  //   gradient.addColorStop(1, `${canvasState.currentPath.pen.color}00`);
     
-    ctx.fillStyle = gradient;
-    ctx.beginPath();
-    ctx.arc(lastPoint.x, lastPoint.y, canvasState.currentPath.pen.size / 2, 0, Math.PI * 2);
-    ctx.fill();
+  //   ctx.fillStyle = gradient;
+  //   ctx.beginPath();
+  //   ctx.arc(lastPoint.x, lastPoint.y, canvasState.currentPath.pen.size / 2, 0, Math.PI * 2);
+  //   ctx.fill();
     
-    ctx.restore();
+  //   ctx.restore();
   }
 }
 
@@ -331,7 +333,6 @@ export class SelectTool extends BaseTool {
   onPointerUp(e: PointerEvent, canvasState: CanvasState) {
     e.preventDefault?.();
     e.stopPropagation?.();
-
     // release pointer capture
     try {
       (e.target as Element)?.releasePointerCapture?.(e.pointerId);

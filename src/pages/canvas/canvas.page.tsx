@@ -29,9 +29,9 @@ export default function CanvasPage() {
     openSettings: false,
     selectedTheme: null,
     pen: {
-      type: "airbrush",
+      type: "pencil",
       color: "#000000",
-      size: 80,
+      size: 16,
       opacity: 0.3,
     }
   });

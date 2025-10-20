@@ -135,6 +135,7 @@ export const Toolbar = ({
               id="pen-color-picker-circleg"
               style={{
                 background: appState.pen.color,
+                cursor: 'pointer',
                 outline: openColorPellet
                   ? `${(appState.pen.size ?? 10) / 10}px solid blue`
                   : "0px solid transparent",
