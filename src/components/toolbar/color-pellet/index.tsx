@@ -103,6 +103,8 @@ export const ColorPellet = ({ canvasState, appState, setAppState }: ColorPelletP
                 pointerEvents: "none",
                 display: "flex",
                 aspectRatio: "1",
+                animation: "none",
+                padding: `calc(var(--space) * 1)`,
                 ...(canvasState.device == "mobile" && {
                   animation: "none",
                   padding: "4px",

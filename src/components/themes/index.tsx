@@ -91,7 +91,7 @@ export default function Themes() {
 
     return (
         <div>
-            <h1>Themes</h1>
+            <h1 style={{textAlign: "left"}}>Themes</h1>
             <div style={{
                 display: 'grid',
                 gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))',
