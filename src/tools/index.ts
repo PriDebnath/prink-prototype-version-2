@@ -1,7 +1,7 @@
 // ---------- Tools ----------
 
 // ---------- Tools ----------
-import type { Tool, Point, CanvasState, AppState } from '../types';
+import type { Tool, Point, CanvasState, AppState, Freehand } from '../types';
 
 abstract class BaseTool implements Tool {
   name = "base";
@@ -445,14 +445,17 @@ export class EraserTool extends BaseTool {
   
   onPointerUp(e: PointerEvent, canvasState: CanvasState) {
   const lasso = canvasState.lasso;
-  if (lasso.length < 2) {
+  if (lasso && lasso.length < 2) {
     canvasState.lasso = [];
     return;
   }
 
   const threshold = 5; // 👈 how close the lasso must be to a point to erase it
 
-  function distPointToSegment(px, py, x1, y1, x2, y2) {
+  function distPointToSegment(
+    {px, py, x1, y1, x2, y2}: 
+    {px: number, py: number, x1: number, y1: number, x2: number, y2: number}
+  ) {
     const A = px - x1;
     const B = py - y1;
     const C = x2 - x1;
@@ -481,20 +484,21 @@ export class EraserTool extends BaseTool {
   }
 
   // Check if a stroke point is close to any lasso segment
-  function isPointNearLasso(px, py) {
-    for (let i = 0; i < lasso.length - 1; i++) {
-      const l1 = lasso[i];
-      const l2 = lasso[i + 1];
-      if (distPointToSegment(px, py, l1.x, l1.y, l2.x, l2.y) < threshold) {
-        return true;
+  function isPointNearLasso(px: number, py: number) {
+    for (let i = 0; i < (lasso?.length ?? 0) - 1; i++) {
+      const l1 = lasso?.[i];
+      const l2 = lasso?.[i + 1];
+      if (distPointToSegment({px, py, x1: l1?.x ?? 0, y1: l1?.y ?? 0, x2: l2?.x ?? 0, y2: l2?.y ?? 0}) < threshold) {
+        return true as boolean;
       }
     }
     return false;
   }
 
   // ✅ For each stroke, remove only touched points
-  canvasState.paths = canvasState.paths
-    .map((pen) => {
+  if (canvasState.paths) {
+  const updatedPaths = canvasState.paths
+    .map((pen: Freehand) => {
       const remainingPoints = pen.points.filter(
         (pt) => !isPointNearLasso(pt.x, pt.y)
       );
@@ -505,11 +509,14 @@ export class EraserTool extends BaseTool {
       return {
         ...pen,
         points: remainingPoints,
-      };
+      } as Freehand;
     })
-    .filter(Boolean); // remove null strokes
 
-  // Clear lasso after erasing
+    const filteredPaths = updatedPaths.filter(Boolean); // remove null strokes
+
+    canvasState.paths = filteredPaths as Freehand[];
+  }
+    // Clear lasso after erasing
   canvasState.lasso = [];
 }
 

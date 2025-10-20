@@ -1,5 +1,5 @@
 // utils/draw.ts
-import type { Tool, CanvasState, AppState } from "../types";
+import type { Tool, CanvasState, AppState, Pen } from "../types";
 import { getLightenColor } from "./helpers"
 let animationId: number | null = null;
 
@@ -76,7 +76,7 @@ export const stopDrawingLoop = () => {
 // ----------------- helpers -----------------
 
 
-export function drawLasso(ctx: CanvasRenderingContext2D, state: CanvasState, activeTool) {
+export function drawLasso(ctx: CanvasRenderingContext2D, state: CanvasState, activeTool: Tool) {
   if (  (!state.lasso || state.lasso.length < 2)) return;
   
   ctx.save();
@@ -132,7 +132,7 @@ const applyTransform = (ctx: CanvasRenderingContext2D, state: CanvasState) => {
 };
 
 
-const drawPaths = (ctx: CanvasRenderingContext2D, state: CanvasState, appState: AppState, activeTool) => {
+const drawPaths = (ctx: CanvasRenderingContext2D, state: CanvasState, appState: AppState, activeTool: Tool) => {
   ctx.lineCap = "round";
   ctx.lineJoin = "round";
 
@@ -140,12 +140,10 @@ const drawPaths = (ctx: CanvasRenderingContext2D, state: CanvasState, appState: 
     const pts = path.points;
     if (pts.length < 1) continue;
 
-    const baseWidth = path.pen.size;
-    
     // 🟦 Draw selection highlight behind stroke
     const isSelected = state.selectedIds?.includes(path.id);
     if (activeTool.name=="lasso" && isSelected ) {
-      buildSelectedPath(ctx, pts, baseWidth, path.pen)
+      buildSelectedPath(ctx, pts, path.pen)
     }
 
     // 📝 Actual stroke
@@ -154,9 +152,9 @@ const drawPaths = (ctx: CanvasRenderingContext2D, state: CanvasState, appState: 
       penColor = getLightenColor(penColor);  
     }
     if(path.pen.type == "airbrush"){
-      buildAirbrushPath(ctx, pts, baseWidth, path);
+      buildAirbrushPath(ctx, pts, path.pen);
     }else{
-      buildSmoothPath(ctx, pts, baseWidth, penColor);
+      buildSmoothPath(ctx, pts, path.pen);
     }
 
   }
@@ -165,8 +163,7 @@ const drawPaths = (ctx: CanvasRenderingContext2D, state: CanvasState, appState: 
 // ✨ Catmull–Rom to Bezier smoothing
 function buildSmoothPath(ctx: CanvasRenderingContext2D, 
   pts: { x: number; y: number }[],
-  baseWidth,
-  penColor,
+  pen: Pen,
 ) {
   
     ctx.save();
@@ -188,24 +185,23 @@ function buildSmoothPath(ctx: CanvasRenderingContext2D,
     ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, p2.x, p2.y);
   }
 
-    ctx.strokeStyle = penColor;
+    ctx.strokeStyle = pen.color;
     
-    ctx.lineWidth = baseWidth;
+    ctx.lineWidth = pen.size;
     ctx.globalAlpha = 1;
     ctx.stroke();
     ctx.restore();
 }
 
 
-function sliceSkip(arr, skip = 1) {
+function sliceSkip(arr: { x: number; y: number }[], skip = 1) {
   return arr.filter((_, index) => index % (skip + 1) === 0);
 }
 
 
   function buildAirbrushPath(ctx: CanvasRenderingContext2D, 
     pts: { x: number; y: number }[],
-    baseWidth: number,
-    path
+    pen: Pen,
     ){
     // Render airbrush with radial gradient for soft edges
       const minDistance = 10; // 👈 adjustable distance threshold (in px)
@@ -226,13 +222,13 @@ function sliceSkip(arr, skip = 1) {
         // Create radial gradient from center to edge
         const gradient = ctx.createRadialGradient(
           pt.x, pt.y, 0,
-          pt.x, pt.y, baseWidth / 2
+          pt.x, pt.y, pen.size / 2
         );
         
-        const { color: penColor, opacity = 0.3 } = path.pen;
+        const { color: penColor, opacity = 0.3 } = pen;
 
         // Helper: convert opacity (0–1) to 2-digit hex
-       const toHex = (val) => Math.round(val * 255).toString(16).padStart(2, '0');
+       const toHex = (val: number) => Math.round(val * 255).toString(16).padStart(2, '0');
 
        // Define gradient stops more finely for smoother transition
        const stops = [
@@ -252,7 +248,7 @@ function sliceSkip(arr, skip = 1) {
        ctx.fillStyle = gradient;
        // ctx.fillStyle = penColor;
         ctx.beginPath();
-        ctx.arc(pt.x, pt.y, baseWidth / 2, 0, Math.PI * 2);
+        ctx.arc(pt.x, pt.y, pen.size / 2, 0, Math.PI * 2);
         ctx.fill();
         ctx.restore();
         // Update last drawn point
@@ -264,8 +260,7 @@ function sliceSkip(arr, skip = 1) {
 
 function buildSelectedPath(ctx: CanvasRenderingContext2D, 
   pts: { x: number; y: number }[],
-  baseWidth: number,
-  pen,
+  pen: Pen,
   ){
     ctx.save();
       ctx.beginPath();
@@ -274,7 +269,7 @@ function buildSelectedPath(ctx: CanvasRenderingContext2D,
         // For airbrush, draw selection around each particle
         for (const pt of pts) {
           ctx.beginPath();
-          ctx.arc(pt.x, pt.y, baseWidth / 4 + 3, 0, Math.PI * 2);
+          ctx.arc(pt.x, pt.y, pen.size / 4 + 3, 0, Math.PI * 2);
           ctx.strokeStyle = "#2563EB";
           ctx.lineWidth = 2;
           ctx.globalAlpha = 0.4;
@@ -282,8 +277,8 @@ function buildSelectedPath(ctx: CanvasRenderingContext2D,
         }
       } 
     else{
-      buildSmoothPath(ctx, pts);
-      ctx.lineWidth = baseWidth + 6;
+      buildSmoothPath(ctx, pts, pen);
+      ctx.lineWidth = pen.size + 6;
       ctx.strokeStyle = "#2563EB";
       ctx.globalAlpha = 0.4;
       ctx.stroke();
