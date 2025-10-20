@@ -11,7 +11,7 @@ export default function Index() {
   }))
   return (
     <div id="home-page">
-      <h1>Prink</h1>
+      <h1 style={{margin: '0'}}>Prink</h1>
 
       <div className="cards-container">
         {cards.map((card) => {
