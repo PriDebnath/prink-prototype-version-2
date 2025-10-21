@@ -321,6 +321,7 @@ export class SelectTool extends BaseTool {
 
       // update startPoint so next move uses delta from here
       this.startPoint = world;
+      canvasState.lasso = [];
     }
 
     // otherwise, build the lasso
@@ -339,13 +340,15 @@ export class SelectTool extends BaseTool {
     } catch (err) {
       // ignore
     }
-
-    console.log("onPointerUp   select");
-
+    console.log("onPointerUp   select", canvasState);
+   
     // If we were dragging, just end drag and keep selection
     if (this.dragging) {
       this.dragging = false;
       this.startPoint = null;
+      console.log("was dragf")
+canvasState.lasso = [];
+
       return;
     }
 
