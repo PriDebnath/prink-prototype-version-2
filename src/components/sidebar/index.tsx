@@ -1,6 +1,6 @@
 import type { Tool } from "../../types";
 import { Button, type ButtonKeys } from "../button";
-import { PanTool, PenTool, SelectTool } from "../../tools";
+import { PanTool, PenTool, LassoTool } from "../../tools";
 
 export const Sidebar = ({
   activeTool,

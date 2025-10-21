@@ -161,7 +161,7 @@ export class PanTool extends BaseTool {
 
 }
 
-export  class PenTool extends BaseTool {
+export class PenTool extends BaseTool {
   name: string = 'pen';
   private drawing = false;
   private lastTime = 0;
@@ -171,25 +171,25 @@ export  class PenTool extends BaseTool {
     if (e.button !== 0) return;
     this.drawing = true;
     //this.lastTime = performance.now();
-    
+
     const world = this.toWorld(e, canvasState);
-    
+
     // Create current path with pen settings
-    canvasState.currentPath = { 
+    canvasState.currentPath = {
       id: canvasState.paths.length + 1,
       points: [world],
-      pen: { 
+      pen: {
         ...appState.pen,
         opacity: appState.pen.opacity || (appState.pen.type === "airbrush" ? 0.3 : 1.0)
       }
     };
     canvasState.paths.push(canvasState.currentPath);
   }
-  
+
   onPointerMove(e: PointerEvent, canvasState: CanvasState, appState: AppState) {
     if (!this.drawing || !canvasState.currentPath) return;
     const world = this.toWorld(e, canvasState);
-   // const currentTime = performance.now();
+    // const currentTime = performance.now();
     /*
     // For airbrush, add points based on time interval for continuous spray
     if (appState.pen.type === "airbrush") {
@@ -199,55 +199,29 @@ export  class PenTool extends BaseTool {
       }
     } else {
       */
-      // For regular pen tools, add every point
-      canvasState.currentPath.points.push(world);
+    // For regular pen tools, add every point
+    canvasState.currentPath.points.push(world);
     //}
   }
-  
+
   onPointerUp(e: PointerEvent, canvasState: CanvasState) {
-console.log({p: canvasState.paths})
+    console.log({ p: canvasState.paths })
 
     this.drawing = false;
     canvasState.currentPath = null;
   }
-  
+
   renderOverlay(ctx: CanvasRenderingContext2D, canvasState: CanvasState) {
     if (!this.drawing || !canvasState.currentPath) return;
-    
+
     // Only render overlay for airbrush
     return
-  //   if (canvasState.currentPath.pen.type !== "airbrush") return;
-    
-  //   const lastPoint = canvasState.currentPath.points[canvasState.currentPath.points.length - 1];
-  //   if (!lastPoint) return;
-    
-  //   ctx.save();
-    
-  //   // Create radial gradient for soft airbrush effect
-  //   const gradient = ctx.createRadialGradient(
-  //     lastPoint.x, lastPoint.y, 0,
-  //     lastPoint.x, lastPoint.y, canvasState.currentPath.pen.size / 2
-  //   );
-    
-  //   const opacity = canvasState.currentPath.pen.opacity || 0.3;
-  //   const centerOpacity = Math.floor(opacity * 255).toString(16).padStart(2, '0');
-  //   const edgeOpacity = Math.floor(opacity * 0.3 * 255).toString(16).padStart(2, '0');
-    
-  //   gradient.addColorStop(0, `${canvasState.currentPath.pen.color}${centerOpacity}`);
-  //   gradient.addColorStop(0.7, `${canvasState.currentPath.pen.color}${edgeOpacity}`);
-  //   gradient.addColorStop(1, `${canvasState.currentPath.pen.color}00`);
-    
-  //   ctx.fillStyle = gradient;
-  //   ctx.beginPath();
-  //   ctx.arc(lastPoint.x, lastPoint.y, canvasState.currentPath.pen.size / 2, 0, Math.PI * 2);
-  //   ctx.fill();
-    
-  //   ctx.restore();
+
   }
 }
 
 
-export class SelectTool extends BaseTool {
+export class LassoTool extends BaseTool {
   name: string = 'lasso';
   dragging: boolean = false;
   startPoint: Point | null = null;
@@ -341,13 +315,13 @@ export class SelectTool extends BaseTool {
       // ignore
     }
     console.log("onPointerUp   select", canvasState);
-   
+
     // If we were dragging, just end drag and keep selection
     if (this.dragging) {
       this.dragging = false;
       this.startPoint = null;
       console.log("was dragf")
-canvasState.lasso = [];
+      canvasState.lasso = [];
 
       return;
     }
@@ -432,95 +406,95 @@ export class EraserTool extends BaseTool {
 
     console.log("onPointerDown   eraser", canvasState);
     const world = this.toWorld(e, canvasState);
-      canvasState.lasso = [];
-      canvasState.lasso.push(world);
+    canvasState.lasso = [];
+    canvasState.lasso.push(world);
   }
-  
-  
+
+
   onPointerMove(e: PointerEvent, canvasState: CanvasState, appState: AppState) {
     console.log("onPointermove   eraser", canvasState);
 
     const world = this.toWorld(e, canvasState);
     canvasState.lasso?.push(world);
-    
+
   }
-  
-  
+
+
   onPointerUp(e: PointerEvent, canvasState: CanvasState) {
-  const lasso = canvasState.lasso;
-  if (lasso && lasso.length < 2) {
-    canvasState.lasso = [];
-    return;
-  }
-
-  const threshold = 5; // 👈 how close the lasso must be to a point to erase it
-
-  function distPointToSegment(
-    {px, py, x1, y1, x2, y2}: 
-    {px: number, py: number, x1: number, y1: number, x2: number, y2: number}
-  ) {
-    const A = px - x1;
-    const B = py - y1;
-    const C = x2 - x1;
-    const D = y2 - y1;
-
-    const dot = A * C + B * D;
-    const lenSq = C * C + D * D;
-    let t = -1;
-    if (lenSq !== 0) t = dot / lenSq;
-
-    let nearestX, nearestY;
-    if (t < 0) {
-      nearestX = x1;
-      nearestY = y1;
-    } else if (t > 1) {
-      nearestX = x2;
-      nearestY = y2;
-    } else {
-      nearestX = x1 + t * C;
-      nearestY = y1 + t * D;
+    const lasso = canvasState.lasso;
+    if (lasso && lasso.length < 2) {
+      canvasState.lasso = [];
+      return;
     }
 
-    const dx = px - nearestX;
-    const dy = py - nearestY;
-    return Math.sqrt(dx * dx + dy * dy);
-  }
+    const threshold = 5; // 👈 how close the lasso must be to a point to erase it
 
-  // Check if a stroke point is close to any lasso segment
-  function isPointNearLasso(px: number, py: number) {
-    for (let i = 0; i < (lasso?.length ?? 0) - 1; i++) {
-      const l1 = lasso?.[i];
-      const l2 = lasso?.[i + 1];
-      if (distPointToSegment({px, py, x1: l1?.x ?? 0, y1: l1?.y ?? 0, x2: l2?.x ?? 0, y2: l2?.y ?? 0}) < threshold) {
-        return true as boolean;
+    function distPointToSegment(
+      { px, py, x1, y1, x2, y2 }:
+        { px: number, py: number, x1: number, y1: number, x2: number, y2: number }
+    ) {
+      const A = px - x1;
+      const B = py - y1;
+      const C = x2 - x1;
+      const D = y2 - y1;
+
+      const dot = A * C + B * D;
+      const lenSq = C * C + D * D;
+      let t = -1;
+      if (lenSq !== 0) t = dot / lenSq;
+
+      let nearestX, nearestY;
+      if (t < 0) {
+        nearestX = x1;
+        nearestY = y1;
+      } else if (t > 1) {
+        nearestX = x2;
+        nearestY = y2;
+      } else {
+        nearestX = x1 + t * C;
+        nearestY = y1 + t * D;
       }
+
+      const dx = px - nearestX;
+      const dy = py - nearestY;
+      return Math.sqrt(dx * dx + dy * dy);
     }
-    return false;
-  }
 
-  // ✅ For each stroke, remove only touched points
-  if (canvasState.paths) {
-  const updatedPaths = canvasState.paths
-    .map((pen: Freehand) => {
-      const remainingPoints = pen.points.filter(
-        (pt) => !isPointNearLasso(pt.x, pt.y)
-      );
+    // Check if a stroke point is close to any lasso segment
+    function isPointNearLasso(px: number, py: number) {
+      for (let i = 0; i < (lasso?.length ?? 0) - 1; i++) {
+        const l1 = lasso?.[i];
+        const l2 = lasso?.[i + 1];
+        if (distPointToSegment({ px, py, x1: l1?.x ?? 0, y1: l1?.y ?? 0, x2: l2?.x ?? 0, y2: l2?.y ?? 0 }) < threshold) {
+          return true as boolean;
+        }
+      }
+      return false;
+    }
 
-      // If no points remain, drop the whole stroke
-      if (remainingPoints.length === 0) return null;
+    // ✅ For each stroke, remove only touched points
+    if (canvasState.paths) {
+      const updatedPaths = canvasState.paths
+        .map((pen: Freehand) => {
+          const remainingPoints = pen.points.filter(
+            (pt) => !isPointNearLasso(pt.x, pt.y)
+          );
 
-      return {
-        ...pen,
-        points: remainingPoints,
-      } as Freehand;
-    })
+          // If no points remain, drop the whole stroke
+          if (remainingPoints.length === 0) return null;
 
-    const filteredPaths = updatedPaths.filter(Boolean); // remove null strokes
+          return {
+            ...pen,
+            points: remainingPoints,
+          } as Freehand;
+        })
 
-    canvasState.paths = filteredPaths as Freehand[];
-  }
+      const filteredPaths = updatedPaths.filter(Boolean); // remove null strokes
+
+      canvasState.paths = filteredPaths as Freehand[];
+    }
     // Clear lasso after erasing
-  canvasState.lasso = [];
-}
+    canvasState.lasso = [];
+  }
 
 }

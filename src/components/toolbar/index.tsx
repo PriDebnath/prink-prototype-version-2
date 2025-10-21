@@ -3,7 +3,7 @@ import { Icons } from "../icon";
 import { ColorPellet } from "./color-pellet";
 import { Button, type ButtonKeys } from "../button";
 import type { Tool, AppState, CanvasState } from "../../types";
-import { PanTool, PenTool, SelectTool, EraserTool } from "../../tools";
+import { PanTool, PenTool, LassoTool, EraserTool } from "../../tools";
 
 export const Toolbar = ({
   activeTool,
@@ -80,7 +80,7 @@ export const Toolbar = ({
         if (activeTool.name == "lasso") {
           setActiveTool(new PenTool())
         } else {
-          setActiveTool(new SelectTool())
+          setActiveTool(new LassoTool())
         }
         setAppState((pri) => ({ ...pri }));// side effect to re-render stuff
       },
