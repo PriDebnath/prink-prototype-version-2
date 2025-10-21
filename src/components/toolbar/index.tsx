@@ -131,7 +131,7 @@ export const Toolbar = ({
           || activeTool.name === "lasso"
           || activeTool.name === "eraser"
           ) && (
-            <div className="tool circle color-ball"
+            <button className="tool circle color-ball"
               id="pen-color-picker-circleg"
               style={{
                 background: appState.pen.color,
@@ -145,7 +145,7 @@ export const Toolbar = ({
               }
               }
             >
-            </div>
+            </button>
           )
           }
         </div>

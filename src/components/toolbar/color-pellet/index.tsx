@@ -78,11 +78,14 @@ export const ColorPellet = ({ canvasState, appState, setAppState }: ColorPelletP
 
         <div style={{
           display: "flex",
+          pointerEvents: "auto",
           gap: canvasState.device == "mobile" ? "0.25rem" : "0.5rem",
         }}>
           <label className="color-pick tooltip "
+            style={{ cursor: "pointer" }}
             data-tooltip="Pen color"
             data-tooltip-pos="top"
+            htmlFor="pen-color-picker"
           >
             <input type="color"
               id="pen-color-picker"
@@ -119,13 +122,15 @@ export const ColorPellet = ({ canvasState, appState, setAppState }: ColorPelletP
           {
             colors.map((color, p) => {
               return (
-                <div
-                  className="color-ball"
+                <button
+                  className="color-ball tooltip"
                   style={{
                     background: color,
                     height: canvasState.device == "mobile" ? "1rem" : undefined,
                     width: canvasState.device == "mobile" ? "1rem" : "2rem",
                   }}
+                   data-tooltip={color}
+                   data-tooltip-pos="top"
                   key={color + p}
                   onClick={
                     (e) => {
@@ -136,7 +141,7 @@ export const ColorPellet = ({ canvasState, appState, setAppState }: ColorPelletP
                       }));
                     }}
                 >
-                </div>
+                </button>
               )
             })
           }
