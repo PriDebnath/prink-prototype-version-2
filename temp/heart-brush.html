@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Heart Brush 💖</title>
+  <style>
+    body {
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      background: #f4f4f4;
+      user-select: none;
+      touch-action: none;
+      font-family: sans-serif;
+    }
+    canvas {
+      border: 2px solid #ccc;
+      border-radius: 10px;
+      background: #fff;
+      touch-action: none;
+    }
+    button {
+      margin-top: 12px;
+      padding: 8px 16px;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      background: #e11d48;
+      color: white;
+      cursor: pointer;
+    }
+    button.active {
+      background: #2563eb;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="paint" width="500" height="400"></canvas>
+  <button id="modeBtn">Mode: Draw ❤️</button>
+
+  <script>
+    const canvas = document.getElementById("paint");
+    const ctx = canvas.getContext("2d");
+    const modeBtn = document.getElementById("modeBtn");
+
+    let drawing = false;
+    let eraseMode = false;
+    let lastPoint = null;
+    const spacing = 20; // distance between hearts
+    const stabilizer = { buffer: [], max: 6 };
+
+    modeBtn.onclick = () => {
+      eraseMode = !eraseMode;
+      modeBtn.textContent = eraseMode ? "Mode: Erase 🩹" : "Mode: Draw ❤️";
+      modeBtn.classList.toggle("active", eraseMode);
+    };
+
+    function getPos(e) {
+      const rect = canvas.getBoundingClientRect();
+      const x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
+      const y = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
+      return { x, y };
+    }
+
+    function drawHeart(ctx, x, y, size, color) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.scale(size / 20, size / 20); // scale heart size
+      ctx.beginPath();
+      ctx.moveTo(0, -6);
+      ctx.bezierCurveTo(-6, -12, -14, -2, 0, 8);
+      ctx.bezierCurveTo(14, -2, 6, -12, 0, -6);
+      ctx.fillStyle = color;
+      ctx.fill();
+      ctx.restore();
+    }
+
+    function distance(a, b) {
+      return Math.hypot(a.x - b.x, a.y - b.y);
+    }
+
+    function start(e) {
+      drawing = true;
+      const pos = getPos(e);
+      stabilizer.buffer = Array(stabilizer.max).fill(pos);
+      lastPoint = pos;
+      ctx.save();
+      ctx.globalCompositeOperation = eraseMode ? "destination-out" : "source-over";
+    }
+
+    function move(e) {
+      if (!drawing) return;
+      const pos = getPos(e);
+      stabilizer.buffer.push(pos);
+      if (stabilizer.buffer.length > stabilizer.max) stabilizer.buffer.shift();
+
+      // average for smoothing
+      const avg = stabilizer.buffer.reduce(
+        (acc, p) => ({
+          x: acc.x + p.x / stabilizer.buffer.length,
+          y: acc.y + p.y / stabilizer.buffer.length,
+        }),
+        { x: 0, y: 0 }
+      );
+
+      const dist = distance(lastPoint, avg);
+      if (dist > spacing) {
+        const steps = Math.floor(dist / spacing);
+        for (let i = 1; i <= steps; i++) {
+          const t = i / steps;
+          const x = lastPoint.x + (avg.x - lastPoint.x) * t;
+          const y = lastPoint.y + (avg.y - lastPoint.y) * t;
+          const size = 10 + Math.random() * 8; // random heart size
+          const color = eraseMode ? "rgba(0,0,0,1)" : `hsl(${Math.random() * 360}, 80%, 60%)`;
+          drawHeart(ctx, x, y, size, color);
+        }
+        lastPoint = avg;
+      }
+    }
+
+    function end() {
+      drawing = false;
+      stabilizer.buffer = [];
+      lastPoint = null;
+      ctx.restore();
+    }
+
+    canvas.addEventListener("mousedown", start);
+    canvas.addEventListener("mousemove", move);
+    canvas.addEventListener("mouseup", end);
+    canvas.addEventListener("mouseleave", end);
+
+    canvas.addEventListener("touchstart", start);
+    canvas.addEventListener("touchmove", move);
+    canvas.addEventListener("touchend", end);
+  </script>
+</body>
+</html>
