@@ -1,6 +1,6 @@
 // App.tsx
 // import { PenTool } from "../../tools";
-import { PencilTool } from "../../utils/tool/index";
+import { StrokeToolBase } from "../../utils/tool/index";
 import SettingsDialog from "./settings.dialog"
 import { Topbar } from "../../components/topbar";
 import { Sidebar } from "../../components/sidebar";
@@ -15,7 +15,7 @@ import { CANVAS_PRESETS } from "./presets";
 export default function CanvasPage() {
   const { canvasId } = useParams({ from: "/canvas/$canvasId" });
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const [activeTool, setActiveTool] = useState<Tool>(new PencilTool());
+  const [activeTool, setActiveTool] = useState<Tool>(new StrokeToolBase());
   const canvasStateRef = useRef<CanvasState>({
     device: "desktop",
     scale: 1,

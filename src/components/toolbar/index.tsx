@@ -4,7 +4,7 @@ import { ColorPellet } from "./color-pellet";
 import { Button, type ButtonKeys } from "../button";
 import type { Tool, AppState, CanvasState } from "../../types";
 // import { PanTool, PenTool, LassoTool, EraserTool } from "../../tools";
-import { PencilTool, AirbrushTool, EraserTool } from "../../utils/tool";
+// import { PencilTool, AirbrushTool, EraserTool } from "../../utils/tool";
 
 export const Toolbar = ({
   activeTool,
@@ -61,18 +61,15 @@ export const Toolbar = ({
           ...prev,
           pen: { ...prev.pen, type: "airbrush" },
         }));
-        setActiveTool(new AirbrushTool());
       },
     ],
     [
       "eraser",
       () => {
-        if (activeTool.name == "eraser") {
-          setActiveTool(new EraserTool())
-        } else {
-          setActiveTool(new EraserTool())
-        }
-        setAppState((pri) => ({ ...pri }));// side effect to re-render stuff
+       setAppState((prev) => ({
+          ...prev,
+          pen: { ...prev.pen, type: "eraser" },
+        }));
     },
     ],
     // [
@@ -126,6 +123,7 @@ export const Toolbar = ({
             ) && (renderButtons(penTools))
             
           }
+
           {
           (
           activeTool.name === "pen"

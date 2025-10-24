@@ -81,14 +81,4 @@ export class StrokeToolBase extends BaseTool {
     }
 }
 
-export class PencilTool extends StrokeToolBase {
-    name = "pencil";
-}
-
-export class AirbrushTool extends StrokeToolBase {
-    name = "airbrush";
-}
-
-export class EraserTool extends StrokeToolBase {
-    name = "eraser";
-}
+ 

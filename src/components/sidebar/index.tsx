@@ -1,7 +1,7 @@
 import type { Tool } from "../../types";
 import { Button, type ButtonKeys } from "../button";
 import { PanTool, PenTool, LassoTool } from "../../tools";
-import { PencilTool } from "../../utils/tool";
+import { StrokeToolBase } from "../../utils/tool/index";
 
 export const Sidebar = ({
   activeTool,
@@ -22,7 +22,7 @@ export const Sidebar = ({
       {
         name: "pen",
         subToolNames: ["lasso", "eraser"],
-        tool: new PencilTool()
+        tool: new StrokeToolBase()
       }
     ];
 

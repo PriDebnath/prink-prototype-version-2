@@ -1,7 +1,7 @@
 // ---------- Types ----------
 import { Button, type ButtonKeys } from "../components/button";
 
-type PenType =  "pencil" | "highlighter" | "airbrush";
+type PenType =  "pencil" | "highlighter" | "airbrush" | "eraser";
 
 export interface Pen {
   color: string;
