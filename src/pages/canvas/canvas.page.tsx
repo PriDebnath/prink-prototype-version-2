@@ -1,5 +1,6 @@
 // App.tsx
-import { PenTool } from "../../tools";
+// import { PenTool } from "../../tools";
+import { PencilTool } from "../../utils/tool/index";
 import SettingsDialog from "./settings.dialog"
 import { Topbar } from "../../components/topbar";
 import { Sidebar } from "../../components/sidebar";
@@ -14,7 +15,7 @@ import { CANVAS_PRESETS } from "./presets";
 export default function CanvasPage() {
   const { canvasId } = useParams({ from: "/canvas/$canvasId" });
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const [activeTool, setActiveTool] = useState<Tool>(new PenTool());
+  const [activeTool, setActiveTool] = useState<Tool>(new PencilTool());
   const canvasStateRef = useRef<CanvasState>({
     device: "desktop",
     scale: 1,
@@ -122,7 +123,7 @@ export default function CanvasPage() {
     if (!canvas) return;
 
     const onDown = (e: PointerEvent) => {
-      activeTool.onPointerDown(e, canvasStateRef.current, appState);
+      activeTool.onPointerDown({ e, canvasState: canvasStateRef.current, appState, canvas });
       // start continuous draw (from down -> move -> up)
       startDrawingLoop({
         canvas,
@@ -133,12 +134,12 @@ export default function CanvasPage() {
     };
 
     const onMove = (e: PointerEvent) => {
-      activeTool.onPointerMove(e, canvasStateRef.current, appState);
+      activeTool.onPointerMove({ e, canvasState: canvasStateRef.current, appState, canvas });
       // continuous loop is running so it will render updates
     };
 
     const onUp = (e: PointerEvent) => {
-      activeTool.onPointerUp(e, canvasStateRef.current);
+      activeTool.onPointerUp({ e, canvasState: canvasStateRef.current, appState, canvas });
       // stop continuous drawing after finishing stroke
       stopDrawingLoop();
 

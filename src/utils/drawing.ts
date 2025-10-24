@@ -42,9 +42,9 @@ export const draw = (g: Getters) => {
     drawPaths(ctx, state, appState, activeTool);
   }
   
-  if (activeTool.renderOverlay) {
-    activeTool.renderOverlay(ctx, state);
-  }
+  // if (activeTool.renderOverlay) {
+  //   // activeTool.renderOverlay(ctx, state);
+  // }
   
   ctx.restore();
 };

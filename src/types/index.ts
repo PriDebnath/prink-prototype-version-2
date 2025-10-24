@@ -15,12 +15,28 @@ export interface Point  {
   y: number;
 };
 
+export interface ToolEventsParams {
+  e: PointerEvent,
+  appState: AppState,
+  canvasState: CanvasState,
+  canvas: HTMLCanvasElement,
+}
+
 export interface Tool {
     name: string;
-    onPointerDown: (e: PointerEvent, canvasState: CanvasState, appState: AppState) => void;
-    onPointerMove: (e: PointerEvent, canvasState: CanvasState, appState: AppState) => void;
-    onPointerUp: (e: PointerEvent, canvasState: CanvasState) => void;
-    renderOverlay?: (ctx: CanvasRenderingContext2D, canvasState: CanvasState) => void;
+    onPointerDown: (params: ToolEventsParams) => void;
+    onPointerMove: (params: ToolEventsParams) => void;
+    onPointerUp: (params: ToolEventsParams) => void;
+    renderOverlay: (params: ToolEventsParams) => void;
+}
+
+export interface FreehandEventsParams {
+  e: PointerEvent,
+  from: Point,
+  to: Point,
+  canvasState: CanvasState,
+  ctx: CanvasRenderingContext2D,
+  appState: AppState,
 }
 
 export interface Freehand {
@@ -48,6 +64,8 @@ export interface AppState{
   pen: Pen
   selectedTheme: ThemeName | null;
 }
+
+
 export type ThemeName = "Apricity" | "Inkflow" | "Coral Splash" | "Graphite" | "Aurora Prink" | "Sunset Paper";
 
 

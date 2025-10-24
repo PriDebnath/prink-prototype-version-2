@@ -1,14 +1,14 @@
 // ---------- Tools ----------
 
 // ---------- Tools ----------
-import type { Tool, Point, CanvasState, AppState, Freehand } from '../types';
+import type { Tool, Point, CanvasState, AppState, Freehand, ToolEventsParams } from '../types';
 
 abstract class BaseTool implements Tool {
   name = "base";
-  onPointerDown(e: PointerEvent, canvasState: CanvasState, appState: AppState) { };
-  onPointerMove(e: PointerEvent, canvasState: CanvasState, appState: AppState) { };
-  onPointerUp(e: PointerEvent, canvasState: CanvasState) { };
-  renderOverlay(ctx: CanvasRenderingContext2D, canvasState: CanvasState) { }
+  onPointerDown(params: ToolEventsParams) { };
+  onPointerMove(params: ToolEventsParams) { };
+  onPointerUp(params: ToolEventsParams) { };
+  renderOverlay(params: ToolEventsParams) { }
 
   public toWorld(e: PointerEvent, canvasState: CanvasState): Point {
     return {
@@ -167,7 +167,8 @@ export class PenTool extends BaseTool {
   private lastTime = 0;
   private sprayInterval = 16; // ~60fps for airbrush continuous spray
 
-  onPointerDown(e: PointerEvent, canvasState: CanvasState, appState: AppState) {
+  onPointerDown(params: ToolEventsParams) {
+    const { e, canvasState, appState } = params;
     if (e.button !== 0) return;
     this.drawing = true;
     //this.lastTime = performance.now();
@@ -186,7 +187,8 @@ export class PenTool extends BaseTool {
     canvasState.paths.push(canvasState.currentPath);
   }
 
-  onPointerMove(e: PointerEvent, canvasState: CanvasState, appState: AppState) {
+  onPointerMove(params: ToolEventsParams) {
+    const { e, canvasState, appState } = params;
     if (!this.drawing || !canvasState.currentPath) return;
     const world = this.toWorld(e, canvasState);
     // const currentTime = performance.now();

@@ -1,6 +1,7 @@
 import type { Tool } from "../../types";
 import { Button, type ButtonKeys } from "../button";
 import { PanTool, PenTool, LassoTool } from "../../tools";
+import { PencilTool } from "../../utils/tool";
 
 export const Sidebar = ({
   activeTool,
@@ -14,14 +15,14 @@ export const Sidebar = ({
     subToolNames?: ButtonKeys[],
     tool: Tool
   }[] = [
-      {
-        name: "pan",
-        tool: new PanTool()
-      },
+      // {
+      //   name: "pan",
+      //   tool: new PanTool()
+      // },
       {
         name: "pen",
         subToolNames: ["lasso", "eraser"],
-        tool: new PenTool()
+        tool: new PencilTool()
       }
     ];
 

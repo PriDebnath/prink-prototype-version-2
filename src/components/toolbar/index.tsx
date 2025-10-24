@@ -3,7 +3,8 @@ import { Icons } from "../icon";
 import { ColorPellet } from "./color-pellet";
 import { Button, type ButtonKeys } from "../button";
 import type { Tool, AppState, CanvasState } from "../../types";
-import { PanTool, PenTool, LassoTool, EraserTool } from "../../tools";
+// import { PanTool, PenTool, LassoTool, EraserTool } from "../../tools";
+import { PencilTool, AirbrushTool, EraserTool } from "../../utils/tool";
 
 export const Toolbar = ({
   activeTool,
@@ -60,31 +61,31 @@ export const Toolbar = ({
           ...prev,
           pen: { ...prev.pen, type: "airbrush" },
         }));
-        setActiveTool(new PenTool());
+        setActiveTool(new AirbrushTool());
       },
     ],
     [
       "eraser",
       () => {
         if (activeTool.name == "eraser") {
-          setActiveTool(new PenTool())
+          setActiveTool(new EraserTool())
         } else {
           setActiveTool(new EraserTool())
         }
         setAppState((pri) => ({ ...pri }));// side effect to re-render stuff
     },
     ],
-    [
-      "lasso",
-      () => {
-        if (activeTool.name == "lasso") {
-          setActiveTool(new PenTool())
-        } else {
-          setActiveTool(new LassoTool())
-        }
-        setAppState((pri) => ({ ...pri }));// side effect to re-render stuff
-      },
-    ],
+    // [
+    //   "lasso",
+    //   () => {
+    //     if (activeTool.name == "lasso") {
+    //       setActiveTool(new PenTool())
+    //     } else {
+    //       setActiveTool(new LassoTool())
+    //     }
+    //     setAppState((pri) => ({ ...pri }));// side effect to re-render stuff
+    //   },
+    // ],
 
   ];
 
@@ -121,7 +122,7 @@ export const Toolbar = ({
           {(
             activeTool.name === "pen" 
             || activeTool.name === "lasso"
-            || activeTool.name === "eraser"
+            || activeTool.name === "eraser" || true
             ) && (renderButtons(penTools))
             
           }
@@ -129,7 +130,7 @@ export const Toolbar = ({
           (
           activeTool.name === "pen"
           || activeTool.name === "lasso"
-          || activeTool.name === "eraser"
+          || activeTool.name === "eraser" || true
           ) && (
             <button className="tool circle color-ball"
               id="pen-color-picker-circleg"
