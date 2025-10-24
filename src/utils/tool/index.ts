@@ -28,6 +28,7 @@ abstract class BaseTool implements Tool {
 }
 
 export class StrokeToolBase extends BaseTool {
+    name: string = 'pen';
     private drawing = false;
     private brush: BaseBrush | null = null;
 

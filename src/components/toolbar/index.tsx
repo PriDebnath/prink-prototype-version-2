@@ -66,11 +66,11 @@ export const Toolbar = ({
     [
       "eraser",
       () => {
-       setAppState((prev) => ({
+        setAppState((prev) => ({
           ...prev,
           pen: { ...prev.pen, type: "eraser" },
         }));
-    },
+      },
     ],
     // [
     //   "lasso",
@@ -116,37 +116,31 @@ export const Toolbar = ({
           {renderButtons(mainTools)}
 
           {/* ✏️ Shown only when active tool is PenTool */}
-          {(
-            activeTool.name === "pen" 
-            || activeTool.name === "lasso"
-            || activeTool.name === "eraser" || true
-            ) && (renderButtons(penTools))
-            
+          {
+            activeTool.name === "pen" && (
+              <>
+            {    renderButtons(penTools)}
+
+                <button
+                  className="tool circle color-ball"
+                  id="pen-color-picker-circleg"
+                  style={{
+                    background: appState.pen.color,
+                    cursor: 'pointer',
+                    outline: openColorPellet
+                      ? `${(appState.pen.size ?? 10) / 10}px solid blue`
+                      : "0px solid transparent",
+                  }}
+                  onClick={() => {
+                    setOpenColorPellet(!openColorPellet)
+                  }
+                  }
+                >
+                </button>
+              </>
+            )
           }
 
-          {
-          (
-          activeTool.name === "pen"
-          || activeTool.name === "lasso"
-          || activeTool.name === "eraser" || true
-          ) && (
-            <button className="tool circle color-ball"
-              id="pen-color-picker-circleg"
-              style={{
-                background: appState.pen.color,
-                cursor: 'pointer',
-                outline: openColorPellet
-                  ? `${(appState.pen.size ?? 10) / 10}px solid blue`
-                  : "0px solid transparent",
-              }}
-              onClick={() => {
-                setOpenColorPellet(!openColorPellet)
-              }
-              }
-            >
-            </button>
-          )
-          }
         </div>
       </div>
     </footer>
