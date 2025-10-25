@@ -18,20 +18,30 @@ export abstract class BaseBrush {
 
 export class PencilBrush extends BaseBrush {
   onStrokeStart(params: FreehandEventsParams) {
-    const { ctx, from } = params;
+    const { ctx, points } = params;
+    if (points.length === 0) return;
+    
     ctx.save();
     ctx.beginPath();
-    ctx.moveTo(from.x, from.y);
+    ctx.moveTo(points[0].x, points[0].y);
   }
 
   onStrokeMove(params: FreehandEventsParams) {
-    const { ctx, from, to } = params;
+    const { ctx, points } = params;
+    if (points.length < 2) return;
+    
+    // 🚀 PERFORMANCE: Render entire path at once instead of incremental
     ctx.strokeStyle = this.pen.color;
     ctx.lineWidth = this.pen.size;
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
     ctx.globalAlpha = this.pen.opacity ?? 1;
-    ctx.lineTo(to.x, to.y);
+    
+    // Draw the entire path in one stroke
+    ctx.moveTo(points[0].x, points[0].y);
+    for (let i = 1; i < points.length; i++) {
+      ctx.lineTo(points[i].x, points[i].y);
+    }
     ctx.stroke();
   }
 
@@ -50,59 +60,60 @@ export class AirbrushBrush extends BaseBrush {
   private minDistance = 10; // Distance threshold for airbrush particles
 
   onStrokeStart(params: FreehandEventsParams) {
-    const { ctx, from } = params;
+    const { points } = params;
     this.lastDrawn = null;
   }
 
   onStrokeMove(params: FreehandEventsParams) {
-    const { ctx, to } = params;
+    const { ctx, points } = params;
+    if (points.length === 0) return;
     
-    // Skip if the point is too close to the previous drawn point
-    if (this.lastDrawn) {
-      const dx = to.x - this.lastDrawn.x;
-      const dy = to.y - this.lastDrawn.y;
-      const distance = Math.sqrt(dx * dx + dy * dy);
-      if (distance < this.minDistance) {
-        return;
-      }
-    }
-    
-    ctx.save();
-    
-    // Create radial gradient from center to edge
-    const gradient = ctx.createRadialGradient(
-      to.x, to.y, 0,
-      to.x, to.y, this.pen.size / 2
-    );
-    
+    // 🚀 PERFORMANCE: Render all airbrush particles at once with distance optimization
     const { color: penColor, opacity = 0.3 } = this.pen;
-
-    // Helper: convert opacity (0–1) to 2-digit hex
     const toHex = (val: number) => Math.round(val * 255).toString(16).padStart(2, '0');
-
-    // Define gradient stops more finely for smoother transition
-    const stops = [
-      { offset: 0,    alpha: opacity },
-      { offset: 0.2,  alpha: opacity * 0.8 },
-      { offset: 0.4,  alpha: opacity * 0.5 },
-      { offset: 0.6,  alpha: opacity * 0.3 },
-      { offset: 0.8,  alpha: opacity * 0.15 },
-      { offset: 1,    alpha: 0 },
-    ];
-
-    // Add all stops to the gradient
-    for (const { offset, alpha } of stops) {
-      gradient.addColorStop(offset, `${penColor}${toHex(alpha)}`);
-    }
-
-    ctx.fillStyle = gradient;
-    ctx.beginPath();
-    ctx.arc(to.x, to.y, this.pen.size / 2, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.restore();
     
-    // Update last drawn point
-    this.lastDrawn = to;
+    // Filter points by distance for performance
+    const filteredPoints: { x: number; y: number }[] = [];
+    let lastDrawn: { x: number; y: number } | null = null;
+    
+    for (const pt of points) {
+      if (lastDrawn) {
+        const dx = pt.x - lastDrawn.x;
+        const dy = pt.y - lastDrawn.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        if (distance < this.minDistance) continue;
+      }
+      filteredPoints.push(pt);
+      lastDrawn = pt;
+    }
+    
+    // Render all filtered points in batch
+    ctx.save();
+    for (const pt of filteredPoints) {
+      const gradient = ctx.createRadialGradient(
+        pt.x, pt.y, 0,
+        pt.x, pt.y, this.pen.size / 2
+      );
+      
+      const stops = [
+        { offset: 0,    alpha: opacity },
+        { offset: 0.2,  alpha: opacity * 0.8 },
+        { offset: 0.4,  alpha: opacity * 0.5 },
+        { offset: 0.6,  alpha: opacity * 0.3 },
+        { offset: 0.8,  alpha: opacity * 0.15 },
+        { offset: 1,    alpha: 0 },
+      ];
+
+      for (const { offset, alpha } of stops) {
+        gradient.addColorStop(offset, `${penColor}${toHex(alpha)}`);
+      }
+
+      ctx.fillStyle = gradient;
+      ctx.beginPath();
+      ctx.arc(pt.x, pt.y, this.pen.size / 2, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
   }
 
   onStrokeEnd(params: FreehandEventsParams) {
@@ -115,36 +126,48 @@ export class AirbrushBrush extends BaseBrush {
 //import { BaseBrush } from "./BaseBrush";
 
 export class EraserBrush extends BaseBrush {
-  private points: { x: number; y: number }[] = [];
   private isErasing = false;
 
   onStrokeStart(params: FreehandEventsParams) {
-    const { ctx, from } = params;
-    this.points = [from];
+    const { ctx, points } = params;
+    if (points.length === 0) return;
     this.isErasing = true;
     
     // Show eraser preview circle
-    this.showEraserPreview(ctx, from);
+    this.showEraserPreview(ctx, points[points.length - 1]);
   }
 
   onStrokeMove(params: FreehandEventsParams) {
-    const { ctx, to } = params;
-    this.points.push(to);
+    const { ctx, points } = params;
+    if (points.length === 0) return;
     
     // Show eraser preview at current position
-    this.showEraserPreview(ctx, to);
+    this.showEraserPreview(ctx, points[points.length - 1]);
     
     // Actually erase the content
-    this.performErase(ctx);
+    this.performErase(ctx, points);
   }
 
   onStrokeEnd(params: FreehandEventsParams) {
-    const { ctx } = params;
-    this.isErasing = false;
+    const { ctx, points } = params;
+    if (this.isErasing) {
+      this.isErasing = false;
+    }
     
     // Final erase operation
-    if (this.points.length >= 2) {
-      this.performErase(ctx);
+    if (points.length >= 2) {
+      this.performErase(ctx, points);
+    }
+    
+    // Clean up the red preview circle by clearing the area where it was drawn
+    if (points.length > 0) {
+      const lastPoint = points[points.length - 1];
+      ctx.save();
+      ctx.globalCompositeOperation = "destination-out";
+      ctx.beginPath();
+      ctx.arc(lastPoint.x, lastPoint.y, this.pen.size / 4, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
     }
   }
 
@@ -152,14 +175,7 @@ export class EraserBrush extends BaseBrush {
     ctx.save();
     ctx.globalCompositeOperation = "source-over";
     
-    // Draw red circle preview
-    ctx.beginPath();
-    ctx.arc(point.x, point.y, this.pen.size / 2, 0, Math.PI * 2);
-    ctx.strokeStyle = "#ff4444";
-    ctx.lineWidth = 2;
-    ctx.globalAlpha = 0.6;
-    ctx.stroke();
-    
+
     // Draw inner circle
     ctx.beginPath();
     ctx.arc(point.x, point.y, this.pen.size / 4, 0, Math.PI * 2);
@@ -170,24 +186,26 @@ export class EraserBrush extends BaseBrush {
     ctx.restore();
   }
 
-  private performErase(ctx: CanvasRenderingContext2D) {
+  private performErase(ctx: CanvasRenderingContext2D, points: { x: number; y: number }[]) {
     ctx.save();
     ctx.globalCompositeOperation = "destination-out";
     
-    this.renderSmoothEraserPath(ctx);
+    this.renderSmoothEraserPath(ctx, points);
     
     ctx.restore();
   }
 
-  private renderSmoothEraserPath(ctx: CanvasRenderingContext2D) {
+  private renderSmoothEraserPath(ctx: CanvasRenderingContext2D, points: { x: number; y: number }[]) {
+    if (points.length === 0) return;
+    
     ctx.beginPath();
-    ctx.moveTo(this.points[0].x, this.points[0].y);
+    ctx.moveTo(points[0].x, points[0].y);
 
-    for (let i = 0; i < this.points.length - 1; i++) {
-      const p0 = i > 0 ? this.points[i - 1] : this.points[i];
-      const p1 = this.points[i];
-      const p2 = this.points[i + 1];
-      const p3 = i !== this.points.length - 2 ? this.points[i + 2] : p2;
+    for (let i = 0; i < points.length - 1; i++) {
+      const p0 = i > 0 ? points[i - 1] : points[i];
+      const p1 = points[i];
+      const p2 = points[i + 1];
+      const p3 = i !== points.length - 2 ? points[i + 2] : p2;
 
       const cp1x = p1.x + (p2.x - p0.x) / 6;
       const cp1y = p1.y + (p2.y - p0.y) / 6;
@@ -207,22 +225,31 @@ export class EraserBrush extends BaseBrush {
 // brushes/HighlighterBrush.ts
 export class HighlighterBrush extends BaseBrush {
   onStrokeStart(params: FreehandEventsParams) {
-    const { ctx, from } = params;
+    const { ctx, points } = params;
+    if (points.length === 0) return;
+    
     ctx.save();
     ctx.beginPath();
-    ctx.moveTo(from.x, from.y);
+    ctx.moveTo(points[0].x, points[0].y);
   }
 
   onStrokeMove(params: FreehandEventsParams) {
-    const { ctx, from, to } = params;
-    // Use lightened color for highlighter effect
+    const { ctx, points } = params;
+    if (points.length < 2) return;
+    
+    // 🚀 PERFORMANCE: Render entire highlighter path at once
     const lightenedColor = this.getLightenColor(this.pen.color);
     ctx.strokeStyle = lightenedColor;
     ctx.lineWidth = this.pen.size;
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
     ctx.globalAlpha = 0.3; // Semi-transparent for highlighter effect
-    ctx.lineTo(to.x, to.y);
+    
+    // Draw the entire path in one stroke
+    ctx.moveTo(points[0].x, points[0].y);
+    for (let i = 1; i < points.length; i++) {
+      ctx.lineTo(points[i].x, points[i].y);
+    }
     ctx.stroke();
   }
 
@@ -252,43 +279,40 @@ export class HighlighterBrush extends BaseBrush {
 
 // brushes/SmoothBrush.ts - Uses Catmull-Rom to Bezier smoothing
 export class SmoothBrush extends BaseBrush {
-  private points: { x: number; y: number }[] = [];
-
   onStrokeStart(params: FreehandEventsParams) {
-    const { ctx, from } = params;
-    this.points = [from];
+    const { ctx, points } = params;
+    if (points.length === 0) return;
+    
     ctx.save();
     ctx.beginPath();
-    ctx.moveTo(from.x, from.y);
+    ctx.moveTo(points[0].x, points[0].y);
   }
 
   onStrokeMove(params: FreehandEventsParams) {
-    const { ctx, to } = params;
-    this.points.push(to);
-    
-    // Only render if we have enough points for smoothing
-    if (this.points.length >= 2) {
-      this.renderSmoothPath(ctx);
+    const { ctx, points } = params;
+    // 🚀 PERFORMANCE: Render entire smooth path at once
+    if (points.length >= 2) {
+      this.renderSmoothPath(ctx, points);
     }
   }
 
   onStrokeEnd(params: FreehandEventsParams) {
-    const { ctx } = params;
-    if (this.points.length >= 2) {
-      this.renderSmoothPath(ctx);
+    const { ctx, points } = params;
+    if (points.length >= 2) {
+      this.renderSmoothPath(ctx, points);
     }
     ctx.restore();
   }
 
-  private renderSmoothPath(ctx: CanvasRenderingContext2D) {
+  private renderSmoothPath(ctx: CanvasRenderingContext2D, points: { x: number; y: number }[]) {
     ctx.beginPath();
-    ctx.moveTo(this.points[0].x, this.points[0].y);
+    ctx.moveTo(points[0].x, points[0].y);
 
-    for (let i = 0; i < this.points.length - 1; i++) {
-      const p0 = i > 0 ? this.points[i - 1] : this.points[i];
-      const p1 = this.points[i];
-      const p2 = this.points[i + 1];
-      const p3 = i !== this.points.length - 2 ? this.points[i + 2] : p2;
+    for (let i = 0; i < points.length - 1; i++) {
+      const p0 = i > 0 ? points[i - 1] : points[i];
+      const p1 = points[i];
+      const p2 = points[i + 1];
+      const p3 = i !== points.length - 2 ? points[i + 2] : p2;
 
       const cp1x = p1.x + (p2.x - p0.x) / 6;
       const cp1y = p1.y + (p2.y - p0.y) / 6;
@@ -309,12 +333,13 @@ export class SmoothBrush extends BaseBrush {
 
 export class BrushFactory {
   static createBrush(pen: Pen): BaseBrush {
+    // 🚀 PERFORMANCE: Direct brush creation without caching overhead
     switch (pen.type) {
-      case "pencil": return new SmoothBrush(pen); // Use smooth brush for pencil
+      case "pencil": return new SmoothBrush(pen);
       case "airbrush": return new AirbrushBrush(pen);
       case "highlighter": return new HighlighterBrush(pen);
       case "eraser": return new EraserBrush(pen);
-      default: return new SmoothBrush(pen); // fallback to smooth brush
+      default: return new SmoothBrush(pen);
     }
   }
 }

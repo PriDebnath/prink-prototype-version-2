@@ -32,8 +32,7 @@ export interface Tool {
 
 export interface FreehandEventsParams {
   e: PointerEvent,
-  from: Point,
-  to: Point,
+  points: Point[],
   canvasState: CanvasState,
   ctx: CanvasRenderingContext2D,
   appState: AppState,

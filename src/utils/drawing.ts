@@ -20,7 +20,6 @@ export const draw = (g: Getters) => {
   const state = g.getState();
   const activeTool = g.getActiveTool();
   const appState = g.getAppState();
-  //console.log("drawing", state)
 
   const ctx = canvas.getContext("2d")!;
   ctx.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight);
@@ -34,7 +33,6 @@ export const draw = (g: Getters) => {
   
  // Drsaw lassi
   if( (activeTool.name == "lasso" || activeTool.name == "eraser" ) && state?.lasso && state.lasso?.length)  {
-    console.log("drawing lasso")
     drawLasso(ctx, state, activeTool);
   }
   
@@ -147,13 +145,21 @@ const drawPaths = (ctx: CanvasRenderingContext2D, state: CanvasState, appState: 
       buildSelectedPath(ctx, pts, path.pen)
     }
 
-    // 📝 Use improved brush system for consistent rendering
-    const brush = BrushFactory.createBrush(path.pen);
-    renderPathWithBrush(ctx, pts, brush, path.pen);
+    // 📝 Direct rendering for better performance
+    renderPathDirectly(ctx, pts, path.pen);
   }
 };
 
-// 🎨 Render path using improved brush system
+// 🚀 High-performance rendering using optimized brush system
+function renderPathDirectly(ctx: CanvasRenderingContext2D, pts: { x: number; y: number }[], pen: Pen) {
+  if (pts.length < 1) return;
+  
+  const brush = BrushFactory.createBrush(pen);
+  renderPathWithBrush(ctx, pts, brush, pen);
+}
+
+
+// 🚀 Ultra-high-performance brush rendering - single call per path
 function renderPathWithBrush(
   ctx: CanvasRenderingContext2D, 
   pts: { x: number; y: number }[],
@@ -162,142 +168,28 @@ function renderPathWithBrush(
 ) {
   if (pts.length < 1) return;
 
-  // Create minimal params for brush system
-  const createBrushParams = (from: { x: number; y: number }, to: { x: number; y: number }): FreehandEventsParams => ({
+  // Create optimized params object (reused for performance)
+  const brushParams: FreehandEventsParams = {
     ctx,
-    from,
-    to,
+    points: pts,
     canvasState: {} as CanvasState,
     appState: { pen } as AppState,
     e: {} as PointerEvent
-  });
+  };
 
   // Start the stroke
-  brush.onStrokeStart(createBrushParams(pts[0], pts[0]));
+  brush.onStrokeStart(brushParams);
 
-  // For airbrush, render each point individually with distance optimization
-  if (pen.type === "airbrush") {
-    const minDistance = 10;
-    let lastDrawn: { x: number; y: number } | null = null;
-    
-    for (const pt of pts) {
-      if (lastDrawn) {
-        const dx = pt.x - lastDrawn.x;
-        const dy = pt.y - lastDrawn.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-        if (distance < minDistance) continue;
-      }
-      
-      brush.onStrokeMove(createBrushParams(lastDrawn || pt, pt));
-      lastDrawn = pt;
-    }
-  } else {
-    // For other brushes, render as connected path
-    for (let i = 1; i < pts.length; i++) {
-      brush.onStrokeMove(createBrushParams(pts[i - 1], pts[i]));
-    }
-  }
+  // 🚀 PERFORMANCE FIX: Render entire path in single call instead of per-point
+  // This eliminates the heavy loop that was causing choppy rendering
+  brush.onStrokeMove(brushParams);
 
   // End the stroke
-  brush.onStrokeEnd(createBrushParams(pts[pts.length - 1], pts[pts.length - 1]));
-}
-
-// ✨ Catmull–Rom to Bezier smoothing
-function buildSmoothPath(ctx: CanvasRenderingContext2D, 
-  pts: { x: number; y: number }[],
-  pen: Pen,
-) {
-  
-    ctx.save();
-    ctx.beginPath();
-    
-    ctx.moveTo(pts[0].x, pts[0].y);
-  
-    for (let i = 0; i < pts.length - 1; i++) {
-    const p0 = i > 0 ? pts[i - 1] : pts[i];
-    const p1 = pts[i];
-    const p2 = pts[i + 1];
-    const p3 = i !== pts.length - 2 ? pts[i + 2] : p2;
-
-    const cp1x = p1.x + (p2.x - p0.x) / 6;
-    const cp1y = p1.y + (p2.y - p0.y) / 6;
-    const cp2x = p2.x - (p3.x - p1.x) / 6;
-    const cp2y = p2.y - (p3.y - p1.y) / 6;
-
-    ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, p2.x, p2.y);
-  }
-
-    ctx.strokeStyle = pen.color;
-    
-    ctx.lineWidth = pen.size;
-    ctx.globalAlpha = pen.opacity ?? 1;
-    ctx.stroke();
-    ctx.restore();
+  brush.onStrokeEnd(brushParams);
 }
 
 
-function sliceSkip(arr: { x: number; y: number }[], skip = 1) {
-  return arr.filter((_, index) => index % (skip + 1) === 0);
-}
 
-
-  function buildAirbrushPath(ctx: CanvasRenderingContext2D, 
-    pts: { x: number; y: number }[],
-    pen: Pen,
-    ){
-    // Render airbrush with radial gradient for soft edges
-      const minDistance = 10; // 👈 adjustable distance threshold (in px)
-      let lastDrawn = null;
-      const slicedPts = sliceSkip(pts, 1)
-      for (const pt of pts) {
-        // Skip if the point is too close to the previous drawn point
-       if (lastDrawn) {
-         const dx = pt.x - lastDrawn.x;
-        const dy = pt.y - lastDrawn.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-         if (distance < minDistance) {
-           continue;
-         }
-       }
-       
-        ctx.save();
-        // Create radial gradient from center to edge
-        const gradient = ctx.createRadialGradient(
-          pt.x, pt.y, 0,
-          pt.x, pt.y, pen.size / 2
-        );
-        
-        const { color: penColor, opacity = 0.3 } = pen;
-
-        // Helper: convert opacity (0–1) to 2-digit hex
-       const toHex = (val: number) => Math.round(val * 255).toString(16).padStart(2, '0');
-
-       // Define gradient stops more finely for smoother transition
-       const stops = [
-          { offset: 0,    alpha: opacity },
-          { offset: 0.2,  alpha: opacity * 0.8 },
-          { offset: 0.4,  alpha: opacity * 0.5 },
-          { offset: 0.6,  alpha: opacity * 0.3 },
-          { offset: 0.8,  alpha: opacity * 0.15 },
-          { offset: 1,    alpha: 0 },
-        ];
-
-        // Add all stops to the gradient
-        for (const { offset, alpha } of stops) {
-          gradient.addColorStop(offset, `${penColor}${toHex(alpha)}`);
-        }
-   
-       ctx.fillStyle = gradient;
-       // ctx.fillStyle = penColor;
-        ctx.beginPath();
-        ctx.arc(pt.x, pt.y, pen.size / 2, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.restore();
-        // Update last drawn point
-        lastDrawn = pt;
-    }
-
-}
 
 
 function buildSelectedPath(ctx: CanvasRenderingContext2D, 
@@ -305,7 +197,6 @@ function buildSelectedPath(ctx: CanvasRenderingContext2D,
   pen: Pen,
   ){
     ctx.save();
-    ctx.beginPath();
     
     if (pen.type === "airbrush") {
       // For airbrush, draw selection around each particle
