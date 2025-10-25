@@ -158,20 +158,24 @@ export class EraserBrush extends BaseBrush {
     if (points.length >= 2) {
       this.performErase(ctx, points);
     }
+    
+    // Clean up the red preview circle by clearing the area where it was drawn
+    if (points.length > 0) {
+      const lastPoint = points[points.length - 1];
+      ctx.save();
+      ctx.globalCompositeOperation = "destination-out";
+      ctx.beginPath();
+      ctx.arc(lastPoint.x, lastPoint.y, this.pen.size / 4, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
   }
 
   private showEraserPreview(ctx: CanvasRenderingContext2D, point: { x: number; y: number }) {
     ctx.save();
     ctx.globalCompositeOperation = "source-over";
     
-    // Draw red circle preview
-    ctx.beginPath();
-    ctx.arc(point.x, point.y, this.pen.size / 2, 0, Math.PI * 2);
-    ctx.strokeStyle = "#ff4444";
-    ctx.lineWidth = 2;
-    ctx.globalAlpha = 0.6;
-    ctx.stroke();
-    
+
     // Draw inner circle
     ctx.beginPath();
     ctx.arc(point.x, point.y, this.pen.size / 4, 0, Math.PI * 2);
