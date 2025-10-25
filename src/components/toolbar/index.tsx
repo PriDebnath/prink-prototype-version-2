@@ -3,6 +3,7 @@ import { Icons } from "../icon";
 import { ColorPellet } from "./color-pellet";
 import { Button, type ButtonKeys } from "../button";
 import type { Tool, AppState, CanvasState } from "../../types";
+import { LassoTool, StrokeToolBase } from "../../utils/tool";
 // import { PanTool, PenTool, LassoTool, EraserTool } from "../../tools";
 // import { PencilTool, AirbrushTool, EraserTool } from "../../utils/tool";
 
@@ -72,17 +73,17 @@ export const Toolbar = ({
         }));
       },
     ],
-    // [
-    //   "lasso",
-    //   () => {
-    //     if (activeTool.name == "lasso") {
-    //       setActiveTool(new PenTool())
-    //     } else {
-    //       setActiveTool(new LassoTool())
-    //     }
-    //     setAppState((pri) => ({ ...pri }));// side effect to re-render stuff
-    //   },
-    // ],
+    [
+      "lasso",
+      () => {
+        if (activeTool.name == "lasso") {
+          setActiveTool(new StrokeToolBase())
+        } else {
+          setActiveTool(new LassoTool())
+        }
+        setAppState((pri) => ({ ...pri }));// side effect to re-render stuff
+      },
+    ],
 
   ];
 
