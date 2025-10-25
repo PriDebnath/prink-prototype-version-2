@@ -57,7 +57,7 @@ export class PencilBrush extends BaseBrush {
 
 export class AirbrushBrush extends BaseBrush {
   private lastDrawn: { x: number; y: number } | null = null;
-  private minDistance = 10; // Distance threshold for airbrush particles
+  private minDistance = 5; // Distance threshold for airbrush particles
 
   onStrokeStart(params: FreehandEventsParams) {
     const { points } = params;
@@ -68,56 +68,54 @@ export class AirbrushBrush extends BaseBrush {
     const { ctx, points } = params;
     if (points.length === 0) return;
     
-    // 🚀 PERFORMANCE: Render all airbrush particles at once with distance optimization
-    const { color: penColor, opacity = 0.3 } = this.pen;
-    const toHex = (val: number) => Math.round(val * 255).toString(16).padStart(2, '0');
-    
-    // Filter points by distance for performance
-    const filteredPoints: { x: number; y: number }[] = [];
-    let lastDrawn: { x: number; y: number } | null = null;
-    
-    for (const pt of points) {
-      if (lastDrawn) {
-        const dx = pt.x - lastDrawn.x;
-        const dy = pt.y - lastDrawn.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-        if (distance < this.minDistance) continue;
-      }
-      filteredPoints.push(pt);
-      lastDrawn = pt;
-    }
-    
-    // Render all filtered points in batch
     ctx.save();
-    for (const pt of filteredPoints) {
-      const gradient = ctx.createRadialGradient(
-        pt.x, pt.y, 0,
-        pt.x, pt.y, this.pen.size / 2
-      );
-      
-      const stops = [
-        { offset: 0,    alpha: opacity },
-        { offset: 0.2,  alpha: opacity * 0.8 },
-        { offset: 0.4,  alpha: opacity * 0.5 },
-        { offset: 0.6,  alpha: opacity * 0.3 },
-        { offset: 0.8,  alpha: opacity * 0.15 },
-        { offset: 1,    alpha: 0 },
-      ];
-
-      for (const { offset, alpha } of stops) {
-        gradient.addColorStop(offset, `${penColor}${toHex(alpha)}`);
+    
+    // Process each point and fill gaps when mouse moves too far
+    for (const pt of points) {
+      if (this.lastDrawn) {
+        const dx = pt.x - this.lastDrawn.x;
+        const dy = pt.y - this.lastDrawn.y;
+        const dist = Math.hypot(dx, dy);
+        
+        // If distance is too large, interpolate dots to fill the gap
+        if (dist > this.minDistance) {
+          const steps = Math.ceil(dist / this.minDistance);
+          for (let i = 1; i <= steps; i++) {
+            const t = i / steps;
+            const x = this.lastDrawn.x + dx * t;
+            const y = this.lastDrawn.y + dy * t;
+            this.drawSoftCircle({ x, y, pen: this.pen, ctx });
+          }
+        } else {
+          // Normal case: just draw at current point
+          this.drawSoftCircle({ x: pt.x, y: pt.y, pen: this.pen, ctx });
+        }
+      } else {
+        // First point
+        this.drawSoftCircle({ x: pt.x, y: pt.y, pen: this.pen, ctx });
       }
-
-      ctx.fillStyle = gradient;
-      ctx.beginPath();
-      ctx.arc(pt.x, pt.y, this.pen.size / 2, 0, Math.PI * 2);
-      ctx.fill();
+      
+      this.lastDrawn = pt;
     }
+    
     ctx.restore();
   }
 
   onStrokeEnd(params: FreehandEventsParams) {
     this.lastDrawn = null;
+  }
+
+   drawSoftCircle({ x, y, pen ,ctx}: { x: number; y: number; pen: Pen; ctx: CanvasRenderingContext2D }) {
+    const { color, opacity = 0.3, size } = pen;
+    const toHex = (val: number) => Math.round(val * 255).toString(16).padStart(2, '0');
+    const grad = ctx.createRadialGradient(x, y, 0, x, y, size / 2);
+    grad.addColorStop(0, `${color}${toHex(opacity)}`); // center strong
+    grad.addColorStop(1, `${color}${toHex(0)}`);       // edge fades out
+
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(x, y, size / 2, 0, Math.PI * 2);
+    ctx.fill();
   }
 }
 

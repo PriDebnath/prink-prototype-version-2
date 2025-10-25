@@ -29,6 +29,7 @@ export const ColorPellet = ({ canvasState, appState, setAppState }: ColorPelletP
             style={{ display: "flex", width: "100%", paddingTop: "0px", marginTop: "0px" }}
             type="range"
             step="2"
+            min="2"
             onChange={(e) => {
               console.log(e.target.value)
               const penSize = e.target.value
@@ -52,7 +53,7 @@ export const ColorPellet = ({ canvasState, appState, setAppState }: ColorPelletP
           <input
             value={appState.pen.opacity}
             max="1"
-            min="0"
+            min="0.1"
             step="0.1"
             type="range"
             style={{ display: "flex", width: "100%", paddingTop: "0px", marginTop: "0px" }}
