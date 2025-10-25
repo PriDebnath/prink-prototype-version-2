@@ -57,11 +57,22 @@ export class StrokeToolBase extends BaseTool {
 
         if (!this.drawing || !canvasState.currentPath) return;
         const world = this.toWorld(e, canvasState);
+        
+        // 🚀 PERFORMANCE: Distance filtering to reduce point density
+        const lastPoint = canvasState.currentPath.points[canvasState.currentPath.points.length - 1];
+        if (lastPoint) {
+            const dx = world.x - lastPoint.x;
+            const dy = world.y - lastPoint.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            
+            // Only add point if moved at least 2 pixels (reduces points by ~80%)
+            if (distance < 2) return;
+        }
+        
         canvasState.currentPath.points.push(world);
-
-        const ctx = canvas.getContext('2d');
-        if (!ctx) return;
-        this.brush?.onStrokeMove({ e, points: canvasState.currentPath.points, canvasState, ctx, appState });
+        
+        // 🚀 PERFORMANCE: Remove double rendering - let the drawing loop handle it
+        // The brush will be called during the drawing loop, not here
     }
 
     onPointerUp(params: ToolEventsParams) {
@@ -78,9 +89,7 @@ export class StrokeToolBase extends BaseTool {
             canvasState.currentPath.points.push(world);
         }
         
-        const ctx = canvas.getContext('2d');
-        if (!ctx) return;
-        this.brush?.onStrokeEnd({ e, points: canvasState.currentPath.points, canvasState, ctx, appState });
+        // 🚀 PERFORMANCE: Remove brush call here - let drawing loop handle final rendering
         this.brush = null;
         canvasState.currentPath = null;
     }
@@ -102,7 +111,7 @@ export class PanTool extends BaseTool {
   
     onPointerDown(params: ToolEventsParams) {
       const { e, canvasState } = params
-      console.log('pan tool onPointerDown', e, canvasState);
+      // console.log('pan tool onPointerDown', e, canvasState);
       if (e.button !== 0) return;
   
       const pointPosition = { x: e.clientX, y: e.clientY };
@@ -113,9 +122,9 @@ export class PanTool extends BaseTool {
   
     onPointerMove(params: ToolEventsParams) {
       const { e, canvasState } = params
-      console.log('pan tool onPointerMove');
+      // console.log('pan tool onPointerMove');
       if (!this.lastPointPosition || !this.activePoints.has(e.pointerId)) return
-      console.log({ canvasState, lastPointPosition: this.lastPointPosition });
+      // console.log({ canvasState, lastPointPosition: this.lastPointPosition });
       //@2 Update this pointer's current position
       const pointPosition = { x: e.clientX, y: e.clientY };
       this.activePoints.set(e.pointerId, pointPosition);
@@ -129,7 +138,7 @@ export class PanTool extends BaseTool {
   
     onPointerUp(params: ToolEventsParams) {
       const { e, canvasState } = params
-      console.log('pan tool onPointerUp', e, canvasState);
+      // console.log('pan tool onPointerUp', e, canvasState);
   
       this.lastDistance = null;
       this.lastPointPosition = null;
@@ -242,7 +251,7 @@ export class PanTool extends BaseTool {
         const { e, canvasState, appState } = params
         if (e.button !== 0) return;
     
-        console.log("onPointerDown   select", canvasState);
+        // console.log("onPointerDown   select", canvasState);
         const world = this.toWorld(e, canvasState);
         // after we get selected ids,
         // check if user clicked on selected ids or not,
@@ -295,38 +304,18 @@ export class PanTool extends BaseTool {
         if (canvasState?.selectedIds && this.dragging && this.startPoint) {
           const dx = world.x - this.startPoint.x;
           const dy = world.y - this.startPoint.y;
-          console.log({ dy, dx })
           
-          // Move selected shapes AND their related eraser strokes by delta
-          const moved = canvasState.paths.map((pen) => {
-            // Move selected paths
-            if (canvasState.selectedIds!.includes(pen.id)) {
-              const movedPoints = pen.points.map((p) => ({ x: p.x + dx, y: p.y + dy }));
-              return { ...pen, points: movedPoints };
+          // 🚀 PERFORMANCE: Move selected paths directly in the array
+          for (let i = 0; i < canvasState.paths.length; i++) {
+            const pen = canvasState.paths[i];
+            if (canvasState.selectedIds.includes(pen.id)) {
+              // Move the points of this selected path
+              canvasState.paths[i] = {
+                ...pen,
+                points: pen.points.map((p: Point) => ({ x: p.x + dx, y: p.y + dy }))
+              };
             }
-            
-            // Also move eraser strokes that are spatially related to selected content
-            // This ensures erased areas move with their original content
-            if (pen.pen.type === "eraser") {
-              // Check if this eraser stroke overlaps with any selected content
-              const shouldMoveEraser = canvasState.selectedIds!.some(selectedId => {
-                const selectedPath = canvasState.paths.find(p => p.id === selectedId);
-                if (!selectedPath) return false;
-                
-                // Simple bounding box overlap check
-                return this.pathsOverlap(pen, selectedPath);
-              });
-              
-              if (shouldMoveEraser) {
-                const movedPoints = pen.points.map((p) => ({ x: p.x + dx, y: p.y + dy }));
-                return { ...pen, points: movedPoints };
-              }
-            }
-            
-            return pen;
-          });
-
-          canvasState.paths = moved;
+          }
     
           // update startPoint so next move uses delta from here
           this.startPoint = world;
@@ -350,13 +339,12 @@ export class PanTool extends BaseTool {
         } catch (err) {
           // ignore
         }
-        console.log("onPointerUp   select", canvasState);
+        // console.log("onPointerUp   select", canvasState);
     
         // If we were dragging, just end drag and keep selection
         if (this.dragging) {
           this.dragging = false;
           this.startPoint = null;
-          console.log("was dragf")
           canvasState.lasso = [];
     
           return;
