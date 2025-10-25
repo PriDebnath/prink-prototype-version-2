@@ -118,7 +118,7 @@ export const Toolbar = ({
 
           {/* ✏️ Shown only when active tool is PenTool */}
           {
-            activeTool.name === "pen" && (
+            (activeTool.name === "pen" || activeTool.name === "lasso") && (
               <>
             {    renderButtons(penTools)}
 

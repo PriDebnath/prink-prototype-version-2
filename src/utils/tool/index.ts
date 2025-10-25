@@ -292,15 +292,36 @@ export class PanTool extends BaseTool {
           const dx = world.x - this.startPoint.x;
           const dy = world.y - this.startPoint.y;
           console.log({ dy, dx })
-          // move only selected shapes by delta
+          
+          // Move selected shapes AND their related eraser strokes by delta
           const moved = canvasState.paths.map((pen) => {
+            // Move selected paths
             if (canvasState.selectedIds!.includes(pen.id)) {
               const movedPoints = pen.points.map((p) => ({ x: p.x + dx, y: p.y + dy }));
               return { ...pen, points: movedPoints };
             }
+            
+            // Also move eraser strokes that are spatially related to selected content
+            // This ensures erased areas move with their original content
+            if (pen.pen.type === "eraser") {
+              // Check if this eraser stroke overlaps with any selected content
+              const shouldMoveEraser = canvasState.selectedIds!.some(selectedId => {
+                const selectedPath = canvasState.paths.find(p => p.id === selectedId);
+                if (!selectedPath) return false;
+                
+                // Simple bounding box overlap check
+                return this.pathsOverlap(pen, selectedPath);
+              });
+              
+              if (shouldMoveEraser) {
+                const movedPoints = pen.points.map((p) => ({ x: p.x + dx, y: p.y + dy }));
+                return { ...pen, points: movedPoints };
+              }
+            }
+            
             return pen;
           });
-    
+
           canvasState.paths = moved;
     
           // update startPoint so next move uses delta from here
@@ -405,6 +426,32 @@ export class PanTool extends BaseTool {
         const dxp = p.x - projX;
         const dyp = p.y - projY;
         return Math.sqrt(dxp * dxp + dyp * dyp);
+      }
+
+      // Helper method to check if two paths overlap spatially
+      private pathsOverlap(path1: Freehand, path2: Freehand): boolean {
+        if (!path1.points.length || !path2.points.length) return false;
+        
+        // Get bounding boxes for both paths
+        const getBounds = (points: Point[]) => {
+          const xs = points.map(p => p.x);
+          const ys = points.map(p => p.y);
+          return {
+            minX: Math.min(...xs),
+            maxX: Math.max(...xs),
+            minY: Math.min(...ys),
+            maxY: Math.max(...ys)
+          };
+        };
+        
+        const bounds1 = getBounds(path1.points);
+        const bounds2 = getBounds(path2.points);
+        
+        // Check if bounding boxes overlap
+        return !(bounds1.maxX < bounds2.minX || 
+                 bounds2.maxX < bounds1.minX || 
+                 bounds1.maxY < bounds2.minY || 
+                 bounds2.maxY < bounds1.minY);
       }
     }
     
