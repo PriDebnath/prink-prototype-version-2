@@ -3,7 +3,9 @@ import { Icons } from "../icon";
 import { ColorPellet } from "./color-pellet";
 import { Button, type ButtonKeys } from "../button";
 import type { Tool, AppState, CanvasState } from "../../types";
-import { PanTool, PenTool, LassoTool, EraserTool } from "../../tools";
+import { LassoTool, StrokeToolBase } from "../../utils/tool";
+// import { PanTool, PenTool, LassoTool, EraserTool } from "../../tools";
+// import { PencilTool, AirbrushTool, EraserTool } from "../../utils/tool";
 
 export const Toolbar = ({
   activeTool,
@@ -60,25 +62,22 @@ export const Toolbar = ({
           ...prev,
           pen: { ...prev.pen, type: "airbrush" },
         }));
-        setActiveTool(new PenTool());
       },
     ],
     [
       "eraser",
       () => {
-        if (activeTool.name == "eraser") {
-          setActiveTool(new PenTool())
-        } else {
-          setActiveTool(new EraserTool())
-        }
-        setAppState((pri) => ({ ...pri }));// side effect to re-render stuff
-    },
+        setAppState((prev) => ({
+          ...prev,
+          pen: { ...prev.pen, type: "eraser" },
+        }));
+      },
     ],
     [
       "lasso",
       () => {
         if (activeTool.name == "lasso") {
-          setActiveTool(new PenTool())
+          setActiveTool(new StrokeToolBase())
         } else {
           setActiveTool(new LassoTool())
         }
@@ -118,36 +117,31 @@ export const Toolbar = ({
           {renderButtons(mainTools)}
 
           {/* ✏️ Shown only when active tool is PenTool */}
-          {(
-            activeTool.name === "pen" 
-            || activeTool.name === "lasso"
-            || activeTool.name === "eraser"
-            ) && (renderButtons(penTools))
-            
-          }
           {
-          (
-          activeTool.name === "pen"
-          || activeTool.name === "lasso"
-          || activeTool.name === "eraser"
-          ) && (
-            <button className="tool circle color-ball"
-              id="pen-color-picker-circleg"
-              style={{
-                background: appState.pen.color,
-                cursor: 'pointer',
-                outline: openColorPellet
-                  ? `${(appState.pen.size ?? 10) / 10}px solid blue`
-                  : "0px solid transparent",
-              }}
-              onClick={() => {
-                setOpenColorPellet(!openColorPellet)
-              }
-              }
-            >
-            </button>
-          )
+            (activeTool.name === "pen" || activeTool.name === "lasso") && (
+              <>
+            {    renderButtons(penTools)}
+
+                <button
+                  className="tool circle color-ball"
+                  id="pen-color-picker-circleg"
+                  style={{
+                    background: appState.pen.color,
+                    cursor: 'pointer',
+                    outline: openColorPellet
+                      ? `${(appState.pen.size ?? 10) / 10}px solid blue`
+                      : "0px solid transparent",
+                  }}
+                  onClick={() => {
+                    setOpenColorPellet(!openColorPellet)
+                  }
+                  }
+                >
+                </button>
+              </>
+            )
           }
+
         </div>
       </div>
     </footer>

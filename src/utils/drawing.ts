@@ -1,6 +1,7 @@
 // utils/draw.ts
-import type { Tool, CanvasState, AppState, Pen } from "../types";
-import { getLightenColor } from "./helpers"
+import type { Tool, CanvasState, AppState, Pen, FreehandEventsParams } from "../types";
+import { getLightenColor } from "./helpers";
+import { BrushFactory, BaseBrush } from "./brush/index";
 let animationId: number | null = null;
 
 type Getters = {
@@ -42,9 +43,9 @@ export const draw = (g: Getters) => {
     drawPaths(ctx, state, appState, activeTool);
   }
   
-  if (activeTool.renderOverlay) {
-    activeTool.renderOverlay(ctx, state);
-  }
+  // if (activeTool.renderOverlay) {
+  //   // activeTool.renderOverlay(ctx, state);
+  // }
   
   ctx.restore();
 };
@@ -146,19 +147,60 @@ const drawPaths = (ctx: CanvasRenderingContext2D, state: CanvasState, appState: 
       buildSelectedPath(ctx, pts, path.pen)
     }
 
-    // 📝 Actual stroke
-    let penColor = path.pen.color;
-    if (path.pen.type === "highlighter") {
-      penColor = getLightenColor(penColor);  
-    }
-    if(path.pen.type == "airbrush"){
-      buildAirbrushPath(ctx, pts, path.pen);
-    }else{
-      buildSmoothPath(ctx, pts, path.pen);
-    }
-
+    // 📝 Use improved brush system for consistent rendering
+    const brush = BrushFactory.createBrush(path.pen);
+    renderPathWithBrush(ctx, pts, brush, path.pen);
   }
 };
+
+// 🎨 Render path using improved brush system
+function renderPathWithBrush(
+  ctx: CanvasRenderingContext2D, 
+  pts: { x: number; y: number }[],
+  brush: BaseBrush,
+  pen: Pen
+) {
+  if (pts.length < 1) return;
+
+  // Create minimal params for brush system
+  const createBrushParams = (from: { x: number; y: number }, to: { x: number; y: number }): FreehandEventsParams => ({
+    ctx,
+    from,
+    to,
+    canvasState: {} as CanvasState,
+    appState: { pen } as AppState,
+    e: {} as PointerEvent
+  });
+
+  // Start the stroke
+  brush.onStrokeStart(createBrushParams(pts[0], pts[0]));
+
+  // For airbrush, render each point individually with distance optimization
+  if (pen.type === "airbrush") {
+    const minDistance = 10;
+    let lastDrawn: { x: number; y: number } | null = null;
+    
+    for (const pt of pts) {
+      if (lastDrawn) {
+        const dx = pt.x - lastDrawn.x;
+        const dy = pt.y - lastDrawn.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        if (distance < minDistance) continue;
+      }
+      
+      brush.onStrokeMove(createBrushParams(lastDrawn || pt, pt));
+      lastDrawn = pt;
+    }
+  } else {
+    // For other brushes, render as connected path
+    for (let i = 1; i < pts.length; i++) {
+      brush.onStrokeMove(createBrushParams(pts[i - 1], pts[i]));
+    }
+  }
+
+  // End the stroke
+  brush.onStrokeEnd(createBrushParams(pts[pts.length - 1], pts[pts.length - 1]));
+}
 
 // ✨ Catmull–Rom to Bezier smoothing
 function buildSmoothPath(ctx: CanvasRenderingContext2D, 
@@ -263,25 +305,27 @@ function buildSelectedPath(ctx: CanvasRenderingContext2D,
   pen: Pen,
   ){
     ctx.save();
-      ctx.beginPath();
-      
+    ctx.beginPath();
+    
     if (pen.type === "airbrush") {
-        // For airbrush, draw selection around each particle
-        for (const pt of pts) {
-          ctx.beginPath();
-          ctx.arc(pt.x, pt.y, pen.size / 4 + 3, 0, Math.PI * 2);
-          ctx.strokeStyle = "#2563EB";
-          ctx.lineWidth = 2;
-          ctx.globalAlpha = 0.4;
-          ctx.stroke();
-        }
-      } 
-    else{
-      buildSmoothPath(ctx, pts, pen);
+      // For airbrush, draw selection around each particle
+      for (const pt of pts) {
+        ctx.beginPath();
+        ctx.arc(pt.x, pt.y, pen.size / 4 + 3, 0, Math.PI * 2);
+        ctx.strokeStyle = "#2563EB";
+        ctx.lineWidth = 2;
+        ctx.globalAlpha = 0.4;
+        ctx.stroke();
+      }
+    } else {
+      // For other brushes, use brush system with selection styling
+      const brush = BrushFactory.createBrush(pen);
       ctx.lineWidth = pen.size + 6;
       ctx.strokeStyle = "#2563EB";
       ctx.globalAlpha = 0.4;
-      ctx.stroke();
-  }
-      ctx.restore();
+      
+      // Render with selection highlight using brush system
+      renderPathWithBrush(ctx, pts, brush, pen);
+    }
+    ctx.restore();
   }

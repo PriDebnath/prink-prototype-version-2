@@ -1,4 +1,3 @@
-import { PanTool, PenTool } from "../../tools";
 import { Button, type ButtonKeys } from "../button";
 import type { Tool, CanvasState, AppState } from "../../types";
 import { useNavigate } from "@tanstack/react-router";
