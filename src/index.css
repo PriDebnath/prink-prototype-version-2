@@ -193,6 +193,7 @@ input {
   bottom: 0;
   margin: auto;
   pointer-events: none;
+  z-index: 10;
 }
 
 
@@ -283,6 +284,7 @@ input {
   right: 0;
   margin: auto;
   pointer-events: none;
+  z-index: 10;
 }
 
 .toolbar-subbar-wrapper {
@@ -324,6 +326,7 @@ animation: bubblePopPellet  calc(var(--delay)*0.25) ease forwards;
   right: 0;
   margin: auto;
   pointer-events: none;
+  z-index: 10;
 
 }
 

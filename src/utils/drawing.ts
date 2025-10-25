@@ -4,8 +4,9 @@ import { getLightenColor } from "./helpers";
 import { BrushFactory, BaseBrush } from "./brush/index";
 let animationId: number | null = null;
 
-type Getters = {
+export type Getters = {
   canvas: HTMLCanvasElement;
+  gridCanvas: HTMLCanvasElement;
   getState: () => CanvasState;
   getActiveTool: () => Tool;
   getAppState: () => AppState;
@@ -17,21 +18,32 @@ type Getters = {
  */
 export const draw = (g: Getters) => {
   const canvas = g.canvas;
+  const gridCanvas = g.gridCanvas;
   const state = g.getState();
   const activeTool = g.getActiveTool();
   const appState = g.getAppState();
 
+  // Draw grid on background canvas if available
+  if (gridCanvas) {
+    const gridCtx = gridCanvas.getContext("2d")!;
+    gridCtx.clearRect(0, 0, gridCanvas.clientWidth, gridCanvas.clientHeight);
+    
+    if (appState.grid) {
+      console.log("Drawing grid on background canvas");
+      drawGrid(gridCtx, state, gridCanvas);
+    } else {
+      console.log("Grid disabled - clearing grid canvas");
+    }
+  }
+
+  // Clear and draw content on drawing canvas
   const ctx = canvas.getContext("2d")!;
   ctx.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight);
-
-  // Draw grid if enabled (instant, no animation)
-  if (appState.grid) drawGrid(ctx, state, canvas);
- 
 
   ctx.save();
   applyTransform(ctx, state);
   
- // Drsaw lassi
+ // Draw lasso
   if( (activeTool.name == "lasso" || activeTool.name == "eraser" ) && state?.lasso && state.lasso?.length)  {
     drawLasso(ctx, state, activeTool);
   }
@@ -102,14 +114,14 @@ export function drawLasso(ctx: CanvasRenderingContext2D, state: CanvasState, act
 
 
 const drawGrid = (ctx: CanvasRenderingContext2D, state: CanvasState, canvas: HTMLCanvasElement) => {
-  const gridSize = 50 * state. scale;
+  const gridSize = 50 * state.scale;
   const offsetX = state.offset.x % gridSize;
   const offsetY = state.offset.y % gridSize;
 
   ctx.save();
   // full-canvas stroke coordinates are in device pixels — caller should have scaled context already
   ctx.beginPath();
-  ctx.strokeStyle = "#e0e0e0";
+  ctx.strokeStyle = "#d0d0d0";
   ctx.lineWidth = 1;
 
   for (let x = -gridSize + offsetX; x < canvas.clientWidth; x += gridSize) {
