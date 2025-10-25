@@ -18,14 +18,21 @@ export abstract class BaseBrush {
 
 export class PencilBrush extends BaseBrush {
   onStrokeStart(params: FreehandEventsParams) {
-    const { ctx, from } = params;
+    const { ctx, points } = params;
+    if (points.length === 0) return;
+    
     ctx.save();
     ctx.beginPath();
-    ctx.moveTo(from.x, from.y);
+    ctx.moveTo(points[0].x, points[0].y);
   }
 
   onStrokeMove(params: FreehandEventsParams) {
-    const { ctx, from, to } = params;
+    const { ctx, points } = params;
+    if (points.length < 2) return;
+    
+    const from = points[points.length - 2];
+    const to = points[points.length - 1];
+    console.log("moving in pencil brush");
     ctx.strokeStyle = this.pen.color;
     ctx.lineWidth = this.pen.size;
     ctx.lineCap = "round";
@@ -50,13 +57,16 @@ export class AirbrushBrush extends BaseBrush {
   private minDistance = 10; // Distance threshold for airbrush particles
 
   onStrokeStart(params: FreehandEventsParams) {
-    const { ctx, from } = params;
+    const { points } = params;
     this.lastDrawn = null;
   }
 
   onStrokeMove(params: FreehandEventsParams) {
-    const { ctx, to } = params;
+    const { ctx, points } = params;
+    if (points.length === 0) return;
     
+    const to = points[points.length - 1];
+    console.log("moving in airbrush brush");
     // Skip if the point is too close to the previous drawn point
     if (this.lastDrawn) {
       const dx = to.x - this.lastDrawn.x;
@@ -115,36 +125,37 @@ export class AirbrushBrush extends BaseBrush {
 //import { BaseBrush } from "./BaseBrush";
 
 export class EraserBrush extends BaseBrush {
-  private points: { x: number; y: number }[] = [];
   private isErasing = false;
 
   onStrokeStart(params: FreehandEventsParams) {
-    const { ctx, from } = params;
-    this.points = [from];
+    const { ctx, points } = params;
+    if (points.length === 0) return;
     this.isErasing = true;
     
     // Show eraser preview circle
-    this.showEraserPreview(ctx, from);
+    this.showEraserPreview(ctx, points[points.length - 1]);
   }
 
   onStrokeMove(params: FreehandEventsParams) {
-    const { ctx, to } = params;
-    this.points.push(to);
+    const { ctx, points } = params;
+    if (points.length === 0) return;
     
     // Show eraser preview at current position
-    this.showEraserPreview(ctx, to);
+    this.showEraserPreview(ctx, points[points.length - 1]);
     
     // Actually erase the content
-    this.performErase(ctx);
+    this.performErase(ctx, points);
   }
 
   onStrokeEnd(params: FreehandEventsParams) {
-    const { ctx } = params;
-    this.isErasing = false;
+    const { ctx, points } = params;
+    if (this.isErasing) {
+      this.isErasing = false;
+    }
     
     // Final erase operation
-    if (this.points.length >= 2) {
-      this.performErase(ctx);
+    if (points.length >= 2) {
+      this.performErase(ctx, points);
     }
   }
 
@@ -170,24 +181,26 @@ export class EraserBrush extends BaseBrush {
     ctx.restore();
   }
 
-  private performErase(ctx: CanvasRenderingContext2D) {
+  private performErase(ctx: CanvasRenderingContext2D, points: { x: number; y: number }[]) {
     ctx.save();
     ctx.globalCompositeOperation = "destination-out";
     
-    this.renderSmoothEraserPath(ctx);
+    this.renderSmoothEraserPath(ctx, points);
     
     ctx.restore();
   }
 
-  private renderSmoothEraserPath(ctx: CanvasRenderingContext2D) {
+  private renderSmoothEraserPath(ctx: CanvasRenderingContext2D, points: { x: number; y: number }[]) {
+    if (points.length === 0) return;
+    
     ctx.beginPath();
-    ctx.moveTo(this.points[0].x, this.points[0].y);
+    ctx.moveTo(points[0].x, points[0].y);
 
-    for (let i = 0; i < this.points.length - 1; i++) {
-      const p0 = i > 0 ? this.points[i - 1] : this.points[i];
-      const p1 = this.points[i];
-      const p2 = this.points[i + 1];
-      const p3 = i !== this.points.length - 2 ? this.points[i + 2] : p2;
+    for (let i = 0; i < points.length - 1; i++) {
+      const p0 = i > 0 ? points[i - 1] : points[i];
+      const p1 = points[i];
+      const p2 = points[i + 1];
+      const p3 = i !== points.length - 2 ? points[i + 2] : p2;
 
       const cp1x = p1.x + (p2.x - p0.x) / 6;
       const cp1y = p1.y + (p2.y - p0.y) / 6;
@@ -207,14 +220,20 @@ export class EraserBrush extends BaseBrush {
 // brushes/HighlighterBrush.ts
 export class HighlighterBrush extends BaseBrush {
   onStrokeStart(params: FreehandEventsParams) {
-    const { ctx, from } = params;
+    const { ctx, points } = params;
+    if (points.length === 0) return;
+    
     ctx.save();
     ctx.beginPath();
-    ctx.moveTo(from.x, from.y);
+    ctx.moveTo(points[0].x, points[0].y);
   }
 
   onStrokeMove(params: FreehandEventsParams) {
-    const { ctx, from, to } = params;
+    const { ctx, points } = params;
+    if (points.length < 2) return;
+    
+    const to = points[points.length - 1];
+    console.log("moving in highlighter brush");
     // Use lightened color for highlighter effect
     const lightenedColor = this.getLightenColor(this.pen.color);
     ctx.strokeStyle = lightenedColor;
@@ -252,43 +271,41 @@ export class HighlighterBrush extends BaseBrush {
 
 // brushes/SmoothBrush.ts - Uses Catmull-Rom to Bezier smoothing
 export class SmoothBrush extends BaseBrush {
-  private points: { x: number; y: number }[] = [];
-
   onStrokeStart(params: FreehandEventsParams) {
-    const { ctx, from } = params;
-    this.points = [from];
+    const { ctx, points } = params;
+    if (points.length === 0) return;
+    
     ctx.save();
     ctx.beginPath();
-    ctx.moveTo(from.x, from.y);
+    ctx.moveTo(points[0].x, points[0].y);
   }
 
   onStrokeMove(params: FreehandEventsParams) {
-    const { ctx, to } = params;
-    this.points.push(to);
-    
+    const { ctx, points } = params;
+    console.log("moving in smooth brush");
     // Only render if we have enough points for smoothing
-    if (this.points.length >= 2) {
-      this.renderSmoothPath(ctx);
+    if (points.length >= 2) {
+      this.renderSmoothPath(ctx, points);
     }
   }
 
   onStrokeEnd(params: FreehandEventsParams) {
-    const { ctx } = params;
-    if (this.points.length >= 2) {
-      this.renderSmoothPath(ctx);
+    const { ctx, points } = params;
+    if (points.length >= 2) {
+      this.renderSmoothPath(ctx, points);
     }
     ctx.restore();
   }
 
-  private renderSmoothPath(ctx: CanvasRenderingContext2D) {
+  private renderSmoothPath(ctx: CanvasRenderingContext2D, points: { x: number; y: number }[]) {
     ctx.beginPath();
-    ctx.moveTo(this.points[0].x, this.points[0].y);
+    ctx.moveTo(points[0].x, points[0].y);
 
-    for (let i = 0; i < this.points.length - 1; i++) {
-      const p0 = i > 0 ? this.points[i - 1] : this.points[i];
-      const p1 = this.points[i];
-      const p2 = this.points[i + 1];
-      const p3 = i !== this.points.length - 2 ? this.points[i + 2] : p2;
+    for (let i = 0; i < points.length - 1; i++) {
+      const p0 = i > 0 ? points[i - 1] : points[i];
+      const p1 = points[i];
+      const p2 = points[i + 1];
+      const p3 = i !== points.length - 2 ? points[i + 2] : p2;
 
       const cp1x = p1.x + (p2.x - p0.x) / 6;
       const cp1y = p1.y + (p2.y - p0.y) / 6;

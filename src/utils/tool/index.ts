@@ -42,7 +42,7 @@ export class StrokeToolBase extends BaseTool {
 
         const ctx = canvas.getContext('2d');
         if (!ctx) return;
-        this.brush?.onStrokeStart({ e, from: world, to: world, canvasState, ctx, appState });
+        this.brush?.onStrokeStart({ e, points: [world], canvasState, ctx, appState });
 
         canvasState.currentPath = {
             id: canvasState.paths.length + 1,
@@ -58,12 +58,10 @@ export class StrokeToolBase extends BaseTool {
         if (!this.drawing || !canvasState.currentPath) return;
         const world = this.toWorld(e, canvasState);
         canvasState.currentPath.points.push(world);
-        
-        const last = canvasState.currentPath.points.at(-1)!;
 
         const ctx = canvas.getContext('2d');
         if (!ctx) return;
-        this.brush?.onStrokeMove({ e, from: last, to: world, canvasState, ctx, appState });
+        this.brush?.onStrokeMove({ e, points: canvasState.currentPath.points, canvasState, ctx, appState });
     }
 
     onPointerUp(params: ToolEventsParams) {
@@ -72,11 +70,17 @@ export class StrokeToolBase extends BaseTool {
         if (!this.drawing) return;
         this.drawing = false;
         const world = this.toWorld(e, canvasState);
-        const last = canvasState.currentPath?.points.at(-1);
-        if (!last) return;
+        if (!canvasState.currentPath) return;
+        
+        // Add the final point if it's not already there
+        if (canvasState.currentPath.points.length === 0 || 
+            canvasState.currentPath.points[canvasState.currentPath.points.length - 1] !== world) {
+            canvasState.currentPath.points.push(world);
+        }
+        
         const ctx = canvas.getContext('2d');
         if (!ctx) return;
-        this.brush?.onStrokeEnd({ e, from: last, to: world, canvasState, ctx, appState });
+        this.brush?.onStrokeEnd({ e, points: canvasState.currentPath.points, canvasState, ctx, appState });
         this.brush = null;
         canvasState.currentPath = null;
     }

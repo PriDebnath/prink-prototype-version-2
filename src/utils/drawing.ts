@@ -147,11 +147,97 @@ const drawPaths = (ctx: CanvasRenderingContext2D, state: CanvasState, appState: 
       buildSelectedPath(ctx, pts, path.pen)
     }
 
-    // 📝 Use improved brush system for consistent rendering
-    const brush = BrushFactory.createBrush(path.pen);
-    renderPathWithBrush(ctx, pts, brush, path.pen);
+    // 📝 Direct rendering for better performance
+    renderPathDirectly(ctx, pts, path.pen);
   }
 };
+
+// 🚀 High-performance direct rendering (bypasses brush system)
+function renderPathDirectly(ctx: CanvasRenderingContext2D, pts: { x: number; y: number }[], pen: Pen) {
+  if (pts.length < 1) return;
+
+  ctx.save();
+  
+  switch (pen.type) {
+    case "pencil":
+      // Direct smooth path rendering
+      buildSmoothPath(ctx, pts, pen);
+      break;
+      
+    case "airbrush":
+      // Direct airbrush rendering
+      buildAirbrushPath(ctx, pts, pen);
+      break;
+      
+    case "highlighter":
+      // Direct highlighter rendering
+      buildHighlighterPath(ctx, pts, pen);
+      break;
+      
+    case "eraser":
+      // Direct eraser rendering
+      buildEraserPath(ctx, pts, pen);
+      break;
+      
+    default:
+      // Fallback to smooth path
+      buildSmoothPath(ctx, pts, pen);
+  }
+  
+  ctx.restore();
+}
+
+// 🎨 Direct rendering functions (high performance)
+function buildHighlighterPath(ctx: CanvasRenderingContext2D, pts: { x: number; y: number }[], pen: Pen) {
+  if (pts.length < 2) return;
+  
+  ctx.beginPath();
+  ctx.moveTo(pts[0].x, pts[0].y);
+  
+  // Use lightened color for highlighter effect
+  const lightenedColor = getLightenColor(pen.color);
+  ctx.strokeStyle = lightenedColor;
+  ctx.lineWidth = pen.size;
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+  ctx.globalAlpha = 0.3; // Semi-transparent for highlighter effect
+  
+  for (let i = 1; i < pts.length; i++) {
+    ctx.lineTo(pts[i].x, pts[i].y);
+  }
+  ctx.stroke();
+}
+
+function buildEraserPath(ctx: CanvasRenderingContext2D, pts: { x: number; y: number }[], pen: Pen) {
+  if (pts.length < 2) return;
+  
+  ctx.save();
+  ctx.globalCompositeOperation = "destination-out";
+  
+  ctx.beginPath();
+  ctx.moveTo(pts[0].x, pts[0].y);
+
+  // Smooth eraser path using Catmull-Rom to Bezier
+  for (let i = 0; i < pts.length - 1; i++) {
+    const p0 = i > 0 ? pts[i - 1] : pts[i];
+    const p1 = pts[i];
+    const p2 = pts[i + 1];
+    const p3 = i !== pts.length - 2 ? pts[i + 2] : p2;
+
+    const cp1x = p1.x + (p2.x - p0.x) / 6;
+    const cp1y = p1.y + (p2.y - p0.y) / 6;
+    const cp2x = p2.x - (p3.x - p1.x) / 6;
+    const cp2y = p2.y - (p3.y - p1.y) / 6;
+
+    ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, p2.x, p2.y);
+  }
+
+  ctx.lineWidth = pen.size;
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+  ctx.stroke();
+  ctx.restore();
+}
 
 // 🎨 Render path using improved brush system
 function renderPathWithBrush(
@@ -162,23 +248,23 @@ function renderPathWithBrush(
 ) {
   if (pts.length < 1) return;
 
-  // Create minimal params for brush system
-  const createBrushParams = (from: { x: number; y: number }, to: { x: number; y: number }): FreehandEventsParams => ({
+  // Create params for brush system with full points array
+  const createBrushParams = (points: { x: number; y: number }[]): FreehandEventsParams => ({
     ctx,
-    from,
-    to,
+    points,
     canvasState: {} as CanvasState,
     appState: { pen } as AppState,
     e: {} as PointerEvent
   });
 
   // Start the stroke
-  brush.onStrokeStart(createBrushParams(pts[0], pts[0]));
+  brush.onStrokeStart(createBrushParams([pts[0]]));
 
   // For airbrush, render each point individually with distance optimization
   if (pen.type === "airbrush") {
     const minDistance = 10;
     let lastDrawn: { x: number; y: number } | null = null;
+    const filteredPts: { x: number; y: number }[] = [];
     
     for (const pt of pts) {
       if (lastDrawn) {
@@ -188,18 +274,22 @@ function renderPathWithBrush(
         if (distance < minDistance) continue;
       }
       
-      brush.onStrokeMove(createBrushParams(lastDrawn || pt, pt));
+      filteredPts.push(pt);
+      brush.onStrokeMove(createBrushParams(filteredPts));
       lastDrawn = pt;
     }
+  } else if (pen.type === "eraser") {
+    // For eraser, render the entire path at once to avoid multiple calls
+    brush.onStrokeMove(createBrushParams(pts));
   } else {
     // For other brushes, render as connected path
     for (let i = 1; i < pts.length; i++) {
-      brush.onStrokeMove(createBrushParams(pts[i - 1], pts[i]));
+      brush.onStrokeMove(createBrushParams(pts.slice(0, i + 1)));
     }
   }
 
   // End the stroke
-  brush.onStrokeEnd(createBrushParams(pts[pts.length - 1], pts[pts.length - 1]));
+  brush.onStrokeEnd(createBrushParams(pts));
 }
 
 // ✨ Catmull–Rom to Bezier smoothing
