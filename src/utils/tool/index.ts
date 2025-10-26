@@ -2,6 +2,7 @@ import {
     BrushFactory,
     BaseBrush
 } from "../brush/index";
+import { markPathDirty, markFullRedraw } from "../drawing";
 import type {
     Tool,
     Point,
@@ -50,6 +51,9 @@ export class StrokeToolBase extends BaseTool {
             pen: appState.pen,
         };
         canvasState.paths.push(canvasState.currentPath);
+        
+        // 🚀 PERFORMANCE: Mark dirty region for new path
+        markPathDirty([world], appState.pen);
     }
 
     onPointerMove(params: ToolEventsParams) {
@@ -70,6 +74,9 @@ export class StrokeToolBase extends BaseTool {
         }
         
         canvasState.currentPath.points.push(world);
+        
+        // 🚀 PERFORMANCE: Mark dirty region for updated path
+        markPathDirty(canvasState.currentPath.points, appState.pen);
         
         // 🚀 PERFORMANCE: Remove double rendering - let the drawing loop handle it
         // The brush will be called during the drawing loop, not here
@@ -171,7 +178,10 @@ export class PanTool extends BaseTool {
   
       canvasState.offset.x += movedX
       canvasState.offset.y += movedY
-  
+
+      // 🚀 PERFORMANCE: Mark full redraw for panning
+      markFullRedraw();
+
       this.lastPointPosition = currentPointPosition
     }
   
@@ -227,7 +237,10 @@ export class PanTool extends BaseTool {
       canvasState.offset.y = midpoint.y - worldY * clampedNewScale;
   
       canvasState.scale = clampedNewScale
-  
+
+      // 🚀 PERFORMANCE: Mark full redraw for zooming
+      markFullRedraw();
+
       console.log({
         scaleFactor,
         newScale,

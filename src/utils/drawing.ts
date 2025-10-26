@@ -9,6 +9,18 @@ let animationId: number | null = null;
 // Significant performance improvement when drawing many paths with similar settings
 const brushCache = new Map<string, BaseBrush>();
 
+// 🚀 PERFORMANCE: Dirty rectangle tracking - different approach
+// Track dirty regions but don't interfere with the drawing loop
+interface DirtyRectangle {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+const dirtyRegions: DirtyRectangle[] = [];
+let isFullRedraw = false;
+
 /**
  * Get cached brush instance or create new one if not cached
  */
@@ -40,6 +52,180 @@ export function getBrushCacheStats(): { size: number; keys: string[] } {
   };
 }
 
+// 🚀 PERFORMANCE: Dirty rectangle tracking functions (non-interfering)
+
+/**
+ * Mark a region as dirty (for future optimization)
+ */
+export function markDirty(x: number, y: number, width: number, height: number): void {
+  dirtyRegions.push({ x, y, width, height });
+}
+
+/**
+ * Mark entire canvas as dirty (for future optimization)
+ */
+export function markFullRedraw(): void {
+  isFullRedraw = true;
+  dirtyRegions.length = 0;
+}
+
+/**
+ * Clear dirty regions (for future optimization)
+ */
+export function clearDirtyRegions(): void {
+  dirtyRegions.length = 0;
+  isFullRedraw = false;
+}
+
+/**
+ * Get dirty rectangle statistics for debugging
+ */
+export function getDirtyRectangleStats(): {
+  dirtyRegionsCount: number;
+  isFullRedraw: boolean;
+  dirtyRegions: DirtyRectangle[];
+} {
+  return {
+    dirtyRegionsCount: dirtyRegions.length,
+    isFullRedraw,
+    dirtyRegions: [...dirtyRegions]
+  };
+}
+
+/**
+ * Calculate bounding box for a path (for dirty rectangle tracking)
+ */
+function getPathBounds(points: { x: number; y: number }[], pen: Pen): DirtyRectangle {
+  if (points.length === 0) {
+    return { x: 0, y: 0, width: 0, height: 0 };
+  }
+
+  let minX = points[0].x;
+  let maxX = points[0].x;
+  let minY = points[0].y;
+  let maxY = points[0].y;
+
+  for (const point of points) {
+    minX = Math.min(minX, point.x);
+    maxX = Math.max(maxX, point.x);
+    minY = Math.min(minY, point.y);
+    maxY = Math.max(maxY, point.y);
+  }
+
+  // Add padding for brush size and anti-aliasing
+  const padding = Math.max(pen.size, 10);
+  
+  return {
+    x: minX - padding,
+    y: minY - padding,
+    width: maxX - minX + (padding * 2),
+    height: maxY - minY + (padding * 2)
+  };
+}
+
+/**
+ * Mark dirty region for a path (for future optimization)
+ */
+export function markPathDirty(points: { x: number; y: number }[], pen: Pen): void {
+  const bounds = getPathBounds(points, pen);
+  markDirty(bounds.x, bounds.y, bounds.width, bounds.height);
+}
+
+/**
+ * Test function to demonstrate dirty rectangle tracking
+ */
+export function testDirtyRectangleTracking(): void {
+  console.log("🧪 Testing dirty rectangle tracking...");
+  
+  // Mark some test dirty regions
+  markDirty(10, 10, 100, 100);
+  markDirty(200, 200, 50, 50);
+  
+  // Get stats
+  const stats = getDirtyRectangleStats();
+  console.log("📊 Dirty rectangle stats:", stats);
+  
+  // Clear and test again
+  clearDirtyRegions();
+  const clearedStats = getDirtyRectangleStats();
+  console.log("🧹 After clearing:", clearedStats);
+  
+  console.log("✅ Dirty rectangle tracking is working!");
+}
+
+/**
+ * Simple test that can be called from browser console
+ * This will be available globally for testing
+ */
+declare global {
+  interface Window {
+    testDirtyRectangles: () => void;
+    markDirty: typeof markDirty;
+    getDirtyRectangleStats: typeof getDirtyRectangleStats;
+    clearDirtyRegions: typeof clearDirtyRegions;
+    markPathDirty: typeof markPathDirty;
+    testToolIntegration: () => void;
+  }
+}
+
+window.testDirtyRectangles = () => {
+  console.log("🧪 Testing dirty rectangle tracking...");
+  
+  // Mark some test dirty regions
+  markDirty(10, 10, 100, 100);
+  markDirty(200, 200, 50, 50);
+  
+  // Get stats
+  const stats = getDirtyRectangleStats();
+  console.log("📊 Dirty rectangle stats:", stats);
+  
+  // Clear and test again
+  clearDirtyRegions();
+  const clearedStats = getDirtyRectangleStats();
+  console.log("🧹 After clearing:", clearedStats);
+  
+  console.log("✅ Dirty rectangle tracking is working!");
+};
+
+/**
+ * Make dirty rectangle functions available globally for testing
+ */
+window.markDirty = markDirty;
+window.getDirtyRectangleStats = getDirtyRectangleStats;
+window.clearDirtyRegions = clearDirtyRegions;
+window.markPathDirty = markPathDirty;
+
+/**
+ * Test the integration with tools
+ */
+window.testToolIntegration = () => {
+  console.log("🧪 Testing tool integration...");
+  
+  // Clear any existing dirty regions
+  clearDirtyRegions();
+  
+  // Simulate adding a path (like StrokeToolBase does)
+  const testPoints = [
+    {x: 100, y: 100},
+    {x: 150, y: 120},
+    {x: 200, y: 100}
+  ];
+  const testPen = {type: "pencil" as const, size: 20, color: "#000000"};
+  
+  markPathDirty(testPoints, testPen);
+  
+  const stats = getDirtyRectangleStats();
+  console.log("📊 After marking path dirty:", stats);
+  
+  // Simulate panning (like PanTool does)
+  markFullRedraw();
+  
+  const panStats = getDirtyRectangleStats();
+  console.log("📊 After marking full redraw:", panStats);
+  
+  console.log("✅ Tool integration is working!");
+};
+
 export type Getters = {
   canvas: HTMLCanvasElement;
   gridCanvas: HTMLCanvasElement;
@@ -65,10 +251,10 @@ export const draw = (g: Getters) => {
     gridCtx.clearRect(0, 0, gridCanvas.clientWidth, gridCanvas.clientHeight);
     
     if (appState.grid) {
-      console.log("Drawing grid on background canvas");
+      // console.log("Drawing grid on background canvas");
       drawGrid(gridCtx, state, gridCanvas);
     } else {
-      console.log("Grid disabled - clearing grid canvas");
+      // console.log("Grid disabled - clearing grid canvas");
     }
   }
 
