@@ -58,6 +58,9 @@ export class PencilBrush extends BaseBrush {
 export class AirbrushBrush extends BaseBrush {
   private lastDrawn: { x: number; y: number } | null = null;
   private minDistance = 5; // Distance threshold for airbrush particles
+  
+  // 🚀 PERFORMANCE: Pre-computed gradient cache
+  private gradientCache = new Map<string, CanvasGradient>();
 
   onStrokeStart(params: FreehandEventsParams) {
     const { points } = params;
@@ -107,15 +110,26 @@ export class AirbrushBrush extends BaseBrush {
 
    drawSoftCircle({ x, y, pen ,ctx}: { x: number; y: number; pen: Pen; ctx: CanvasRenderingContext2D }) {
     const { color, opacity = 0.3, size } = pen;
-    const toHex = (val: number) => Math.round(val * 255).toString(16).padStart(2, '0');
-    const grad = ctx.createRadialGradient(x, y, 0, x, y, size / 2);
-    grad.addColorStop(0, `${color}${toHex(opacity)}`); // center strong
-    grad.addColorStop(1, `${color}${toHex(0)}`);       // edge fades out
+    
+    // 🚀 PERFORMANCE: Use cached gradient instead of creating new one each time
+    const gradientKey = `${color}-${opacity}-${size}`;
+    let grad = this.gradientCache.get(gradientKey);
+    
+    if (!grad) {
+      const toHex = (val: number) => Math.round(val * 255).toString(16).padStart(2, '0');
+      grad = ctx.createRadialGradient(0, 0, 0, 0, 0, size / 2);
+      grad.addColorStop(0, `${color}${toHex(opacity)}`); // center strong
+      grad.addColorStop(1, `${color}${toHex(0)}`);       // edge fades out
+      this.gradientCache.set(gradientKey, grad);
+    }
 
+    ctx.save();
+    ctx.translate(x, y);
     ctx.fillStyle = grad;
     ctx.beginPath();
-    ctx.arc(x, y, size / 2, 0, Math.PI * 2);
+    ctx.arc(0, 0, size / 2, 0, Math.PI * 2);
     ctx.fill();
+    ctx.restore();
   }
 }
 
@@ -296,9 +310,8 @@ export class SmoothBrush extends BaseBrush {
 
   onStrokeEnd(params: FreehandEventsParams) {
     const { ctx, points } = params;
-    if (points.length >= 2) {
-      this.renderSmoothPath(ctx, points);
-    }
+    // 🚀 PERFORMANCE: Don't render again - already rendered in onStrokeMove
+    // This prevents duplicate rendering
     ctx.restore();
   }
 

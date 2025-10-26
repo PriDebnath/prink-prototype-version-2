@@ -412,10 +412,7 @@ export const draw = (g: Getters) => {
     gridCtx.clearRect(0, 0, gridCanvas.clientWidth, gridCanvas.clientHeight);
     
     if (appState.grid) {
-      // console.log("Drawing grid on background canvas");
       drawGrid(gridCtx, state, gridCanvas);
-    } else {
-      // console.log("Grid disabled - clearing grid canvas");
     }
   }
 
