@@ -4,6 +4,42 @@ import { getLightenColor } from "./helpers";
 import { BrushFactory, BaseBrush } from "./brush/index";
 let animationId: number | null = null;
 
+// 🚀 PERFORMANCE: Brush instance caching to avoid recreating brushes
+// This prevents creating new brush instances for every path with the same pen properties
+// Significant performance improvement when drawing many paths with similar settings
+const brushCache = new Map<string, BaseBrush>();
+
+/**
+ * Get cached brush instance or create new one if not cached
+ */
+function getCachedBrush(pen: Pen): BaseBrush {
+  // Create cache key from pen properties that affect rendering
+  const key = `${pen.type}-${pen.size}-${pen.color}-${pen.opacity ?? 1}`;
+  
+  if (!brushCache.has(key)) {
+    brushCache.set(key, BrushFactory.createBrush(pen));
+  }
+  
+  return brushCache.get(key)!;
+}
+
+/**
+ * Clear brush cache (useful for memory management or when pen properties change)
+ */
+export function clearBrushCache(): void {
+  brushCache.clear();
+}
+
+/**
+ * Get brush cache statistics for debugging and monitoring
+ */
+export function getBrushCacheStats(): { size: number; keys: string[] } {
+  return {
+    size: brushCache.size,
+    keys: Array.from(brushCache.keys())
+  };
+}
+
 export type Getters = {
   canvas: HTMLCanvasElement;
   gridCanvas: HTMLCanvasElement;
@@ -166,7 +202,8 @@ const drawPaths = (ctx: CanvasRenderingContext2D, state: CanvasState, appState: 
 function renderPathDirectly(ctx: CanvasRenderingContext2D, pts: { x: number; y: number }[], pen: Pen) {
   if (pts.length < 1) return;
   
-  const brush = BrushFactory.createBrush(pen);
+  // Use cached brush instance for better performance
+  const brush = getCachedBrush(pen);
   renderPathWithBrush(ctx, pts, brush, pen);
 }
 
@@ -222,7 +259,7 @@ function buildSelectedPath(ctx: CanvasRenderingContext2D,
       }
     } else {
       // For other brushes, use brush system with selection styling
-      const brush = BrushFactory.createBrush(pen);
+      const brush = getCachedBrush(pen);
       ctx.lineWidth = pen.size + 6;
       ctx.strokeStyle = "#2563EB";
       ctx.globalAlpha = 0.4;
