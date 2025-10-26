@@ -2,7 +2,7 @@ import {
     BrushFactory,
     BaseBrush
 } from "../brush/index";
-import { markPathDirty, markFullRedraw } from "../drawing";
+import { markPathDirty, markFullRedraw, startDrawing, endDrawing } from "../drawing";
 import type {
     Tool,
     Point,
@@ -52,7 +52,8 @@ export class StrokeToolBase extends BaseTool {
         };
         canvasState.paths.push(canvasState.currentPath);
         
-        // 🚀 PERFORMANCE: Mark dirty region for new path
+        // 🚀 PERFORMANCE: Mark drawing started and dirty region for new path
+        startDrawing(canvasState.currentPath.id);
         markPathDirty([world], appState.pen);
     }
 
@@ -95,6 +96,12 @@ export class StrokeToolBase extends BaseTool {
             canvasState.currentPath.points[canvasState.currentPath.points.length - 1] !== world) {
             canvasState.currentPath.points.push(world);
         }
+        
+        // 🚀 PERFORMANCE: Mark drawing ended
+        endDrawing();
+        
+        // Final dirty region mark for the completed path
+        markPathDirty(canvasState.currentPath.points, appState.pen);
         
         // 🚀 PERFORMANCE: Remove brush call here - let drawing loop handle final rendering
         this.brush = null;

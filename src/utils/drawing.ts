@@ -21,6 +21,16 @@ interface DirtyRectangle {
 const dirtyRegions: DirtyRectangle[] = [];
 let isFullRedraw = false;
 
+// 🚀 PERFORMANCE: Track optimization effectiveness
+let fullClears = 0;
+let partialClears = 0;
+let totalClears = 0;
+
+// 🚀 PERFORMANCE: Track current drawing state to avoid clearing active paths
+let isCurrentlyDrawing = false;
+let currentDrawingPathId: number | null = null;
+let drawingEndDelay = 0; // Delay before re-enabling optimization
+
 /**
  * Get cached brush instance or create new one if not cached
  */
@@ -124,6 +134,23 @@ function getPathBounds(points: { x: number; y: number }[], pen: Pen): DirtyRecta
 }
 
 /**
+ * Mark that drawing has started
+ */
+export function startDrawing(pathId: number): void {
+  isCurrentlyDrawing = true;
+  currentDrawingPathId = pathId;
+}
+
+/**
+ * Mark that drawing has ended
+ */
+export function endDrawing(): void {
+  isCurrentlyDrawing = false;
+  currentDrawingPathId = null;
+  drawingEndDelay = 3; // Wait 3 frames before re-enabling optimization
+}
+
+/**
  * Mark dirty region for a path (for future optimization)
  */
 export function markPathDirty(points: { x: number; y: number }[], pen: Pen): void {
@@ -195,6 +222,19 @@ window.getDirtyRectangleStats = getDirtyRectangleStats;
 window.clearDirtyRegions = clearDirtyRegions;
 window.markPathDirty = markPathDirty;
 
+// Add optimization stats function
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+(window as any).getOptimizationStats = () => {
+  const efficiency = totalClears > 0 ? Math.round((partialClears / totalClears) * 100) / 100 : 0;
+  
+  return {
+    totalClears,
+    fullClears,
+    partialClears,
+    efficiency
+  };
+};
+
 /**
  * Test the integration with tools
  */
@@ -236,6 +276,113 @@ export type Getters = {
 
 
 /**
+ * Get paths that need to be redrawn based on dirty regions
+ */
+function getPathsToRedraw(paths: { points: { x: number; y: number }[]; pen: Pen; id: number }[], dirtyRegions: DirtyRectangle[], isFullRedraw: boolean): { points: { x: number; y: number }[]; pen: Pen; id: number }[] {
+  if (isFullRedraw || dirtyRegions.length === 0) {
+    return paths; // Redraw all paths
+  }
+
+  const pathsToRedraw: { points: { x: number; y: number }[]; pen: Pen; id: number }[] = [];
+  
+  for (const path of paths) {
+    // 🚀 PERFORMANCE: Skip current drawing path to prevent flickering
+    if (isCurrentlyDrawing && path.id === currentDrawingPathId) {
+      continue; // Don't redraw the path being actively drawn
+    }
+    
+    const pathBounds = getPathBounds(path.points, path.pen);
+    
+    // Check if path intersects with any dirty region
+    const intersects = dirtyRegions.some(region => 
+      !(pathBounds.x > region.x + region.width ||
+        pathBounds.x + pathBounds.width < region.x ||
+        pathBounds.y > region.y + region.height ||
+        pathBounds.y + pathBounds.height < region.y)
+    );
+    
+    if (intersects) {
+      pathsToRedraw.push(path);
+    }
+  }
+  
+  return pathsToRedraw;
+}
+
+/**
+ * Exclude dirty regions that intersect with current drawing path to prevent flickering
+ */
+function excludeCurrentDrawingRegions(regions: DirtyRectangle[], state: CanvasState): DirtyRectangle[] {
+  if (!isCurrentlyDrawing || !state.currentPath || state.currentPath.points.length === 0) {
+    return regions; // No current drawing, return all regions
+  }
+  
+  const currentPathBounds = getPathBounds(state.currentPath.points, state.currentPath.pen);
+  
+  // Filter out regions that intersect with current drawing path
+  return regions.filter(region => {
+    // Check if region intersects with current drawing path
+    const intersects = !(
+      region.x > currentPathBounds.x + currentPathBounds.width ||
+      region.x + region.width < currentPathBounds.x ||
+      region.y > currentPathBounds.y + currentPathBounds.height ||
+      region.y + region.height < currentPathBounds.y
+    );
+    
+    return !intersects; // Return regions that DON'T intersect
+  });
+}
+
+/**
+ * Merge overlapping dirty regions to reduce clear operations
+ */
+function mergeDirtyRegions(): DirtyRectangle[] {
+  if (dirtyRegions.length <= 1) return [...dirtyRegions];
+  
+  const merged: DirtyRectangle[] = [];
+  
+  for (const region of dirtyRegions) {
+    let mergedWithExisting = false;
+    
+    for (let i = 0; i < merged.length; i++) {
+      const existing = merged[i];
+      
+      // Check if regions overlap or are close enough to merge
+      const overlap = !(
+        region.x > existing.x + existing.width + 5 ||
+        region.x + region.width + 5 < existing.x ||
+        region.y > existing.y + existing.height + 5 ||
+        region.y + region.height + 5 < existing.y
+      );
+      
+      if (overlap) {
+        // Merge regions
+        const minX = Math.min(region.x, existing.x);
+        const maxX = Math.max(region.x + region.width, existing.x + existing.width);
+        const minY = Math.min(region.y, existing.y);
+        const maxY = Math.max(region.y + region.height, existing.y + existing.height);
+        
+        merged[i] = {
+          x: minX,
+          y: minY,
+          width: maxX - minX,
+          height: maxY - minY
+        };
+        
+        mergedWithExisting = true;
+        break;
+      }
+    }
+    
+    if (!mergedWithExisting) {
+      merged.push(region);
+    }
+  }
+  
+  return merged;
+}
+
+/**
  * Draw a single frame (no RAF loop). Uses getters to avoid stale closures.
  */
 export const draw = (g: Getters) => {
@@ -258,10 +405,40 @@ export const draw = (g: Getters) => {
     }
   }
 
-  // Clear and draw content on drawing canvas
+  // 🚀 PERFORMANCE: Conservative dirty rectangle clearing
   const ctx = canvas.getContext("2d")!;
-  ctx.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight);
-
+  
+  totalClears++;
+  
+  if (isFullRedraw || dirtyRegions.length === 0 || isCurrentlyDrawing || drawingEndDelay > 0) {
+    // Full clear - safe fallback OR during active drawing OR during delay
+    ctx.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight);
+    fullClears++;
+    
+    // Countdown the delay
+    if (drawingEndDelay > 0) {
+      drawingEndDelay--;
+    }
+  } else {
+    // Partial clear - merge overlapping regions and clear with padding
+    const mergedRegions = mergeDirtyRegions();
+    
+    // 🚀 PERFORMANCE: Exclude regions that intersect with current drawing path
+    const regionsToClear = excludeCurrentDrawingRegions(mergedRegions, state);
+    
+    for (const region of regionsToClear) {
+      // Add padding to prevent flickering on semi-transparent elements
+      const padding = 2;
+      ctx.clearRect(
+        region.x - padding, 
+        region.y - padding, 
+        region.width + (padding * 2), 
+        region.height + (padding * 2)
+      );
+    }
+    partialClears++;
+  }
+  
   ctx.save();
   applyTransform(ctx, state);
   
@@ -274,6 +451,9 @@ export const draw = (g: Getters) => {
   if(state?.paths && state.paths?.length)  {
     drawPaths(ctx, state, appState, activeTool);
   }
+  
+  // Clear dirty regions after processing
+  clearDirtyRegions();
   
   // if (activeTool.renderOverlay) {
   //   // activeTool.renderOverlay(ctx, state);
@@ -369,18 +549,39 @@ const drawPaths = (ctx: CanvasRenderingContext2D, state: CanvasState, appState: 
   ctx.lineCap = "round";
   ctx.lineJoin = "round";
 
-  for (const path of state.paths) {
-    const pts = path.points;
-    if (pts.length < 1) continue;
+  // 🚀 PERFORMANCE: During active drawing or delay, redraw all paths to prevent flickering
+  if (isCurrentlyDrawing || drawingEndDelay > 0) {
+    // Draw all paths during active drawing
+    for (const path of state.paths) {
+      const pts = path.points;
+      if (pts.length < 1) continue;
 
-    // 🟦 Draw selection highlight behind stroke
-    const isSelected = state.selectedIds?.includes(path.id);
-    if (activeTool.name=="lasso" && isSelected ) {
-      buildSelectedPath(ctx, pts, path.pen)
+      // 🟦 Draw selection highlight behind stroke
+      const isSelected = state.selectedIds?.includes(path.id);
+      if (activeTool.name=="lasso" && isSelected ) {
+        buildSelectedPath(ctx, pts, path.pen)
+      }
+
+      // 📝 Direct rendering for better performance
+      renderPathDirectly(ctx, pts, path.pen);
     }
+  } else {
+    // 🚀 PERFORMANCE: Only redraw paths that intersect with dirty regions
+    const pathsToRedraw = getPathsToRedraw(state.paths, dirtyRegions, isFullRedraw);
 
-    // 📝 Direct rendering for better performance
-    renderPathDirectly(ctx, pts, path.pen);
+    for (const path of pathsToRedraw) {
+      const pts = path.points;
+      if (pts.length < 1) continue;
+
+      // 🟦 Draw selection highlight behind stroke
+      const isSelected = state.selectedIds?.includes(path.id);
+      if (activeTool.name=="lasso" && isSelected ) {
+        buildSelectedPath(ctx, pts, path.pen)
+      }
+
+      // 📝 Direct rendering for better performance
+      renderPathDirectly(ctx, pts, path.pen);
+    }
   }
 };
 
