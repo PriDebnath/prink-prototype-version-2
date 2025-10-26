@@ -2,6 +2,7 @@
 import type { Tool, CanvasState, AppState, Pen, FreehandEventsParams } from "../types";
 import { getLightenColor } from "./helpers";
 import { BrushFactory, BaseBrush } from "./brush/index";
+import { pointPool } from "./performance/PointPool";
 let animationId: number | null = null;
 
 // 🚀 PERFORMANCE: Brush instance caching to avoid recreating brushes
@@ -249,7 +250,9 @@ window.markPathDirty = markPathDirty;
       efficiency: pathEfficiency
     },
     // Overall performance
-    overallEfficiency: Math.round(((clearEfficiency + pathEfficiency) / 2) * 100) / 100
+    overallEfficiency: Math.round(((clearEfficiency + pathEfficiency) / 2) * 100) / 100,
+    // 🚀 NEW: Object pooling stats
+    pointPoolStats: pointPool.getStats()
   };
 };
 
