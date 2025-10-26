@@ -26,6 +26,11 @@ let fullClears = 0;
 let partialClears = 0;
 let totalClears = 0;
 
+// 🚀 PERFORMANCE: Step 4 - Track selective path redrawing effectiveness
+let totalPathsRendered = 0;
+let selectivePathsRendered = 0;
+let fullPathRenders = 0;
+
 // 🚀 PERFORMANCE: Track current drawing state to avoid clearing active paths
 let isCurrentlyDrawing = false;
 let currentDrawingPathId: number | null = null;
@@ -225,13 +230,26 @@ window.markPathDirty = markPathDirty;
 // Add optimization stats function
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 (window as any).getOptimizationStats = () => {
-  const efficiency = totalClears > 0 ? Math.round((partialClears / totalClears) * 100) / 100 : 0;
+  const clearEfficiency = totalClears > 0 ? Math.round((partialClears / totalClears) * 100) / 100 : 0;
+  const pathEfficiency = totalPathsRendered > 0 ? Math.round((selectivePathsRendered / totalPathsRendered) * 100) / 100 : 0;
   
   return {
-    totalClears,
-    fullClears,
-    partialClears,
-    efficiency
+    // Step 3: Dirty rectangle clearing stats
+    clearStats: {
+      totalClears,
+      fullClears,
+      partialClears,
+      efficiency: clearEfficiency
+    },
+    // Step 4: Selective path redrawing stats
+    pathStats: {
+      totalPathsRendered,
+      selectivePathsRendered,
+      fullPathRenders,
+      efficiency: pathEfficiency
+    },
+    // Overall performance
+    overallEfficiency: Math.round(((clearEfficiency + pathEfficiency) / 2) * 100) / 100
   };
 };
 
@@ -277,6 +295,7 @@ export type Getters = {
 
 /**
  * Get paths that need to be redrawn based on dirty regions
+ * Step 4: Selective path redrawing for maximum performance
  */
 function getPathsToRedraw(paths: { points: { x: number; y: number }[]; pen: Pen; id: number }[], dirtyRegions: DirtyRectangle[], isFullRedraw: boolean): { points: { x: number; y: number }[]; pen: Pen; id: number }[] {
   if (isFullRedraw || dirtyRegions.length === 0) {
@@ -286,11 +305,6 @@ function getPathsToRedraw(paths: { points: { x: number; y: number }[]; pen: Pen;
   const pathsToRedraw: { points: { x: number; y: number }[]; pen: Pen; id: number }[] = [];
   
   for (const path of paths) {
-    // 🚀 PERFORMANCE: Skip current drawing path to prevent flickering
-    if (isCurrentlyDrawing && path.id === currentDrawingPathId) {
-      continue; // Don't redraw the path being actively drawn
-    }
-    
     const pathBounds = getPathBounds(path.points, path.pen);
     
     // Check if path intersects with any dirty region
@@ -549,9 +563,12 @@ const drawPaths = (ctx: CanvasRenderingContext2D, state: CanvasState, appState: 
   ctx.lineCap = "round";
   ctx.lineJoin = "round";
 
-  // 🚀 PERFORMANCE: During active drawing or delay, redraw all paths to prevent flickering
+  // 🚀 PERFORMANCE: Step 4 - Selective path redrawing during non-drawing periods
   if (isCurrentlyDrawing || drawingEndDelay > 0) {
-    // Draw all paths during active drawing
+    // Step 3: Full rendering during active drawing (prevents flickering)
+    fullPathRenders++;
+    totalPathsRendered += state.paths.length;
+    
     for (const path of state.paths) {
       const pts = path.points;
       if (pts.length < 1) continue;
@@ -566,8 +583,10 @@ const drawPaths = (ctx: CanvasRenderingContext2D, state: CanvasState, appState: 
       renderPathDirectly(ctx, pts, path.pen);
     }
   } else {
-    // 🚀 PERFORMANCE: Only redraw paths that intersect with dirty regions
+    // Step 4: Selective path redrawing - only redraw intersecting paths
     const pathsToRedraw = getPathsToRedraw(state.paths, dirtyRegions, isFullRedraw);
+    selectivePathsRendered += pathsToRedraw.length;
+    totalPathsRendered += state.paths.length;
 
     for (const path of pathsToRedraw) {
       const pts = path.points;
