@@ -70,10 +70,30 @@ canvas {
   height: 100%;
   width: 100%;
   display: block;
-  /* background: linear-gradient(180deg, var(--bgstart), var(--bgend)); */
-  background: linear-gradient(120deg, var(--theme-start) 0%, var(--theme-mid) 50%, var(--theme-end) 100%);
   touch-action: none;
   overflow: hidden;
+}
+
+  /* background: linear-gradient(180deg, var(--bgstart), var(--bgend)); */
+#draw-canvas{
+  width: 100%;
+          height: 100%;
+          position: absolute;
+          top: 0;
+          left: 0;
+          zIndex: 2;
+          background: transparent;
+}
+
+#grid-canvas{
+  background: linear-gradient(120deg, var(--theme-start) 0%, var(--theme-mid) 50%, var(--theme-end) 100%);
+  width: 100%;
+          height: 100%;
+          position: absolute;
+          top: 0;
+          left: 0;
+          zIndex: 1;
+          
 }
 
 
@@ -293,11 +313,12 @@ input {
   align-items: center;
   flex-direction: column;
   position: fixed;
+   z-index: 10;
   bottom: calc((var(--space) * 2) + 64px);
   left: 0;
-  right: 0;
+  right: 0; 
   margin: auto;
-animation: bubblePopPellet  calc(var(--delay)*0.25) ease forwards;
+  animation: bubblePopPellet  calc(var(--delay)*0.25) ease forwards;
   
   /* pointer-events: none; */
 }

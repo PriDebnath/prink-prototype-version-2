@@ -197,30 +197,12 @@ export default function CanvasPage() {
       <canvas 
         id="grid-canvas" 
         ref={gridCanvasRef} 
-        style={{ 
-          width: "100%", 
-          height: "100%", 
-          position: "absolute", 
-          top: 0, 
-          left: 0,
-          zIndex: 1,
-          background: "linear-gradient(120deg, #fff4dd 0%, #e1f0f8 50%, #f2f7fb 100%)"
-        }} 
       />
       {/* Drawing canvas (transparent overlay) */}
       <canvas 
-        id="drawing-canvas" 
+        id="draw-canvas" 
         ref={drawingCanvasRef} 
-        style={{ 
-          width: "100%", 
-          height: "100%", 
-          position: "absolute", 
-          top: 0, 
-          left: 0,
-          zIndex: 2,
-          background: "transparent"
-        }} 
-      />
+        />
 
       <Topbar
         activeTool={activeTool}
