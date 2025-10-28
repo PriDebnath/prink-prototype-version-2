@@ -23,7 +23,8 @@ export const Toolbar = ({
 
   const [openColorPellet, setOpenColorPellet] = useState<boolean>(false)
 
-  console.log({ activeTool })
+  // Debug: uncomment to inspect tool changes
+  // console.debug('[Toolbar] activeTool', activeTool)
   // 🔸 Top-level tool buttons (always visible)
   const mainTools: [ButtonKeys, () => void][] = [
     [

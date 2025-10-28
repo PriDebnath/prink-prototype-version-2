@@ -239,13 +239,7 @@ export class PanTool extends BaseTool {
       // 🚀 PERFORMANCE: Mark full redraw for zooming
       markFullRedraw();
 
-      console.log({
-        scaleFactor,
-        newScale,
-        clampedNewScale,
-        lastDistance,
-        newDistance
-      })
+      // debug: pinch zoom metrics
   
     }
   
@@ -274,7 +268,6 @@ export class PanTool extends BaseTool {
     
           // scale threshold with canvas scale (so 8px on screen remains ~8px regardless of zoom)
           const pixelThreshold = (penSize?: number) => {
-            console.log({ penSize })
             const base = penSize ?? appState.pen.size ?? 24;
             const scale = canvasState.scale ?? 1;
             return base / scale;
@@ -282,7 +275,6 @@ export class PanTool extends BaseTool {
     
           // detect if clicked on any selected pen stroke
           const clickedSelectedItem = selectedPens.some((pen) => {
-            console.log({ clickedSelectedItem: pen })
             return this.isPointNearStroke(world, pen.points, pixelThreshold(pen.pen.size))
           });
     
@@ -291,10 +283,10 @@ export class PanTool extends BaseTool {
             this.startPoint = world;
           }
     
-          console.log({ selectedPens, clickedSelectedItem });
+          // debug: selection info
         }
     
-        console.log({ dragging: this.dragging, ids: canvasState.selectedIds, canvasState });
+        // debug: dragging state
     
         if (!this.dragging) {
           // start lasso selection

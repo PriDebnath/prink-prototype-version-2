@@ -412,7 +412,12 @@ export const draw = (g: Getters) => {
   // Draw grid on background canvas if available
   if (gridCanvas) {
     const gridCtx = gridCanvas.getContext("2d")!;
-    gridCtx.clearRect(0, 0, gridCanvas.clientWidth, gridCanvas.clientHeight);
+    // Ensure device-pixel-accurate clearing
+    const gridDpr = gridCanvas.clientWidth > 0 ? gridCanvas.width / gridCanvas.clientWidth : 1;
+    gridCtx.setTransform(1, 0, 0, 1, 0, 0);
+    gridCtx.clearRect(0, 0, gridCanvas.width, gridCanvas.height);
+    // Restore DPR scale applied during resize
+    gridCtx.setTransform(gridDpr, 0, 0, gridDpr, 0, 0);
     
     if (appState.grid) {
       drawGrid(gridCtx, state, gridCanvas);
@@ -421,12 +426,15 @@ export const draw = (g: Getters) => {
 
   // 🚀 PERFORMANCE: Conservative dirty rectangle clearing
   const ctx = canvas.getContext("2d")!;
+  const dpr = canvas.clientWidth > 0 ? canvas.width / canvas.clientWidth : 1;
   
   totalClears++;
   
   if (isFullRedraw || dirtyRegions.length === 0 || isCurrentlyDrawing || drawingEndDelay > 0) {
     // Full clear - safe fallback OR during active drawing OR during delay
-    ctx.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight);
+    // Clear in device pixels regardless of current transform
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
     fullClears++;
     
     // Countdown the delay
@@ -440,19 +448,21 @@ export const draw = (g: Getters) => {
     // 🚀 PERFORMANCE: Exclude regions that intersect with current drawing path
     const regionsToClear = excludeCurrentDrawingRegions(mergedRegions, state);
     
+    // Clear in device pixels with identity transform, then restore
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
     for (const region of regionsToClear) {
-      // Add padding to prevent flickering on semi-transparent elements
       const padding = 2;
-      ctx.clearRect(
-        region.x - padding, 
-        region.y - padding, 
-        region.width + (padding * 2), 
-        region.height + (padding * 2)
-      );
+      const x = (region.x - padding) * dpr;
+      const y = (region.y - padding) * dpr;
+      const w = (region.width + padding * 2) * dpr;
+      const h = (region.height + padding * 2) * dpr;
+      ctx.clearRect(x, y, w, h);
     }
     partialClears++;
   }
   
+  // Ensure DPR scaling is restored before drawing paths
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   ctx.save();
   applyTransform(ctx, state);
   
@@ -534,20 +544,22 @@ const drawGrid = (ctx: CanvasRenderingContext2D, state: CanvasState, canvas: HTM
   const offsetX = state.offset.x % gridSize;
   const offsetY = state.offset.y % gridSize;
 
+  // Context is DPR-scaled by caller; draw in CSS pixels
   ctx.save();
-  // full-canvas stroke coordinates are in device pixels — caller should have scaled context already
   ctx.beginPath();
   ctx.strokeStyle = "#d0d0d0";
   ctx.lineWidth = 1;
 
-  for (let x = -gridSize + offsetX; x < canvas.clientWidth; x += gridSize) {
-    ctx.moveTo(x, 0);
-    ctx.lineTo(x, canvas.clientHeight);
+  const widthCss = canvas.clientWidth;
+  const heightCss = canvas.clientHeight;
 
+  for (let x = -gridSize + offsetX; x < widthCss; x += gridSize) {
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x, heightCss);
   }
-  for (let y = -gridSize + offsetY; y < canvas.clientHeight; y += gridSize) {
+  for (let y = -gridSize + offsetY; y < heightCss; y += gridSize) {
     ctx.moveTo(0, y);
-    ctx.lineTo(canvas.clientWidth, y);
+    ctx.lineTo(widthCss, y);
   }
   ctx.stroke();
   ctx.restore();
