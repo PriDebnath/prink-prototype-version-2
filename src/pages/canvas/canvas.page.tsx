@@ -156,9 +156,14 @@ export default function CanvasPage() {
     const drawingCanvas = drawingCanvasRef.current!;
     if (!drawingCanvas) return;
 
+    const isDrawingRef = { current: false } as { current: boolean };
+    const lastPointerEventRef = { current: null as PointerEvent | null };
+
     const onDown = (e: PointerEvent) => {
       const tool = activeToolRef.current;
       const currentAppState = appStateRef.current;
+      isDrawingRef.current = true;
+      lastPointerEventRef.current = e;
       tool.onPointerDown({ e, canvasState: canvasStateRef.current, appState: currentAppState, canvas: drawingCanvas });
       // start continuous draw (from down -> move -> up)
       startDrawingLoop({
@@ -173,6 +178,7 @@ export default function CanvasPage() {
     const onMove = (e: PointerEvent) => {
       const tool = activeToolRef.current;
       const currentAppState = appStateRef.current;
+      lastPointerEventRef.current = e;
       tool.onPointerMove({ e, canvasState: canvasStateRef.current, appState: currentAppState, canvas: drawingCanvas });
       // continuous loop is running so it will render updates
     };
@@ -180,6 +186,8 @@ export default function CanvasPage() {
     const onUp = (e: PointerEvent) => {
       const tool = activeToolRef.current;
       const currentAppState = appStateRef.current;
+      isDrawingRef.current = false;
+      lastPointerEventRef.current = e;
       tool.onPointerUp({ e, canvasState: canvasStateRef.current, appState: currentAppState, canvas: drawingCanvas });
       // stop continuous drawing after finishing stroke
       stopDrawingLoop();
@@ -194,16 +202,54 @@ export default function CanvasPage() {
       });
     };
 
+    const finishIfDrawing = (fallbackEvent?: Event) => {
+      if (!isDrawingRef.current) return;
+      const tool = activeToolRef.current;
+      const currentAppState = appStateRef.current;
+      const lastEvent = lastPointerEventRef.current;
+      const e = lastEvent ?? (typeof PointerEvent !== "undefined" ? new PointerEvent("pointerup") : (fallbackEvent as any));
+      tool.onPointerUp({ e, canvasState: canvasStateRef.current, appState: currentAppState, canvas: drawingCanvas });
+      stopDrawingLoop();
+      draw({
+        canvas: drawingCanvas,
+        gridCanvas: gridCanvasRef.current!,
+        getState: getters.getState,
+        getActiveTool: getters.getActiveTool,
+        getAppState: getters.getAppState,
+      });
+      isDrawingRef.current = false;
+    };
+
+    const onLeave = (e: PointerEvent) => {
+      finishIfDrawing(e);
+    };
+
+    const onWindowBlur = (e: FocusEvent) => {
+      finishIfDrawing(e);
+    };
+
+    const onVisibilityChange = () => {
+      if (document.visibilityState !== "visible") {
+        finishIfDrawing();
+      }
+    };
+
     drawingCanvas.addEventListener("pointerdown", onDown);
     drawingCanvas.addEventListener("pointermove", onMove);
     drawingCanvas.addEventListener("pointerup", onUp);
     drawingCanvas.addEventListener("pointercancel", onUp);
+    drawingCanvas.addEventListener("pointerleave", onLeave);
+    window.addEventListener("blur", onWindowBlur);
+    document.addEventListener("visibilitychange", onVisibilityChange);
 
     return () => {
       drawingCanvas.removeEventListener("pointerdown", onDown);
       drawingCanvas.removeEventListener("pointermove", onMove);
       drawingCanvas.removeEventListener("pointerup", onUp);
       drawingCanvas.removeEventListener("pointercancel", onUp);
+      drawingCanvas.removeEventListener("pointerleave", onLeave);
+      window.removeEventListener("blur", onWindowBlur);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
       stopDrawingLoop();
     };
   }, []); // attach once; handlers read latest values from refs
