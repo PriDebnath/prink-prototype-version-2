@@ -1,7 +1,3 @@
-import {
-    BrushFactory,
-    BaseBrush
-} from "../brush/index";
 import { markPathDirty, markFullRedraw, startDrawing, endDrawing } from "../drawing";
 import { pointPool } from "../performance/PointPool";
 import type {
@@ -33,7 +29,6 @@ abstract class BaseTool implements Tool {
 export class StrokeToolBase extends BaseTool {
     name: string = 'pen';
     private drawing = false;
-    private brush: BaseBrush | null = null;
 
     onPointerDown(params: ToolEventsParams) {
         const { e, appState, canvas, canvasState } = params
@@ -41,11 +36,6 @@ export class StrokeToolBase extends BaseTool {
         this.drawing = true;
 
         const world = this.toWorld(e, canvasState);
-        this.brush = BrushFactory.createBrush(appState.pen);
-
-        const ctx = canvas.getContext('2d');
-        if (!ctx) return;
-        this.brush?.onStrokeStart({ e, points: [world], canvasState, ctx, appState });
 
         canvasState.currentPath = {
             id: canvasState.paths.length + 1,
@@ -106,7 +96,6 @@ export class StrokeToolBase extends BaseTool {
         markPathDirty(canvasState.currentPath.points, appState.pen);
         
         // 🚀 PERFORMANCE: Remove brush call here - let drawing loop handle final rendering
-        this.brush = null;
         canvasState.currentPath = null;
     }
 }
@@ -250,13 +239,7 @@ export class PanTool extends BaseTool {
       // 🚀 PERFORMANCE: Mark full redraw for zooming
       markFullRedraw();
 
-      console.log({
-        scaleFactor,
-        newScale,
-        clampedNewScale,
-        lastDistance,
-        newDistance
-      })
+      // debug: pinch zoom metrics
   
     }
   
@@ -285,7 +268,6 @@ export class PanTool extends BaseTool {
     
           // scale threshold with canvas scale (so 8px on screen remains ~8px regardless of zoom)
           const pixelThreshold = (penSize?: number) => {
-            console.log({ penSize })
             const base = penSize ?? appState.pen.size ?? 24;
             const scale = canvasState.scale ?? 1;
             return base / scale;
@@ -293,7 +275,6 @@ export class PanTool extends BaseTool {
     
           // detect if clicked on any selected pen stroke
           const clickedSelectedItem = selectedPens.some((pen) => {
-            console.log({ clickedSelectedItem: pen })
             return this.isPointNearStroke(world, pen.points, pixelThreshold(pen.pen.size))
           });
     
@@ -302,10 +283,10 @@ export class PanTool extends BaseTool {
             this.startPoint = world;
           }
     
-          console.log({ selectedPens, clickedSelectedItem });
+          // debug: selection info
         }
     
-        console.log({ dragging: this.dragging, ids: canvasState.selectedIds, canvasState });
+        // debug: dragging state
     
         if (!this.dragging) {
           // start lasso selection

@@ -17,6 +17,7 @@ export default function CanvasPage() {
   const gridCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const drawingCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const [activeTool, setActiveTool] = useState<Tool>(new StrokeToolBase());
+  const activeToolRef = useRef<Tool>(activeTool);
   const canvasStateRef = useRef<CanvasState>({
     device: "desktop",
     scale: 1,
@@ -37,6 +38,11 @@ export default function CanvasPage() {
       opacity: 0.9,
     }
   });
+  const appStateRef = useRef<AppState>(appState);
+
+  // Drawing lifecycle refs used by React handlers
+  const isDrawingRef = useRef(false);
+  const lastPointerEventRef = useRef<PointerEvent | null>(null);
 
   // Helpers to pass into draw utils so they read fresh values each frame
   const getters = {
@@ -47,9 +53,18 @@ export default function CanvasPage() {
       return gridCanvasRef.current!;
     },
     getState: () => canvasStateRef.current,
-    getActiveTool: () => activeTool,
-    getAppState: () => appState,
+    getActiveTool: () => activeToolRef.current,
+    getAppState: () => appStateRef.current,
   };
+
+  // Keep refs in sync with latest state without re-attaching listeners
+  useEffect(() => {
+    activeToolRef.current = activeTool;
+  }, [activeTool]);
+
+  useEffect(() => {
+    appStateRef.current = appState;
+  }, [appState]);
 
   // Resize handling + initial one-shot draw
   useEffect(() => {
@@ -80,9 +95,9 @@ export default function CanvasPage() {
       draw({
         canvas: drawingCanvas,
         gridCanvas: gridCanvas,
-        getState: getters.getState,
-        getActiveTool: getters.getActiveTool,
-        getAppState: getters.getAppState,
+        getState: () => canvasStateRef.current,
+        getActiveTool: () => activeToolRef.current,
+        getAppState: () => appStateRef.current,
       });
     };
 
@@ -134,62 +149,121 @@ export default function CanvasPage() {
     draw({
       canvas: drawingCanvas,
       gridCanvas: gridCanvas,
-      getState: getters.getState,
-      getActiveTool: getters.getActiveTool,
-      getAppState: getters.getAppState,
+      getState: () => canvasStateRef.current,
+      getActiveTool: () => activeToolRef.current,
+      getAppState: () => appStateRef.current,
     });
   }, [appState]);
 
   // Pointer event handlers: start RAF loop on pointerdown, stop on up/cancel
+  // Window/tab lifecycle listeners remain outside React canvas handlers
   useEffect(() => {
-    const drawingCanvas = drawingCanvasRef.current!;
-    if (!drawingCanvas) return;
-
-    const onDown = (e: PointerEvent) => {
-      activeTool.onPointerDown({ e, canvasState: canvasStateRef.current, appState, canvas: drawingCanvas });
-      // start continuous draw (from down -> move -> up)
-      startDrawingLoop({
-        canvas: drawingCanvas,
-        gridCanvas: gridCanvasRef.current!,
-        getState: getters.getState,
-        getActiveTool: getters.getActiveTool,
-        getAppState: getters.getAppState,
+    const finishIfDrawing = () => {
+      if (!isDrawingRef.current) return;
+      const canvas = drawingCanvasRef.current!;
+      const lastEvent = lastPointerEventRef.current;
+      const e = lastEvent ?? (typeof PointerEvent !== "undefined" ? new PointerEvent("pointerup") : undefined as unknown as PointerEvent);
+      activeToolRef.current.onPointerUp({
+        e,
+        canvasState: canvasStateRef.current,
+        appState: appStateRef.current,
+        canvas,
       });
-    };
-
-    const onMove = (e: PointerEvent) => {
-      activeTool.onPointerMove({ e, canvasState: canvasStateRef.current, appState, canvas: drawingCanvas });
-      // continuous loop is running so it will render updates
-    };
-
-    const onUp = (e: PointerEvent) => {
-      activeTool.onPointerUp({ e, canvasState: canvasStateRef.current, appState, canvas: drawingCanvas });
-      // stop continuous drawing after finishing stroke
+      isDrawingRef.current = false;
       stopDrawingLoop();
-
-      // draw final frame once to ensure final state rendered
       draw({
-        canvas: drawingCanvas,
+        canvas,
         gridCanvas: gridCanvasRef.current!,
-        getState: getters.getState,
-        getActiveTool: getters.getActiveTool,
-        getAppState: getters.getAppState,
+        getState: () => canvasStateRef.current,
+        getActiveTool: () => activeToolRef.current,
+        getAppState: () => appStateRef.current,
       });
     };
 
-    drawingCanvas.addEventListener("pointerdown", onDown);
-    drawingCanvas.addEventListener("pointermove", onMove);
-    drawingCanvas.addEventListener("pointerup", onUp);
-    drawingCanvas.addEventListener("pointercancel", onUp);
+    const onWindowBlur = () => {
+      finishIfDrawing();
+    };
 
+    const onVisibilityChange = () => {
+      if (document.visibilityState !== "visible") {
+        finishIfDrawing();
+      }
+    };
+
+    window.addEventListener("blur", onWindowBlur);
+    document.addEventListener("visibilitychange", onVisibilityChange);
     return () => {
-      drawingCanvas.removeEventListener("pointerdown", onDown);
-      drawingCanvas.removeEventListener("pointermove", onMove);
-      drawingCanvas.removeEventListener("pointerup", onUp);
-      drawingCanvas.removeEventListener("pointercancel", onUp);
+      window.removeEventListener("blur", onWindowBlur);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
       stopDrawingLoop();
     };
-  }, [activeTool, appState]); // activeTool in dep so tool handlers are current
+  }, []);
+
+  // React-based canvas handlers reading from refs
+  const handlePointerDown = React.useCallback((e: React.PointerEvent<HTMLCanvasElement>) => {
+    const canvas = drawingCanvasRef.current!;
+    try {
+      canvas.setPointerCapture(e.pointerId);
+    } catch { void 0; }
+    isDrawingRef.current = true;
+    lastPointerEventRef.current = e.nativeEvent;
+    activeToolRef.current.onPointerDown({
+      e: e.nativeEvent,
+      canvasState: canvasStateRef.current,
+      appState: appStateRef.current,
+      canvas,
+    });
+    startDrawingLoop({
+      canvas,
+      gridCanvas: gridCanvasRef.current!,
+      getState: () => canvasStateRef.current,
+      getActiveTool: () => activeToolRef.current,
+      getAppState: () => appStateRef.current,
+    });
+  }, []);
+
+  const handlePointerMove = React.useCallback((e: React.PointerEvent<HTMLCanvasElement>) => {
+    lastPointerEventRef.current = e.nativeEvent;
+    activeToolRef.current.onPointerMove({
+      e: e.nativeEvent,
+      canvasState: canvasStateRef.current,
+      appState: appStateRef.current,
+      canvas: drawingCanvasRef.current!,
+    });
+  }, []);
+
+  const finishStroke = React.useCallback((pe?: PointerEvent | Event) => {
+    if (!isDrawingRef.current) return;
+    const canvas = drawingCanvasRef.current!;
+    const e = (pe as PointerEvent) ?? lastPointerEventRef.current ?? new PointerEvent("pointerup");
+    activeToolRef.current.onPointerUp({
+      e,
+      canvasState: canvasStateRef.current,
+      appState: appStateRef.current,
+      canvas,
+    });
+    isDrawingRef.current = false;
+    stopDrawingLoop();
+    draw({
+      canvas,
+      gridCanvas: gridCanvasRef.current!,
+      getState: () => canvasStateRef.current,
+      getActiveTool: () => activeToolRef.current,
+      getAppState: () => appStateRef.current,
+    });
+  }, []);
+
+  const handlePointerUp = React.useCallback((e: React.PointerEvent<HTMLCanvasElement>) => {
+    try {
+      drawingCanvasRef.current?.releasePointerCapture(e.pointerId);
+    } catch { void 0; }
+    lastPointerEventRef.current = e.nativeEvent;
+    finishStroke(e.nativeEvent);
+  }, [finishStroke]);
+
+  const handlePointerLeave = React.useCallback((e: React.PointerEvent<HTMLCanvasElement>) => {
+    finishStroke(e.nativeEvent);
+  }, [finishStroke]);
 
   return (
     <main style={{ width: "100vw", height: "100vh", position: "relative" }}>
@@ -202,6 +276,12 @@ export default function CanvasPage() {
       <canvas 
         id="draw-canvas" 
         ref={drawingCanvasRef} 
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        onPointerCancel={handlePointerUp}
+        onPointerLeave={handlePointerLeave}
+        style={{ touchAction: "none" }}
         />
 
       <Topbar
