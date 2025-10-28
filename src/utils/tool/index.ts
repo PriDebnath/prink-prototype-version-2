@@ -3,6 +3,7 @@ import {
     BaseBrush
 } from "../brush/index";
 import { markPathDirty, markFullRedraw, startDrawing, endDrawing } from "../drawing";
+import { pointPool } from "../performance/PointPool";
 import type {
     Tool,
     Point,
@@ -21,10 +22,11 @@ abstract class BaseTool implements Tool {
     renderOverlay(params: ToolEventsParams) { }
 
     public toWorld(e: PointerEvent, canvasState: CanvasState): Point {
-        return {
-            x: (e.clientX - canvasState.offset.x) / canvasState.scale,
-            y: (e.clientY - canvasState.offset.y) / canvasState.scale,
-        };
+        // 🚀 PERFORMANCE: Use object pooling instead of creating new objects
+        return pointPool.getPoint(
+            (e.clientX - canvasState.offset.x) / canvasState.scale,
+            (e.clientY - canvasState.offset.y) / canvasState.scale
+        );
     }
 }
 
@@ -329,11 +331,20 @@ export class PanTool extends BaseTool {
           for (let i = 0; i < canvasState.paths.length; i++) {
             const pen = canvasState.paths[i];
             if (canvasState.selectedIds.includes(pen.id)) {
-              // Move the points of this selected path
+              // 🚀 PERFORMANCE: Use object pooling for moved points
+              const movedPoints: Point[] = [];
+              for (const p of pen.points) {
+                const movedPoint = pointPool.getPoint(p.x + dx, p.y + dy);
+                movedPoints.push(movedPoint);
+              }
+              
               canvasState.paths[i] = {
                 ...pen,
-                points: pen.points.map((p: Point) => ({ x: p.x + dx, y: p.y + dy }))
+                points: movedPoints
               };
+              
+              // 🚀 PERFORMANCE: Release old points back to pool
+              pointPool.releasePoints(pen.points);
             }
           }
     
