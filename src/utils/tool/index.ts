@@ -128,8 +128,7 @@ export class PanTool extends BaseTool {
     onPointerMove(params: ToolEventsParams) {
       const { e, canvasState } = params
       // console.log('pan tool onPointerMove');
-      if (!this.lastPointPosition || !this.activePoints.has(e.pointerId)) return
-      // console.log({ canvasState, lastPointPosition: this.lastPointPosition });
+      if (!this.activePoints.has(e.pointerId)) return
       //@2 Update this pointer's current position
       const pointPosition = { x: e.clientX, y: e.clientY };
       this.activePoints.set(e.pointerId, pointPosition);

@@ -265,6 +265,41 @@ export default function CanvasPage() {
     finishStroke(e.nativeEvent);
   }, [finishStroke]);
 
+  // Attach a non-passive wheel listener so preventDefault is allowed
+  useEffect(() => {
+    const canvas = drawingCanvasRef.current;
+    if (!canvas) return;
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      const state = canvasStateRef.current;
+      const drawCanvas = drawingCanvasRef.current!;
+
+      const zoomFactor = 1.1;
+      let newScale = state.scale;
+      if (e.deltaY > 0) newScale *= zoomFactor; else if (e.deltaY < 0) newScale /= zoomFactor;
+      newScale = Math.max(0.1, Math.min(5, newScale));
+
+      const worldX = (e.clientX - state.offset.x) / state.scale;
+      const worldY = (e.clientY - state.offset.y) / state.scale;
+
+      state.offset.x = e.clientX - worldX * newScale;
+      state.offset.y = e.clientY - worldY * newScale;
+      state.scale = newScale;
+
+      draw({
+        canvas: drawCanvas,
+        gridCanvas: gridCanvasRef.current!,
+        getState: () => canvasStateRef.current,
+        getActiveTool: () => activeToolRef.current,
+        getAppState: () => appStateRef.current,
+      });
+    };
+    canvas.addEventListener('wheel', onWheel, { passive: false });
+    return () => {
+      canvas.removeEventListener('wheel', onWheel as EventListener);
+    };
+  }, []);
+
   return (
     <main style={{ width: "100vw", height: "100vh", position: "relative" }}>
       {/* Grid canvas (background) */}
