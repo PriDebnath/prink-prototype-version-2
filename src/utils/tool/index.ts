@@ -1,7 +1,3 @@
-import {
-    BrushFactory,
-    BaseBrush
-} from "../brush/index";
 import { markPathDirty, markFullRedraw, startDrawing, endDrawing } from "../drawing";
 import { pointPool } from "../performance/PointPool";
 import type {
@@ -33,7 +29,6 @@ abstract class BaseTool implements Tool {
 export class StrokeToolBase extends BaseTool {
     name: string = 'pen';
     private drawing = false;
-    private brush: BaseBrush | null = null;
 
     onPointerDown(params: ToolEventsParams) {
         const { e, appState, canvas, canvasState } = params
@@ -41,11 +36,6 @@ export class StrokeToolBase extends BaseTool {
         this.drawing = true;
 
         const world = this.toWorld(e, canvasState);
-        this.brush = BrushFactory.createBrush(appState.pen);
-
-        const ctx = canvas.getContext('2d');
-        if (!ctx) return;
-        this.brush?.onStrokeStart({ e, points: [world], canvasState, ctx, appState });
 
         canvasState.currentPath = {
             id: canvasState.paths.length + 1,
@@ -106,7 +96,6 @@ export class StrokeToolBase extends BaseTool {
         markPathDirty(canvasState.currentPath.points, appState.pen);
         
         // 🚀 PERFORMANCE: Remove brush call here - let drawing loop handle final rendering
-        this.brush = null;
         canvasState.currentPath = null;
     }
 }
