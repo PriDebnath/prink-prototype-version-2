@@ -17,6 +17,7 @@ export default function CanvasPage() {
   const gridCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const drawingCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const [activeTool, setActiveTool] = useState<Tool>(new StrokeToolBase());
+  const activeToolRef = useRef<Tool>(activeTool);
   const canvasStateRef = useRef<CanvasState>({
     device: "desktop",
     scale: 1,
@@ -37,6 +38,7 @@ export default function CanvasPage() {
       opacity: 0.9,
     }
   });
+  const appStateRef = useRef<AppState>(appState);
 
   // Helpers to pass into draw utils so they read fresh values each frame
   const getters = {
@@ -47,9 +49,18 @@ export default function CanvasPage() {
       return gridCanvasRef.current!;
     },
     getState: () => canvasStateRef.current,
-    getActiveTool: () => activeTool,
-    getAppState: () => appState,
+    getActiveTool: () => activeToolRef.current,
+    getAppState: () => appStateRef.current,
   };
+
+  // Keep refs in sync with latest state without re-attaching listeners
+  useEffect(() => {
+    activeToolRef.current = activeTool;
+  }, [activeTool]);
+
+  useEffect(() => {
+    appStateRef.current = appState;
+  }, [appState]);
 
   // Resize handling + initial one-shot draw
   useEffect(() => {
@@ -146,7 +157,9 @@ export default function CanvasPage() {
     if (!drawingCanvas) return;
 
     const onDown = (e: PointerEvent) => {
-      activeTool.onPointerDown({ e, canvasState: canvasStateRef.current, appState, canvas: drawingCanvas });
+      const tool = activeToolRef.current;
+      const currentAppState = appStateRef.current;
+      tool.onPointerDown({ e, canvasState: canvasStateRef.current, appState: currentAppState, canvas: drawingCanvas });
       // start continuous draw (from down -> move -> up)
       startDrawingLoop({
         canvas: drawingCanvas,
@@ -158,12 +171,16 @@ export default function CanvasPage() {
     };
 
     const onMove = (e: PointerEvent) => {
-      activeTool.onPointerMove({ e, canvasState: canvasStateRef.current, appState, canvas: drawingCanvas });
+      const tool = activeToolRef.current;
+      const currentAppState = appStateRef.current;
+      tool.onPointerMove({ e, canvasState: canvasStateRef.current, appState: currentAppState, canvas: drawingCanvas });
       // continuous loop is running so it will render updates
     };
 
     const onUp = (e: PointerEvent) => {
-      activeTool.onPointerUp({ e, canvasState: canvasStateRef.current, appState, canvas: drawingCanvas });
+      const tool = activeToolRef.current;
+      const currentAppState = appStateRef.current;
+      tool.onPointerUp({ e, canvasState: canvasStateRef.current, appState: currentAppState, canvas: drawingCanvas });
       // stop continuous drawing after finishing stroke
       stopDrawingLoop();
 
@@ -189,7 +206,7 @@ export default function CanvasPage() {
       drawingCanvas.removeEventListener("pointercancel", onUp);
       stopDrawingLoop();
     };
-  }, [activeTool, appState]); // activeTool in dep so tool handlers are current
+  }, []); // attach once; handlers read latest values from refs
 
   return (
     <main style={{ width: "100vw", height: "100vh", position: "relative" }}>
