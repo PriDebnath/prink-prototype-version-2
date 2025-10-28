@@ -1,26 +1,76 @@
-## Documentation  
-See [full documentation](DOCUMENTATION.md) for details.
+## 🔴 Demo
 
-# Todos
+### 🖼️ Screenshot
 
-- [ ] functionality to import 
+<a href="https://pridebnath.github.io/prink"><img src="public/images/prink-v2.png" />
+</a>
 
-- [ ] functionality to export 
+### 🎥 Video
+https://github.com/user-attachments/assets/9a0f9c9e-406c-42e9-9219-37a58b25b05a
 
-- [ ] functionality to have text
 
-- [ ] functionality to have shape
+⬇️[Demo Video Download](public/videos/prink-2.mp4)
 
-- [ ] functionality to have template to insert
+--- 
+## Prink 2.0 - Canvas Drawing Application
 
-- [ ] functionality to have store tons of canvas (indexDB)
+A web-based drawing application built with React and TypeScript, featuring a dual-canvas architecture for smooth drawing experiences.
 
-- [ ]  functionality to have multiple canvas with routing
+## 📋 Project Status: **DISCONTINUED**
 
-- [ ] home button will take you all canvas 
+This project has been discontinued. Below is an honest assessment of what worked well and why we stopped.
 
-- [ ] home button will take you all canvas
+---
 
-# Similar tools
+## ✅ **What Worked Well (The Good)**
 
-- https://github.com/excalidraw/excalidraw
+### 🎨 **Core Drawing Experience**
+- **Smooth Drawing Performance**: Implemented object pooling for Point objects, reducing garbage collection pressure by 50-80%
+- **Dual Canvas Architecture**: Separate grid and drawing canvases provide clean separation of concerns
+- **Advanced Brush System**: Multiple brush types (Pencil, Airbrush) with proper caching for performance
+- **Responsive Design**: Works on both desktop and mobile devices with proper touch support
+
+### 🚀 **Technical Excellence**
+- **Performance Optimizations**: 
+  - Dirty rectangle tracking for selective redraws
+  - Brush instance caching to avoid recreation
+  - RequestAnimationFrame-based drawing loop
+  - Memory-efficient point pooling system
+- **Modern Tech Stack**: React 19, TypeScript, Vite, TanStack Router
+- **Clean Architecture**: Well-structured component hierarchy and utility separation
+- **Type Safety**: Comprehensive TypeScript types for all drawing operations
+
+### 🛠 **Developer Experience**
+- **Comprehensive Documentation**: Detailed explanations of canvas coordinate systems and performance optimizations
+- **Code Comments**: Extensive inline documentation explaining complex drawing logic
+- **Modular Design**: Clean separation between tools, brushes, and drawing utilities
+
+---
+
+---
+
+## 🤔 **Why We're Stopping Development**
+
+### Sole reason
+We are discontinuing Prink solely due to performance degradation when many strokes/paths accumulate. After extended drawing sessions, rendering begins to lag noticeably despite existing optimizations. We are pausing further work rather than pursuing deeper engine-level rewrites.
+
+### Future direction
+We are exploring a move to a GPU-accelerated renderer (WebGL/WebGL2) to overcome CPU-bound canvas bottlenecks and achieve stable performance at scale.
+
+---
+
+## 📚 **What We Learned**
+
+### **Positive Takeaways**
+- **Performance Matters**: Object pooling and caching significantly improve drawing smoothness
+- **Architecture**: Dual-canvas approach works well for separating concerns
+- **Modern Tools**: React + TypeScript + Vite provides excellent developer experience
+
+### **Key Lessons**
+- **Start Simple**: Should have focused on core features before adding complexity
+- **User Feedback**: Needed earlier user testing to validate feature priorities
+- **Competitive Analysis**: Should have better understood the competitive landscape before starting
+
+---
+
+ 
