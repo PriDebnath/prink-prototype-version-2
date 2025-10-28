@@ -31,7 +31,6 @@ export const ColorPellet = ({ canvasState, appState, setAppState }: ColorPelletP
             step="2"
             min="2"
             onChange={(e) => {
-              console.log(e.target.value)
               const penSize = e.target.value
 
               setAppState((pritam) => ({
@@ -58,7 +57,6 @@ export const ColorPellet = ({ canvasState, appState, setAppState }: ColorPelletP
             type="range"
             style={{ display: "flex", width: "100%", paddingTop: "0px", marginTop: "0px" }}
             onChange={(e) => {
-              console.log(e.target.value)
               const penOpacity = e.target.value
 
               setAppState((pritam) => ({
@@ -92,8 +90,6 @@ export const ColorPellet = ({ canvasState, appState, setAppState }: ColorPelletP
               id="pen-color-picker"
               onChange={
                 (e) => {
-                  console.log(e.target)
-                  console.log(e.target.value)
                   const color = e.target.value
                   setAppState((pritam) => ({
                     ...pritam,
@@ -135,7 +131,6 @@ export const ColorPellet = ({ canvasState, appState, setAppState }: ColorPelletP
                   key={color + p}
                   onClick={
                     (e) => {
-                      console.log({ color })
                       setAppState((pritam) => ({
                         ...pritam,
                         pen: { ...pritam.pen, color: color },

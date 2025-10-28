@@ -119,16 +119,4 @@ export const pointPool = new PointPool();
 // Pre-allocate some points for immediate use
 pointPool.preAllocate(50);
 
-// 🚀 Performance monitoring
-declare global {
-  interface Window {
-    getPointPoolStats: () => ReturnType<PointPool['getStats']>;
-    clearPointPool: () => void;
-  }
-}
-
-// Make pool stats available globally for debugging
-window.getPointPoolStats = () => pointPool.getStats();
-window.clearPointPool = () => pointPool.clear();
-
-console.log('🚀 PointPool initialized with 50 pre-allocated points');
+// Removed window-attached debug helpers and startup logs to keep runtime lean

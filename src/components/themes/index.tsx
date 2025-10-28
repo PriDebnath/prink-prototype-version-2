@@ -86,7 +86,6 @@ export default function Themes() {
         document.documentElement.style.setProperty('--theme-mid', mid || start);
         document.documentElement.style.setProperty('--theme-end', end || start);
         document.documentElement.style.setProperty('--accent', theme.colors.accent);
-        console.log(theme);
     }
 
     return (

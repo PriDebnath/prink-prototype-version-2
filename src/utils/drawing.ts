@@ -168,124 +168,15 @@ export function markPathDirty(points: { x: number; y: number }[], pen: Pen): voi
  * Test function to demonstrate dirty rectangle tracking
  */
 export function testDirtyRectangleTracking(): void {
-  console.log("🧪 Testing dirty rectangle tracking...");
-  
-  // Mark some test dirty regions
+  // Intentionally left as a pure function you can import and call in tests/dev
   markDirty(10, 10, 100, 100);
   markDirty(200, 200, 50, 50);
-  
-  // Get stats
-  const stats = getDirtyRectangleStats();
-  console.log("📊 Dirty rectangle stats:", stats);
-  
-  // Clear and test again
+  // Clear after sampling to keep state clean
+  // Consumers can inspect getDirtyRectangleStats() directly
   clearDirtyRegions();
-  const clearedStats = getDirtyRectangleStats();
-  console.log("🧹 After clearing:", clearedStats);
-  
-  console.log("✅ Dirty rectangle tracking is working!");
 }
 
-/**
- * Simple test that can be called from browser console
- * This will be available globally for testing
- */
-declare global {
-  interface Window {
-    testDirtyRectangles: () => void;
-    markDirty: typeof markDirty;
-    getDirtyRectangleStats: typeof getDirtyRectangleStats;
-    clearDirtyRegions: typeof clearDirtyRegions;
-    markPathDirty: typeof markPathDirty;
-    testToolIntegration: () => void;
-  }
-}
-
-window.testDirtyRectangles = () => {
-  console.log("🧪 Testing dirty rectangle tracking...");
-  
-  // Mark some test dirty regions
-  markDirty(10, 10, 100, 100);
-  markDirty(200, 200, 50, 50);
-  
-  // Get stats
-  const stats = getDirtyRectangleStats();
-  console.log("📊 Dirty rectangle stats:", stats);
-  
-  // Clear and test again
-  clearDirtyRegions();
-  const clearedStats = getDirtyRectangleStats();
-  console.log("🧹 After clearing:", clearedStats);
-  
-  console.log("✅ Dirty rectangle tracking is working!");
-};
-
-/**
- * Make dirty rectangle functions available globally for testing
- */
-window.markDirty = markDirty;
-window.getDirtyRectangleStats = getDirtyRectangleStats;
-window.clearDirtyRegions = clearDirtyRegions;
-window.markPathDirty = markPathDirty;
-
-// Add optimization stats function
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-(window as any).getOptimizationStats = () => {
-  const clearEfficiency = totalClears > 0 ? Math.round((partialClears / totalClears) * 100) / 100 : 0;
-  const pathEfficiency = totalPathsRendered > 0 ? Math.round((selectivePathsRendered / totalPathsRendered) * 100) / 100 : 0;
-  
-  return {
-    // Step 3: Dirty rectangle clearing stats
-    clearStats: {
-      totalClears,
-      fullClears,
-      partialClears,
-      efficiency: clearEfficiency
-    },
-    // Step 4: Selective path redrawing stats
-    pathStats: {
-      totalPathsRendered,
-      selectivePathsRendered,
-      fullPathRenders,
-      efficiency: pathEfficiency
-    },
-    // Overall performance
-    overallEfficiency: Math.round(((clearEfficiency + pathEfficiency) / 2) * 100) / 100,
-    // 🚀 NEW: Object pooling stats
-    pointPoolStats: pointPool.getStats()
-  };
-};
-
-/**
- * Test the integration with tools
- */
-window.testToolIntegration = () => {
-  console.log("🧪 Testing tool integration...");
-  
-  // Clear any existing dirty regions
-  clearDirtyRegions();
-  
-  // Simulate adding a path (like StrokeToolBase does)
-  const testPoints = [
-    {x: 100, y: 100},
-    {x: 150, y: 120},
-    {x: 200, y: 100}
-  ];
-  const testPen = {type: "pencil" as const, size: 20, color: "#000000"};
-  
-  markPathDirty(testPoints, testPen);
-  
-  const stats = getDirtyRectangleStats();
-  console.log("📊 After marking path dirty:", stats);
-  
-  // Simulate panning (like PanTool does)
-  markFullRedraw();
-  
-  const panStats = getDirtyRectangleStats();
-  console.log("📊 After marking full redraw:", panStats);
-  
-  console.log("✅ Tool integration is working!");
-};
+// Removed window-attached debug/test helpers to avoid global pollution
 
 export type Getters = {
   canvas: HTMLCanvasElement;
