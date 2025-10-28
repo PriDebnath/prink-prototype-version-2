@@ -61,6 +61,15 @@ export default function CanvasPage() {
     appStateRef.current = appState;
   }, [appState]);
 
+  // Keep refs in sync with latest state without re-attaching listeners
+  useEffect(() => {
+    activeToolRef.current = activeTool;
+  }, [activeTool]);
+
+  useEffect(() => {
+    appStateRef.current = appState;
+  }, [appState]);
+
   // Resize handling + initial one-shot draw
   useEffect(() => {
     const gridCanvas = gridCanvasRef.current!;
@@ -90,9 +99,9 @@ export default function CanvasPage() {
       draw({
         canvas: drawingCanvas,
         gridCanvas: gridCanvas,
-        getState: getters.getState,
-        getActiveTool: getters.getActiveTool,
-        getAppState: getters.getAppState,
+        getState: () => canvasStateRef.current,
+        getActiveTool: () => activeToolRef.current,
+        getAppState: () => appStateRef.current,
       });
     };
 
@@ -144,9 +153,9 @@ export default function CanvasPage() {
     draw({
       canvas: drawingCanvas,
       gridCanvas: gridCanvas,
-      getState: getters.getState,
-      getActiveTool: getters.getActiveTool,
-      getAppState: getters.getAppState,
+      getState: () => canvasStateRef.current,
+      getActiveTool: () => activeToolRef.current,
+      getAppState: () => appStateRef.current,
     });
   }, [appState, getters]);
 

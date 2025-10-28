@@ -117,7 +117,8 @@ export class PanTool extends BaseTool {
     onPointerDown(params: ToolEventsParams) {
       const { e, canvasState } = params
       // console.log('pan tool onPointerDown', e, canvasState);
-      if (e.button !== 0) return;
+      // For mouse require left button; for touch/pen accept regardless of button
+      if (e.pointerType === 'mouse' && e.button !== 0) return;
   
       const pointPosition = { x: e.clientX, y: e.clientY };
       this.lastPointPosition = pointPosition
@@ -128,14 +129,20 @@ export class PanTool extends BaseTool {
     onPointerMove(params: ToolEventsParams) {
       const { e, canvasState } = params
       // console.log('pan tool onPointerMove');
-      if (!this.lastPointPosition || !this.activePoints.has(e.pointerId)) return
-      // console.log({ canvasState, lastPointPosition: this.lastPointPosition });
+      if (!this.activePoints.has(e.pointerId)) return
       //@2 Update this pointer's current position
       const pointPosition = { x: e.clientX, y: e.clientY };
       this.activePoints.set(e.pointerId, pointPosition);
       // determine if panning/zooming
       if (this.activePoints?.size >= 2) {
-        this.handlePinchZoom(this.activePoints, canvasState)
+        // If a pinch just started or resumed, seed baseline
+        if (this.lastDistance == null) {
+          const [a, b] = [...this.activePoints.values()]
+          this.lastDistance = this.getDistance(a, b)
+          this.lastCanvasScale = canvasState.scale
+        } else {
+          this.handlePinchZoom(this.activePoints, canvasState)
+        }
       } else if (this.lastPointPosition) {
         this.handlePan(this.lastPointPosition, pointPosition, canvasState)
       }
@@ -146,9 +153,15 @@ export class PanTool extends BaseTool {
       // console.log('pan tool onPointerUp', e, canvasState);
   
       this.lastDistance = null;
-      this.lastPointPosition = null;
       //@3 delete activePoint 
       this.activePoints.delete(e.pointerId)
+      // If one finger remains after a pinch, continue panning from that finger
+      if (this.activePoints.size === 1) {
+        const [remaining] = [...this.activePoints.values()]
+        this.lastPointPosition = remaining
+      } else if (this.activePoints.size === 0) {
+        this.lastPointPosition = null
+      }
     }
   
     handlePinchZoom(activePoints: Map<number, Point>, canvasState: CanvasState) {
