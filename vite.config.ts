@@ -20,13 +20,13 @@ export default defineConfig({
         display: 'standalone',
         background_color: '#ffffff',
         theme_color: '#000000',
-        // icons: [
-        //   {
-        //     src: 'pwa-512x512.png',
-        //     sizes: '512x512',
-        //     type: 'image/png'
-        //   }
-        // ]
+        icons: [
+          {
+            src: 'pwa-512x512.png',
+            sizes: '512x512',
+            type: 'image/png'
+          }
+        ]
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,json}'],
