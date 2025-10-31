@@ -17,6 +17,7 @@ export default defineConfig({
         name: 'Prink 2.0',
         short_name: 'Prink 2.0',
         start_url: '/',
+        scope: '/',
         display: 'standalone',
         background_color: '#ffffff',
         theme_color: '#000000',
