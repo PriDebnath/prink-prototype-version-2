@@ -5,6 +5,8 @@ import { VitePWA } from 'vite-plugin-pwa'
 import routerPlugin  from '@tanstack/router-plugin/vite'
 
 export default defineConfig({
+  // https://vite.dev/config/
+  base: "./", // Set base to relative path for GitHub Pages
   plugins: [
     react(),
     routerPlugin(), // Generate the router code

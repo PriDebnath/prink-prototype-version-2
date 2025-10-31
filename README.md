@@ -12,6 +12,10 @@ https://github.com/user-attachments/assets/77f8b537-eb2e-4b50-b991-a537b385f9a8
 
 ⬇️[Demo Video Download](public/videos/prink-2.mp4)
 
+
+### ↗️ Link
+https://pridebnath.github.io/prink-prototype-version-2
+
 --- 
 ## Prink 2.0 - Canvas Drawing Application
 
