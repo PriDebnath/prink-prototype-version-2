@@ -6,7 +6,8 @@
 </a>
 
 ### 🎥 Video
-https://github.com/user-attachments/assets/9a0f9c9e-406c-42e9-9219-37a58b25b05a
+
+https://github.com/user-attachments/assets/77f8b537-eb2e-4b50-b991-a537b385f9a8
 
 
 ⬇️[Demo Video Download](public/videos/prink-2.mp4)
