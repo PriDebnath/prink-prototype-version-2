@@ -14,19 +14,19 @@ export default defineConfig({
       registerType: 'autoUpdate',   // SW auto updates when you deploy a new build
       includeAssets: ['favicon.ico', 'robots.txt', 'offline.html'],
       manifest: {
-        name: 'My Drawing App',
-        short_name: 'DrawApp',
+        name: 'Prink 2.0',
+        short_name: 'Prink 2.0',
         start_url: '/',
         display: 'standalone',
         background_color: '#ffffff',
         theme_color: '#000000',
-        icons: [
-          {
-            src: 'pwa-512x512.png',
-            sizes: '512x512',
-            type: 'image/png'
-          }
-        ]
+        // icons: [
+        //   {
+        //     src: 'pwa-512x512.png',
+        //     sizes: '512x512',
+        //     type: 'image/png'
+        //   }
+        // ]
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,json}'],
