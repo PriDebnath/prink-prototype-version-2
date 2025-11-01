@@ -1,27 +1,18 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/x-icon" href="./favicon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Prink</title>
+    <meta http-equiv="refresh" content="0; url=/" />
     <script>
-      // GitHub Pages 404.html for SPA support
-      // Store the full URL path in sessionStorage before redirecting
-      var path = window.location.pathname;
-      var search = window.location.search;
-      var fullPath = path + search;
-      
-      // Store in sessionStorage for the app to read
-      sessionStorage.setItem('redirect', fullPath);
-      
-      setTimeout(() => {
-      // Redirect to index.html - the app will restore the path
-      window.location.replace('./index.html');
-    }, 3000);
+      // This handles redirecting to the correct path after reload
+      const redirect = sessionStorage.redirect;
+      if (redirect && redirect !== location.href) {
+        sessionStorage.removeItem("redirect");
+        window.history.replaceState(null, null, redirect);
+      }
     </script>
   </head>
   <body>
-    <p>Redirecting... in 3 seconds...</p>
+    <p>Redirecting... in a second...</p>
   </body>
 </html>
