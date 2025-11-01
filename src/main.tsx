@@ -22,7 +22,7 @@ console.log({basepath});
 
 const router = createRouter({
   routeTree,
-  // basepath,
+  basepath,
 });
 
 declare module "@tanstack/react-router" {
