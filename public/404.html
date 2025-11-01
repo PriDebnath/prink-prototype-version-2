@@ -12,6 +12,7 @@
     const hostname = window.location.hostname
     const protocol = window.location.protocol
     const href = window.location.href
+    const ancestorOrigins = window.location.ancestorOrigins
     const redirectTo = pathname + window.location.search + window.location.hash;
 
     // Store it temporarily
@@ -22,10 +23,15 @@
       origin,
       port,
       hostname,
+  
+    });
+
+    console.log({
       protocol,
       href,
       redirectTo,
-    });
+      ancestorOrigins,
+    })
 
     // Redirect to the app root (index.html)
     window.location.replace(  '/prink-prototype-version-2/');
