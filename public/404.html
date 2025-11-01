@@ -13,7 +13,7 @@
     // Store it temporarily
     sessionStorage.redirect = redirectTo;
 
-    console.log({ redirectTo, pathname, basepath });
+    console.log({ redirectTo, pathname, basepath, location: window.location });
 
     // Redirect to the app root (index.html)
     window.location.replace('/prink-prototype-version-2/');
