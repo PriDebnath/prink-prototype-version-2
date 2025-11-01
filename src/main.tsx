@@ -12,7 +12,7 @@ import { createRouter, RouterProvider } from '@tanstack/react-router'
 const redirectPath = sessionStorage.getItem('redirect');
 if (redirectPath && redirectPath !== window.location.pathname + window.location.search + window.location.hash) {
   sessionStorage.removeItem('redirect');
-  // Restore the path before router initializes
+  // Restore the path (from 404.html) before router initializes
   // redirectPath already includes pathname, query, and hash
   window.history.replaceState(null, '', redirectPath);
 }

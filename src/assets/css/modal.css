@@ -43,7 +43,7 @@
 .modal {
   transform: translateY(30rem);
   
- animation: bubblePop  calc(var(--delay)* 1) ease forwards;
+ animation: bubblePop  calc(var(--delay)* 0.5) ease forwards;
   
   background: rgba(45, 40, 0, 0.6);
   /* background: linear-gradient(120deg, var(--sunlight) 0%, var(--transition) 50%, var(--winter) 100%); */
