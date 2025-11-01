@@ -2,17 +2,22 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta http-equiv="refresh" content="0; url=/" />
+    <title>Redirecting...</title>
     <script>
-      // This handles redirecting to the correct path after reload
-      const redirect = sessionStorage.redirect;
-      if (redirect && redirect !== location.href) {
-        sessionStorage.removeItem("redirect");
-        window.history.replaceState(null, null, redirect);
-      }
+      // Save the current path, query, and hash (e.g. /canvas/123?x=1#section)
+      const redirectTo =
+        window.location.pathname + window.location.search + window.location.hash;
+      
+      // Store it temporarily
+      sessionStorage.redirect = redirectTo;
+
+      // Redirect to the app root (index.html)
+      window.location.replace("/");
     </script>
   </head>
   <body>
-    <p>Redirecting... in a second...</p>
+    <noscript>
+      <meta http-equiv="refresh" content="0; url=/" />
+    </noscript>
   </body>
 </html>
