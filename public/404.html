@@ -1,24 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Redirecting...</title>
-    <script>
-      // Save the current path, query, and hash (e.g. /canvas/123?x=1#section)
-      const redirectTo =
-        window.location.pathname + window.location.search + window.location.hash;
-      
-      // Store it temporarily
-      sessionStorage.redirect = redirectTo;
 
-      console.log({redirectTo});
-      // Redirect to the app root (index.html)
-      window.location.replace(redirectTo);
-    </script>
-  </head>
-  <body>
-    <noscript>
-      <!-- <meta http-equiv="refresh" content="0; url=/prink-prototype-version-2/" /> -->
-    </noscript>
-  </body>
+<head>
+  <meta charset="UTF-8" />
+  <title>Redirecting...</title>
+  <script>
+    // Save the current path, query, and hash (e.g. /canvas/123?x=1#section)
+    const pathname = window.location.pathname
+    const redirectTo = pathname + window.location.search + window.location.hash;
+
+    // Store it temporarily
+    sessionStorage.redirect = redirectTo;
+
+    console.log({ redirectTo, pathname });
+
+    // Redirect to the app root (index.html)
+    window.location.replace(pathname);
+  </script>
+</head>
+
+<body>
+  <noscript>
+    <!-- <meta http-equiv="refresh" content="0; url=/prink-prototype-version-2/" /> -->
+  </noscript>
+</body>
+
 </html>
