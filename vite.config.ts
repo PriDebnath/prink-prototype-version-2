@@ -7,7 +7,7 @@ import routerPlugin  from '@tanstack/router-plugin/vite'
 export default defineConfig({
   // https://vite.dev/config/
   // base: "./", // Set base to relative path for GitHub Pages
-  base: "/prink-prototype-version-2/",
+  base: "https://pridebnath.github.io/prink-prototype-version-2/",
   plugins: [
     react(),
     routerPlugin(), // Generate the router code
