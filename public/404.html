@@ -5,7 +5,7 @@
     <link rel="icon" type="image/x-icon" href="./favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Prink</title>
-    <!-- <script>
+    <script>
       // GitHub Pages 404.html for SPA support
       // Store the full URL path in sessionStorage before redirecting
       var path = window.location.pathname;
@@ -15,11 +15,13 @@
       // Store in sessionStorage for the app to read
       sessionStorage.setItem('redirect', fullPath);
       
+      setTimeout(() => {
       // Redirect to index.html - the app will restore the path
       window.location.replace('./index.html');
-    </script> -->
+    }, 3000);
+    </script>
   </head>
   <body>
-    <p>Redirecting...</p>
+    <p>Redirecting... in 3 seconds...</p>
   </body>
 </html>
