@@ -107,7 +107,8 @@ canvas {
 }
 
 .card {
-  background: linear-gradient(120deg, var(--sunlight) 0%, var(--transition) 50%, var(--winter) 100%);
+  /* background: linear-gradient(120deg, var(--sunlight) 0%, var(--transition) 50%, var(--winter) 100%); */
+  background-color: transparent;
   padding: var(--space);
   border-radius: calc(var(--border-radius) * 0.5);
   padding: calc(var(--space) * 4);

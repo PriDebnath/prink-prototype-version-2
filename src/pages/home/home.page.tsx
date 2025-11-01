@@ -123,7 +123,7 @@ export default function Index() {
               background: 'var(--accent)',
               color: 'white',
               border: 'none',
-              borderRadius: 'calc(var(--border-radius) * 0.5)',
+              borderRadius: 'calc(var(--border-radius) * 0.5) !important',
               cursor: 'pointer',
               fontSize: 'var(--font-size)',
               fontWeight: 'bold',
@@ -137,7 +137,6 @@ export default function Index() {
           >
             + Create New Prink
           </button>
-          <p style={{ margin: '0', fontSize: '0.7rem', opacity: 0.7 }}>Deployed: {formattedDate}</p>
         </div>
       </div>
 
@@ -263,6 +262,12 @@ export default function Index() {
           </div>
         )}
       </div>
+
+      <p style={{
+         margin: '0', fontSize: '0.7rem',
+          opacity: 0.7, textAlign: 'right', 
+         padding: 'var(--space)' }}>Deployed: {formattedDate}</p>
+
     </div>
   )
 }
