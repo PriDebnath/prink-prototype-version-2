@@ -78,3 +78,4 @@ export default defineConfig({
     }),
   ],
 })
+// update after PWA
