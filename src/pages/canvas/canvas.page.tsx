@@ -10,6 +10,7 @@ import type { Tool, CanvasState, AppState } from "../../types";
 import { draw, startDrawingLoop, stopDrawingLoop, type Getters } from "../../utils/drawing";
 import { useParams } from "@tanstack/react-router";
 import { CANVAS_PRESETS } from "./presets";
+import { storage } from "../../utils/storage";
 
 
 export default function CanvasPage() {
@@ -121,9 +122,11 @@ export default function CanvasPage() {
     };
   }, [getters]); // run once
 
-  // Load preset by canvasId when route changes
+  // Load preset or saved prink by canvasId when route changes
   useEffect(() => {
     if (!canvasId) return;
+    
+    // Check if it's a preset first
     const preset = CANVAS_PRESETS[canvasId];
     if (preset) {
       canvasStateRef.current = {
@@ -131,19 +134,77 @@ export default function CanvasPage() {
         ...preset,
         device: canvasStateRef.current.device,
       } as CanvasState;
-      const drawingCanvas = getters.canvas;
-      const gridCanvas = getters.gridCanvas;
-      if (drawingCanvas && gridCanvas) {
-        draw({
-          canvas: drawingCanvas,
-          gridCanvas: gridCanvas,
-          getState: getters.getState,
-          getActiveTool: getters.getActiveTool,
-          getAppState: getters.getAppState,
-        });
+    } else {
+      // Check if it's a saved prink
+      const savedPrink = storage.getPrink(canvasId);
+      if (savedPrink && savedPrink.canvasState) {
+        canvasStateRef.current = {
+          ...canvasStateRef.current,
+          ...savedPrink.canvasState,
+          device: canvasStateRef.current.device,
+        } as CanvasState;
+      } else {
+        // New prink - start with empty state but ensure it exists in storage
+        const existingPrink = storage.getPrink(canvasId);
+        if (!existingPrink) {
+          // Create new prink entry
+          storage.savePrink({
+            id: canvasId,
+            name: `Prink ${new Date().toLocaleDateString()}`,
+            canvasState: {
+              scale: canvasStateRef.current.scale,
+              offset: canvasStateRef.current.offset,
+              paths: [],
+              lasso: [],
+              selectedIds: [],
+              currentPath: null,
+            },
+          });
+        }
       }
     }
+
+    const drawingCanvas = getters.canvas;
+    const gridCanvas = getters.gridCanvas;
+    if (drawingCanvas && gridCanvas) {
+      draw({
+        canvas: drawingCanvas,
+        gridCanvas: gridCanvas,
+        getState: getters.getState,
+        getActiveTool: getters.getActiveTool,
+        getAppState: getters.getAppState,
+      });
+    }
   }, [canvasId, getters]);
+
+  // Helper function to save the current prink state
+  const saveCurrentPrink = useMemo(() => {
+    return () => {
+      if (!canvasId) return;
+      
+      // Don't auto-save presets
+      if (CANVAS_PRESETS[canvasId]) return;
+
+      const currentState = canvasStateRef.current;
+      const savedPrink = storage.getPrink(canvasId);
+      
+      storage.savePrink({
+        id: canvasId,
+        name: savedPrink?.name || `Prink ${new Date().toLocaleDateString()}`,
+        canvasState: {
+          scale: currentState.scale,
+          offset: currentState.offset,
+          paths: currentState.paths,
+          lasso: currentState.lasso,
+          selectedIds: currentState.selectedIds,
+          currentPath: null, // Don't save current path
+        },
+      });
+
+      // Dispatch custom event to update home page if it's open
+      window.dispatchEvent(new CustomEvent('prink-saved'));
+    };
+  }, [canvasId]);
 
   // Redraw one frame when appState (grid toggle, UI changes)
   useEffect(() => {
@@ -188,6 +249,9 @@ export default function CanvasPage() {
       getActiveTool: getters.getActiveTool,
       getAppState: getters.getAppState,
     });
+    
+    // Auto-save after drawing stroke completes
+    saveCurrentPrink();
   };
 
   // Ensure RAF loop stops on unmount
@@ -216,6 +280,7 @@ export default function CanvasPage() {
         canvasState={canvasStateRef.current}
         appState={appState}
         setAppState={setAppState}
+        onClean={saveCurrentPrink}
       />
 
       <Sidebar activeTool={activeTool} setActiveTool={setActiveTool} />

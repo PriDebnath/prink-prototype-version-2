@@ -8,12 +8,14 @@ export const Topbar = ({
   canvasState,
   appState,
   setAppState,
+  onClean,
 }: {
   activeTool: Tool;
   setActiveTool: (tool: Tool) => void;
   canvasState: CanvasState,
   appState: AppState,
-  setAppState: React.Dispatch<React.SetStateAction<AppState>>
+  setAppState: React.Dispatch<React.SetStateAction<AppState>>,
+  onClean?: () => void,
 }) => {
 
   const navigate = useNavigate()
@@ -42,6 +44,7 @@ export const Topbar = ({
       () => {
         canvasState.paths = [];
         setAppState((pri) => ({ ...pri })); // force rerender
+        onClean?.(); // Call save callback if provided
       },
     ],
     [
