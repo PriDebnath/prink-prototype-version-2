@@ -17,8 +17,12 @@ import { createRouter, RouterProvider } from '@tanstack/react-router'
 //   window.history.replaceState(null, '', redirectPath);
 // }
 
+const basepath = import.meta.env.BASE_URL; // auto matches Vite base
+console.log({basepath});
+
 const router = createRouter({
   routeTree,
+  basepath,
 });
 
 declare module "@tanstack/react-router" {
