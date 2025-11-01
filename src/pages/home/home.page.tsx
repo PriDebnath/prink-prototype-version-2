@@ -135,7 +135,7 @@ export default function Index() {
               e.currentTarget.style.opacity = '1';
             }}
           >
-            + Create New Prink
+          Create New Prink
           </button>
         </div>
       </div>
