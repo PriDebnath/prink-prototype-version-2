@@ -4,10 +4,23 @@ import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 import routerPlugin  from '@tanstack/router-plugin/vite'
 
+// Type declaration for process.env in Node environment
+declare const process: {
+  env: {
+    DEPLOYMENT_TIMESTAMP?: string;
+    [key: string]: string | undefined;
+  };
+};
+
 export default defineConfig({
   // https://vite.dev/config/
   // base: "./", // Set base to relative path for GitHub Pages
   base: '/prink-prototype-version-2/',  // for github pages
+  define: {
+    __DEPLOYMENT_TIMESTAMP__: JSON.stringify(
+      process.env.DEPLOYMENT_TIMESTAMP ?? new Date().toISOString()
+    ),
+  },
   plugins: [
     react(),
     routerPlugin(), // Generate the router code
