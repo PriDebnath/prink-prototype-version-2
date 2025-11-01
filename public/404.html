@@ -7,16 +7,28 @@
   <script>
     // Save the current path, query, and hash (e.g. /canvas/123?x=1#section)
     const pathname = window.location.pathname
-    const basepath = window.location.origin;
+    const origin = window.location.origin;
+    const port = window.location.port
+    const hostname = window.location.hostname
+    const protocol = window.location.protocol
+    const href = window.location.href
     const redirectTo = pathname + window.location.search + window.location.hash;
 
     // Store it temporarily
     sessionStorage.redirect = redirectTo;
 
-    console.log({ redirectTo, pathname, basepath, location: window.location });
+    console.log({ 
+      pathname,
+      origin,
+      port,
+      hostname,
+      protocol,
+      href,
+      redirectTo,
+    });
 
     // Redirect to the app root (index.html)
-    window.location.replace('/prink-prototype-version-2/');
+    window.location.replace(  '/prink-prototype-version-2/');
   </script>
 </head>
 
